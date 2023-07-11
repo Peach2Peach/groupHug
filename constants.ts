@@ -9,6 +9,8 @@ const bip32 = BIP32Factory(ecc)
 loadDotenv()
 
 const DEFAULTS = {
+  DB_HOST: 'localhost',
+  DB_PORT: 6379,
   MAXREQUESTRATE: 10,
   MAX_BATCH_SIZE: 100,
   MAX_BATCH_TIME: 43200,
@@ -28,8 +30,8 @@ export const setNetwork = (network: Network) => (NETWORK = network)
 export const {
   NODE_ENV,
   PORT,
-  DB_HOST,
-  DB_PORT,
+  DB_HOST = DEFAULTS.DB_HOST,
+  DB_PORT = DEFAULTS.DB_PORT,
   ZAMMAD_API_URL,
   BLOCKEXPLORERURL,
   LATESTAPPVERSION,
