@@ -6,6 +6,10 @@ const network = NETWORK
 const ECPair = ECPairFactory(ecc)
 
 export const signatureValidator = (publicKey: Buffer, msgHash: Buffer, signature: Buffer) => {
-  const keyPair = ECPair.fromPublicKey(publicKey, { network })
-  return keyPair.verify(msgHash, signature)
+  try {
+    const keyPair = ECPair.fromPublicKey(publicKey, { network })
+    return keyPair.verify(msgHash, signature)
+  } catch (e) {
+    return false
+  }
 }

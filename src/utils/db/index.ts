@@ -12,7 +12,7 @@ export const getDefaultOptions = (opt = {}): RedisClientOptions => ({
 export let db: DatabaseClient
 
 export const initDatabase = (opt?: RedisClientOptions): Promise<void> => {
-  const dbCount = 4
+  const dbCount = 1
   db = new DatabaseClient(
     getDefaultOptions(
       opt || {

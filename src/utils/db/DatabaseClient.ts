@@ -10,7 +10,7 @@ type TransactionFunction = (client: SubClient) => Promise<boolean | void>
 export class DatabaseClient {
   client: ReturnType<typeof createClient>
 
-  constructor (clientOptions?: Partial<RedisClientOptions>) {
+  constructor(clientOptions?: Partial<RedisClientOptions>) {
     if (clientOptions) {
       this.client = createClient({ ...getDefaultOptions(), ...clientOptions })
       this.client.on('error', (err) => logger.error(['Redis Client Error', err]))
@@ -19,7 +19,7 @@ export class DatabaseClient {
     this.client.connect()
   }
 
-  async quit (): Promise<void> {
+  async quit(): Promise<void> {
     await this.client.quit()
   }
 
@@ -28,7 +28,7 @@ export class DatabaseClient {
    * @param pattern key pattern
    * @returns Promise resolving to keys present
    */
-  async keys (pattern: string): Promise<string[]> {
+  async keys(pattern: string): Promise<string[]> {
     return await this.client.keys(pattern)
   }
 
@@ -36,7 +36,7 @@ export class DatabaseClient {
    * @description Method to check if a key exists in the database
    * @param pattern key
    */
-  async exists (key: string): Promise<boolean> {
+  async exists(key: string): Promise<boolean> {
     return (await this.client.exists(key)) === 1
   }
 
@@ -45,7 +45,7 @@ export class DatabaseClient {
    * @param key the key of element
    * @returns Promise resolving to retrieved value
    */
-  async get (key: string): Promise<string> {
+  async get(key: string): Promise<string> {
     return await this.client.get(key)
   }
 
@@ -54,7 +54,7 @@ export class DatabaseClient {
    * @param key the keys of elements
    * @returns Promise resolving to retrieved value
    */
-  async mget (key: string[]): Promise<string[]> {
+  async mget(key: string[]): Promise<string[]> {
     return await this.client.mGet(key)
   }
 
@@ -64,7 +64,7 @@ export class DatabaseClient {
    * @param subkey the key of element
    * @returns Promise resolving to retrieved value
    */
-  async hmget (key: string, subkey: string | string[]): Promise<string[]> {
+  async hmget(key: string, subkey: string | string[]): Promise<string[]> {
     return await this.client.hmGet(key, subkey)
   }
 
@@ -73,7 +73,7 @@ export class DatabaseClient {
    * @param key the key of element
    * @returns Promise resolving to count of members
    */
-  async scard (key: string): Promise<number> {
+  async scard(key: string): Promise<number> {
     return await this.client.sCard(key)
   }
 
@@ -82,7 +82,7 @@ export class DatabaseClient {
    * @param key the key of element
    * @returns Promise resolving to array of set members
    */
-  async smembers (key: string): Promise<string[]> {
+  async smembers(key: string): Promise<string[]> {
     return await this.client.sMembers(key)
   }
 
@@ -91,7 +91,7 @@ export class DatabaseClient {
    * @param key the key of element
    * @returns Promise resolving random member
    */
-  async srandmember (key: string): Promise<string> {
+  async srandmember(key: string): Promise<string> {
     return await this.client.sRandMember(key)
   }
 
@@ -101,7 +101,7 @@ export class DatabaseClient {
    * @param count number of members to pop
    * @returns Promise resolving random members
    */
-  async spop (key: string, count = 1): Promise<string[]> {
+  async spop(key: string, count = 1): Promise<string[]> {
     return await this.client.sPop(key, count)
   }
 
@@ -111,7 +111,7 @@ export class DatabaseClient {
    * @param value the value to check
    * @returns Promise resolving to true or false
    */
-  async sismember (key: string, value: string): Promise<boolean> {
+  async sismember(key: string, value: string): Promise<boolean> {
     return await this.client.sIsMember(key, value)
   }
 
@@ -120,7 +120,7 @@ export class DatabaseClient {
    * @param theKeys the theKeys of elements to intersect
    * @returns Promise resolving to intersecting elements
    */
-  async sinter (theKeys: string[]): Promise<string[]> {
+  async sinter(theKeys: string[]): Promise<string[]> {
     return await this.client.sInter(theKeys)
   }
 
@@ -129,7 +129,7 @@ export class DatabaseClient {
    * @param key the key of element
    * @returns Promise resolving to count of members
    */
-  async sintercard (keys: string[]): Promise<number> {
+  async sintercard(keys: string[]): Promise<number> {
     return await this.client.sInterCard(keys)
   }
 
@@ -138,7 +138,7 @@ export class DatabaseClient {
    * @param theKeys the theKeys of elements to unionise
    * @returns Promise resolving to unionised elements
    */
-  async sunion (theKeys: string[]): Promise<string[]> {
+  async sunion(theKeys: string[]): Promise<string[]> {
     return await this.client.sUnion(theKeys)
   }
 
@@ -149,7 +149,7 @@ export class DatabaseClient {
    * @param stop index to stop at
    * @returns Promise resolving to range in list elements
    */
-  async lrange (key: string, start: number, stop: number): Promise<string[]> {
+  async lrange(key: string, start: number, stop: number): Promise<string[]> {
     return await this.client.lRange(key, start, stop)
   }
 
@@ -162,7 +162,7 @@ export class DatabaseClient {
    * @returns Promise resolving to range in list elements
    */
   // eslint-disable-next-line max-params
-  async zrange (
+  async zrange(
     key: string,
     start: number | '-inf' = '-inf',
     stop: number | '+inf' = '+inf',
@@ -179,7 +179,7 @@ export class DatabaseClient {
   }
 
   // eslint-disable-next-line max-params
-  async zrangewithscores (
+  async zrangewithscores(
     key: string,
     start: number | '-inf' = '-inf',
     stop: number | '+inf' = '+inf',
@@ -202,7 +202,7 @@ export class DatabaseClient {
    * @param keys the keys to intersect
    * @returns Promise resolving to a list of elements that exist in all intersected sets
    */
-  async zinter (keys: string[]): Promise<string[]> {
+  async zinter(keys: string[]): Promise<string[]> {
     return await this.client.zInter(keys)
   }
 
@@ -214,7 +214,7 @@ export class DatabaseClient {
    * @param byScore if true, get range by score
    * @returns Promise resolving to range in list elements
    */
-  async zrevrange (
+  async zrevrange(
     key: string,
     start: number | '-inf' = '-inf',
     stop: number | '+inf' = '+inf',
@@ -233,7 +233,7 @@ export class DatabaseClient {
    * @param stop index to stop at
    * @returns Promise resolving to number of elements in sorted set
    */
-  async zcount (key: string, start: number | '-inf' = '-inf', stop: number | '+inf' = '+inf'): Promise<number> {
+  async zcount(key: string, start: number | '-inf' = '-inf', stop: number | '+inf' = '+inf'): Promise<number> {
     return await this.client.zCount(key, String(start), String(stop))
   }
 
@@ -243,7 +243,7 @@ export class DatabaseClient {
    * @param amount amount to incr the score
    * @param value the value to affect
    */
-  async zincrby (key: string, amount: number, value: string): Promise<any> {
+  async zincrby(key: string, amount: number, value: string): Promise<any> {
     return await this.client.zIncrBy(key, amount, value)
   }
 
@@ -252,11 +252,11 @@ export class DatabaseClient {
    * @param key the keys of the list
    * @returns Promise resolving to number of elements in sorted set
    */
-  async zcard (key: string): Promise<number> {
+  async zcard(key: string): Promise<number> {
     return await this.client.ZCARD(key)
   }
 
-  async zpopmin (key: string): Promise<string | undefined> {
+  async zpopmin(key: string): Promise<string | undefined> {
     const item = await this.client.ZPOPMIN(key)
     if (!item) return
     return item.value
@@ -267,7 +267,7 @@ export class DatabaseClient {
    * @param key the category of element
    * @returns Promise resolving to retrieved value
    */
-  async hgetall (key: string): Promise<Record<string, string> | null> {
+  async hgetall(key: string): Promise<Record<string, string> | null> {
     const response = await this.client.hGetAll(key)
 
     if (!response || Object.keys(response).length === 0) return null
@@ -280,7 +280,7 @@ export class DatabaseClient {
    * @param value the field to check existence
    * @returns Promise resolving the result
    */
-  async hexists (key: string, value: string): Promise<boolean> {
+  async hexists(key: string, value: string): Promise<boolean> {
     return await this.client.hExists(key, value)
   }
 
@@ -290,7 +290,7 @@ export class DatabaseClient {
    * @param count number of members to pop
    * @returns Promise resolving random members
    */
-  async lpop (key: string, count = 1): Promise<string[]> {
+  async lpop(key: string, count = 1): Promise<string[]> {
     return await this.client.lPopCount(key, count)
   }
 
@@ -300,7 +300,7 @@ export class DatabaseClient {
    * @param count number of members to pop
    * @returns Promise resolving random members
    */
-  async rpush (key: string, value: string): Promise<number> {
+  async rpush(key: string, value: string): Promise<number> {
     return await this.client.rPush(key, value)
   }
 
@@ -310,7 +310,7 @@ export class DatabaseClient {
    * @param field the name of the field
    * @returns Promise resolving the number of deleted fields
    */
-  async hdel (key: string, field: string): Promise<number> {
+  async hdel(key: string, field: string): Promise<number> {
     return await this.client.hDel(key, field)
   }
 
@@ -320,7 +320,7 @@ export class DatabaseClient {
    * @param element the element to retrieve the score from
    * @returns Promise resolving the score of the element in the set, null if the member is not present
    */
-  async zscore (key: string, element: string): Promise<number | null> {
+  async zscore(key: string, element: string): Promise<number | null> {
     return await this.client.zScore(key, element)
   }
 
@@ -332,7 +332,7 @@ export class DatabaseClient {
    *   await client.set('test-key', 'test-val')
    * })
    */
-  transaction (func: TransactionFunction): Promise<TransactionResult> {
+  transaction(func: TransactionFunction): Promise<TransactionResult> {
     return new Promise((resolve, reject) =>
       this.client.executeIsolated(async (isolatedClient) => {
         const multi = isolatedClient.multi()
