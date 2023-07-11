@@ -59,16 +59,14 @@ export const getFinalScript = (
   const sortedSignatures = input.partialSig
     .sort((a, b) => bitcoinScript.indexOf(b.pubkey) - bitcoinScript.indexOf(a.pubkey))
     .map((partialSig) => partialSig.signature)
+    .reverse()
 
   const payment = payments.p2wsh({
     network,
     redeem: {
       network,
       output: bitcoinScript,
-      input:
-        input.partialSig.length === 2
-          ? script.compile([...sortedSignatures, opcodes.OP_FALSE])
-          : script.compile([sortedSignatures[0], opcodes.OP_TRUE]),
+      input: script.compile([opcodes.OP_0, ...sortedSignatures]),
     },
   })
 
