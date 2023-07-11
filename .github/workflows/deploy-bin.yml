@@ -1,0 +1,96 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Server Binary Deploy
+
+# Controls when the action will run.
+on:
+  workflow_dispatch:
+    inputs:
+      server:
+        description: 'The server to deploy to'
+        default: '100.73.83.124'
+        required: true
+        type: string
+      bin-folder:
+        description: 'The directory where the current deploy is'
+        default: '~/grouphug'
+        required: true
+        type: string
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    env:
+      NODE_ENV: development
+      NETWORK: regtest
+      FEE: 2
+      LOGLEVEL_ERROR: ''
+      LOGLEVEL_WARN: ''
+      LOGLEVEL_HTTP: ''
+      LOGLEVEL_INFO: ''
+      LOGLEVEL_DEBUG: ''
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        redis-version: [6.2.5]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Start Redis v${{ matrix.redis-version }}
+        uses: superchargejs/redis-github-action@1.1.0
+        with:
+          redis-version: ${{ matrix.redis-version }}
+
+      - run: npm install
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build-bin
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries
+          path: bin
+  deploy:
+    needs: build
+    runs-on: self-hosted
+
+    steps:
+      - uses: colpal/actions-clean@v1
+        if: ${{ always() }}
+      - uses: actions/download-artifact@master
+        with:
+          name: binaries
+      - name: copy file via scp
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{inputs.server}}
+          username: ubuntu
+          key: ${{ secrets.DEPLOY_REGTEST }}
+          port: 22
+          source: '*'
+          target: '~/tmp-peach-bins'
+          overwrite: true
+      - name: Deploy using ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{inputs.server}}
+          username: ubuntu
+          key: ${{ secrets.DEPLOY_REGTEST }}
+          port: 22
+          timeout: 5m
+          script: |
+            sudo systemctl stop grouphug
+            mv ~/tmp-peach-bins/* ${{inputs.bin-folder}}
+            cd ${{inputs.bin-folder}}
+            chmod +x ./grouphug
+            sudo systemctl start grouphug
+            rm -rf ~/tmp-peach-bins/
