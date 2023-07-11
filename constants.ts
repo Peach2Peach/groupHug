@@ -1,4 +1,4 @@
-import { Network, networks } from 'bitcoinjs-lib'
+import { Network, Transaction, networks } from 'bitcoinjs-lib'
 import { AES, enc } from 'crypto-js'
 import { loadDotenv } from './src/utils/dotenv'
 import BIP32Factory, { BIP32Interface } from 'bip32'
@@ -10,6 +10,9 @@ loadDotenv()
 
 const DEFAULTS = {
   MAXREQUESTRATE: 10,
+  MAX_BATCH_SIZE: 100,
+  MAX_BATCH_TIME: 43200,
+  FEE: 2,
 }
 
 export const PASSWORDPROTECTION = process.env.PASSWORDPROTECTION !== 'false'
@@ -41,7 +44,7 @@ export const {
 } = process.env
 
 // encrypted stuff
-export let { DB_AUTH, ESCROW_PRIVKEY, FEE_COLLECTOR_PUBKEY } = process.env
+export let { DB_AUTH, PRIVKEY, FEE_COLLECTOR_PUBKEY } = process.env
 
 export let decrypted = !PASSWORDPROTECTION
 export const decryptConfig = (password: string) => {
@@ -50,14 +53,17 @@ export const decryptConfig = (password: string) => {
   if (AES.decrypt(DB_AUTH, password).toString(enc.Utf8).length === 0) return false
 
   DB_AUTH = AES.decrypt(DB_AUTH, password).toString(enc.Utf8)
-  ESCROW_PRIVKEY = AES.decrypt(ESCROW_PRIVKEY, password).toString(enc.Utf8)
+  PRIVKEY = AES.decrypt(PRIVKEY, password).toString(enc.Utf8)
   FEE_COLLECTOR_PUBKEY = AES.decrypt(FEE_COLLECTOR_PUBKEY, password).toString(enc.Utf8)
 
   decrypted = true
   return decrypted
 }
 
-export const FEE = Number(process.env.FEE) / 100
+export const MAX_BATCH_SIZE = Number(process.env.MAX_BATCH_SIZE || DEFAULTS.MAX_BATCH_SIZE)
+export const MAX_BATCH_TIME = Number(process.env.MAX_BATCH_TIME || DEFAULTS.MAX_BATCH_TIME)
+export let FEE = Number(process.env.FEE || DEFAULTS.FEE) / 100
+export const setFee = (fee: number) => (FEE = fee)
 
 export let hotWallet: BIP32Interface
 export let feeWallet: BIP32Interface
@@ -72,9 +78,14 @@ export const loadFeeWallet = (xpub: string): BIP32Interface => {
   return feeWallet
 }
 
-export const initEscrow = () => {
-  loadHotWallet(ESCROW_PRIVKEY)
+export const initWallets = () => {
+  loadHotWallet(PRIVKEY)
   loadFeeWallet(FEE_COLLECTOR_PUBKEY)
 }
 
-if (!PASSWORDPROTECTION) initEscrow()
+if (!PASSWORDPROTECTION) initWallets()
+
+export const SIGHASH = {
+  ALL: Transaction.SIGHASH_ALL,
+  SINGLE_ANYONECANPAY: 0x83,
+}

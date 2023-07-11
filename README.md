@@ -27,11 +27,14 @@ The following are used to connect to the database
 - `DB_HOST`: ip, url to database (default: `localhost`)
 - `DB_PORT`: port to database (default: `6379`)
 
+- `MAX_BATCH_SIZE`: the maximum number that can go into a batch (default `100`)
+- `MAX_BATCH_TIME`: maximum time in minutes a batch is open for entry (default `43200`)
+- `FEE`: the fees we take for our service (default `2`)
+
 Multisig related variables
 
 - `PRIVKEY`: private key for co-signing transactions (recommend to use `PASSWORDPROTECTION=true`!)
 - `FEE_COLLECTOR_PUBKEY`: public key to derive addresses for fee collection (recommend to use `PASSWORDPROTECTION=true`!)
-- `FEE`: the fees we take for our service (default `2`)
 
 - `MAXREQUESTRATE`: how many requests per IP address per second (default: `1000`)
 
