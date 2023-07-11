@@ -27,7 +27,7 @@ The following are used to connect to the database
 - `DB_HOST`: ip, url to database (default: `localhost`)
 - `DB_PORT`: port to database (default: `6379`)
 
-Escrow related variables
+Multisig related variables
 
 - `PRIVKEY`: private key for co-signing transactions (recommend to use `PASSWORDPROTECTION=true`!)
 - `FEE_COLLECTOR_PUBKEY`: public key to derive addresses for fee collection (recommend to use `PASSWORDPROTECTION=true`!)
@@ -87,7 +87,7 @@ Now you can run the integration tests
 
 1. Get and install latest bitcoin core release from https://bitcoincore.org/en/download/
 
-⚠️ Verify bitcoin core befre installation, follow the verification guide on the download page.
+⚠️ Verify bitcoin core before installation, follow the verification guide on the download page.
 
 2. configure bitcoin.conf to reflect your environment
    You can find an [example file for regtest here](prefs/bitcoin/regtest/bitcoin.conf).
@@ -99,7 +99,7 @@ Now you can run the integration tests
 and copy the contents you can find [here](prefs/bitcoin/bitcoin.service) and replace user and path to `bitcoind` and the `.bitcoin` folder as required
 
 4. start and enable the service
-`sudo systemctl start bitcoin.service`
+   `sudo systemctl start bitcoin.service`
 
 `sudo systemctl enable bitcoin.service`
 
