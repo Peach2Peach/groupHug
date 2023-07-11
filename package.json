@@ -28,7 +28,6 @@
   "dependencies": {
     "bip174": "^2.0.1",
     "bip32": "^3.0.1",
-    "bip68": "^1.0.4",
     "bitcoinjs-lib": "^6.0.2",
     "bitcoinjs-message": "^2.2.0",
     "cors": "^2.8.5",
