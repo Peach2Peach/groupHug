@@ -1,17 +1,15 @@
-import { deepStrictEqual, strictEqual } from 'assert'
+import { deepStrictEqual } from 'assert'
 import { describe, it } from 'mocha'
 import { db } from '..'
-import { sleep } from '../../system'
 import { complexVal, complexValWithFalseValues } from '../../../../test/data/primitiveData'
 
 describe('hset', () => {
   it('should hset a value to database with expiration date', async () => {
     await db.transaction(async (client) => {
-      await client.hset('expiring-hm-key', complexVal, 30)
+      await client.hset('expiring-hm-key', complexVal, 4000)
     })
     deepStrictEqual(await db.hgetall('expiring-hm-key'), complexVal)
-    await sleep(40)
-    strictEqual(await db.get('expiring-hm-key'), null)
+    deepStrictEqual(await db.client.ttl('expiring-hm-key'), 4)
   })
 
   it('should set a object as hashmap to database', async () => {

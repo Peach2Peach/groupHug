@@ -10,4 +10,7 @@ describe('hgetall', () => {
     })
     deepStrictEqual(await db.hgetall('test-hm-key-2'), complexVal)
   })
+  it('should get a return null if no entry is in database', async () => {
+    deepStrictEqual(await db.hgetall('test-hm-key-2'), null)
+  })
 })

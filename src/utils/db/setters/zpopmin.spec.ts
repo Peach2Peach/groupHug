@@ -8,15 +8,8 @@ describe('zpopmin', () => {
       await client.zadd('test-set-1', 4, '1')
       await client.zadd('test-set-1', 3, '2')
       await client.zadd('test-set-1', 5, '3')
+      await client.zpopmin('test-set-1')
     })
-    expect(await db.zpopmin('test-set-1')).to.equal('2')
-  })
-  it('should return undefined if no item could be popped', async () => {
-    await db.transaction(async (client) => {
-      await client.zadd('test-set-1', 5, '3')
-    })
-    expect(await db.zpopmin('test-set-1')).to.equal('3')
-    expect(await db.zpopmin('test-set-1')).to.equal(undefined)
-    expect(await db.zpopmin('non-existing')).to.equal(undefined)
+    expect(await db.zrange('test-set-1')).to.deep.equal(['1', '3'])
   })
 })

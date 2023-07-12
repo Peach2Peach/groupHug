@@ -1,7 +1,6 @@
 import { deepStrictEqual } from 'assert'
 import { describe, it } from 'mocha'
 import { db } from '..'
-import { sleep } from '../../system'
 
 describe('sunionstore', () => {
   it('should store the result of a union', async () => {
@@ -30,11 +29,10 @@ describe('sunionstore', () => {
       await client.sunionstore(
         'test-set-union-store-union-expire',
         ['test-set-union-store-1', 'test-set-union-store-2'],
-        50,
+        5000,
       )
     })
+    deepStrictEqual(await db.client.ttl('test-set-union-store-union-expire'), 5)
     deepStrictEqual(await db.smembers('test-set-union-store-union-expire'), ['1', '2', '3', '4', '5'])
-    await sleep(52)
-    deepStrictEqual(await db.smembers('test-set-union-store-union-expire'), [])
   })
 })

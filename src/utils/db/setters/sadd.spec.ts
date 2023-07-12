@@ -1,4 +1,4 @@
-import { deepStrictEqual, ok } from 'assert'
+import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { db } from '..'
 
@@ -8,7 +8,7 @@ describe('sadd', () => {
       await client.sadd('test-set-key', '1')
     })
 
-    deepStrictEqual(await db.smembers('test-set-key'), ['1'])
+    expect(await db.smembers('test-set-key')).to.deep.equal(['1'])
 
     await db.transaction(async (client) => {
       await client.sadd('test-set-key', 'a')
@@ -16,10 +16,10 @@ describe('sadd', () => {
     })
 
     const entry = await db.smembers('test-set-key')
-    ok(entry.length === 3)
-    ok(entry.indexOf('1') !== -1)
-    ok(entry.indexOf('a') !== -1)
-    ok(entry.indexOf('b') !== -1)
+    expect(entry.length).to.equal(3)
+    expect(entry.indexOf('1')).not.to.equal(-1)
+    expect(entry.indexOf('a')).not.to.equal(-1)
+    expect(entry.indexOf('b')).not.to.equal(-1)
   })
   it('should add multiple members to a set', async () => {
     const members = ['1', '2']
@@ -27,6 +27,6 @@ describe('sadd', () => {
       await client.sadd('test-set-key', members)
     })
 
-    deepStrictEqual(await db.smembers('test-set-key'), members)
+    expect(await db.smembers('test-set-key')).to.deep.equal(members)
   })
 })
