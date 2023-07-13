@@ -1,0 +1,1 @@
+export { validatePSBT } from './validatePSBT'

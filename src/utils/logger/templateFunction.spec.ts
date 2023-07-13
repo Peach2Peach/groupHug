@@ -14,9 +14,9 @@ describe('templateFunction', () => {
 
     const result = templateFunction(log)
 
-    const expected =
+    const expected
       // eslint-disable-next-line max-len
-      'info: Bitcoin: 2023-07-11 12:34:56: New transaction detected\nError: Insufficient funds\n    at processTransaction (wallet.js:123)'
+      = 'info: Bitcoin: 2023-07-11 12:34:56: New transaction detected\nError: Insufficient funds\n    at processTransaction (wallet.js:123)'
     expect(result).to.equal(expected)
   })
   it('should return the formatted log message without stack if not available', () => {
