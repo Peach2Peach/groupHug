@@ -11,7 +11,7 @@ export const mockGetTx = (
   Sinon.stub(fetch, 'default')
     .withArgs(`${BLOCKEXPLORERURL}/tx/${txId}`)
     .resolves({
-      json: () => new Promise((resolve) => resolve(result)),
+      json: () => Promise.resolve(result),
       status,
     } as Response)
 }
