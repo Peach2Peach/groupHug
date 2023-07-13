@@ -10,6 +10,15 @@ describe('transaction', () => {
   afterEach(() => {
     Sinon.restore()
   })
+  it('should execute transaction and return transaction result', async () => {
+    const result = await db.transaction(async (client) => {
+      await client.set('test', 1)
+      return 'myResult'
+    })
+    expect(result.isOk()).to.be.true
+    expect(result.getResult()).to.equal('myResult')
+    expect(await db.get('test')).to.equal('1')
+  })
   it('should discard transaction if transaction function returns false', async () => {
     const result = await db.transaction(async (client) => {
       await client.set('test', 1)
@@ -32,7 +41,9 @@ describe('transaction', () => {
   it('should retry on optimistic locking failured', async () => {
     const multiStub = {
       set: Sinon.stub(),
-      exec: Sinon.stub().resolves('ok').onSecondCall().resolves(null),
+      exec: Sinon.stub().resolves('ok')
+        .onSecondCall()
+        .resolves(null),
       discard: Sinon.stub(),
     }
 
