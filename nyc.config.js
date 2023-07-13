@@ -1,5 +1,5 @@
 module.exports = {
-  exclude: '**/*.spec.ts',
+  exclude: ['**/*.spec.ts', 'test/**/*', 'constants.ts'],
   'check-coverage': true,
   reporter: 'html',
   statements: 100,

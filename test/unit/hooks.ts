@@ -1,8 +1,20 @@
 /* eslint-disable max-len */
 import { networks } from 'bitcoinjs-lib'
 import { SinonStub } from 'sinon'
-import { setFee, setNetwork } from '../../constants'
-import { db, disconnectDatabases, initDatabase, setClients } from '../../src/utils/db'
+import {
+  FEE_COLLECTOR_PUBKEY,
+  NETWORK,
+  PRIVKEY,
+  setFee,
+  setNetwork,
+} from '../../constants'
+import {
+  db,
+  disconnectDatabases,
+  initDatabase,
+  setClients,
+} from '../../src/utils/db'
+import { initWallets } from '../../src/wallets/initWallets'
 
 let dbId: number
 
@@ -10,7 +22,7 @@ export let fetchStub: SinonStub
 export const mochaHooks = {
   beforeAll: async () => {
     setFee(2)
-
+    initWallets(PRIVKEY, FEE_COLLECTOR_PUBKEY, NETWORK)
     if (!dbId) {
       await initDatabase({ database: 7 })
       // eslint-disable-next-line require-atomic-updates

@@ -3,11 +3,7 @@ export const traverse = (obj: Record<string, any>, path: string) => {
   let val = obj
   while (keys.length && val) {
     const key = keys.shift()
-    try {
-      val = val[key] ? val[key] : null
-    } catch (e) {
-      val = null
-    }
+    val = val[key] ? val[key] : null
   }
   return val
 }

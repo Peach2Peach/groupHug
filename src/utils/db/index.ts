@@ -12,20 +12,10 @@ export const getDefaultOptions = (opt = {}): RedisClientOptions => ({
 export let db: DatabaseClient
 
 export const initDatabase = (opt?: RedisClientOptions): Promise<void> => {
-  const dbCount = 1
-  db = new DatabaseClient(
-    getDefaultOptions(
-      opt || {
-        database: 0,
-      },
-    ),
-  )
+  db = new DatabaseClient(getDefaultOptions(opt))
   return new Promise((resolve) => {
-    let done = 0
-
     const checkReady = () => {
-      done += 1
-      if (done === dbCount) resolve()
+      resolve()
     }
 
     db.client.on('ready', checkReady)

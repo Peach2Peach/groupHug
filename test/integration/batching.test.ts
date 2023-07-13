@@ -1,16 +1,9 @@
 import { networks, payments, Psbt } from 'bitcoinjs-lib'
 import { expect } from 'chai'
 import { before, describe, it } from 'mocha'
-import {
-  FEE,
-  feeWallet,
-  hotWallet,
-  loadFeeWallet,
-  loadHotWallet,
-  NETWORK,
-  setNetwork,
-  SIGHASH,
-} from '../../constants'
+import { FEE, NETWORK, setNetwork, SIGHASH } from '../../constants'
+import { hotWallet, loadHotWallet } from '../../src/wallets/hotWallet'
+import { feeWallet, loadFeeWallet } from '../../src/wallets/feeWallet'
 import { isTestnet } from '../../src/utils/bitcoin'
 import { regtestUtils } from './_regtest'
 import { psbt1, psbt2, psbt3 } from './psbt'
@@ -20,6 +13,7 @@ import { getAddressFromScript } from './helpers/getAddressFromScript'
 import { buildPSBT } from './helpers/buildPSBT'
 import { finalize } from '../../src/utils/psbt/finalize'
 import { signAllInputs } from '../../src/utils/psbt/signAllInputs'
+import { xpriv, xpub } from '../data/walletData'
 
 export const getDerivationPathByIndex = (index: number) =>
   `m/48'/${isTestnet(NETWORK) ? '1' : '0'}'/0'/${index}'`
@@ -37,12 +31,8 @@ export const getFeeAddress = () => {
 describe('peach multisig escrow address', () => {
   before(async () => {
     setNetwork(networks.regtest)
-    loadFeeWallet(
-      'tpubD6NzVbkrYhZ4YHw9d7jrVuwEf2HYPsvxkx369fvg8DU81tt1niPDTjcbUQgWR125iUm13Y6ua6povYR2d18XPxFbg5PFUhse4LC9hpPGpGM',
-    )
-    loadHotWallet(
-      'tprv8ZgxMBicQKsPewi89No5MroZXrGGetMGxWJv74Yng1rrEkU7d8ahfX2YvadTjqfTpxBuVrfqzwHmoY4B7URDVVvPjN3mj8zwvzSq5Nu6Z3e',
-    )
+    loadFeeWallet(xpub, networks.regtest)
+    loadHotWallet(xpriv, networks.regtest)
 
     await regtestUtils.mine(11)
   })

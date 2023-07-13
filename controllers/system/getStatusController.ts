@@ -7,5 +7,3 @@ export const getStatusController = (req: GetStatusRequest, res: GetStatusRespons
     serverTime: Date.now(),
   })
 }
-
-export default getStatusController

@@ -1,7 +1,8 @@
 import dotenv from 'dotenv'
+import { parseArgv } from './parseArgv'
 
 export const loadDotenv = () => {
-  const args = require('minimist')(process.argv.slice(2))
+  const args = parseArgv(process.argv.slice(2))
   if (args.dotenvFile) {
     dotenv.config({ path: args.dotenvFile })
   } else {

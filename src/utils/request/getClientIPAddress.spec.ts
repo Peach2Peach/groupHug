@@ -27,7 +27,6 @@ describe('getClientIPAddress', () => {
   it('falls back to ip when ip list is empty and no cf header', () => {
     const request = requestMock({
       ip: 'dummyIp',
-      ips: [],
     })
 
     strictEqual(getClientIPAddress(request as Request), 'dummyIp')

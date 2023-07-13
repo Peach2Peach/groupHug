@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import sinon from 'sinon'
-import { PeachClient } from '../../../middleware/ws'
 
 export const requestMock = (options = {}): Partial<Request> => {
   const ret = {}
@@ -54,9 +53,4 @@ export const responseMock = (options = {}): Partial<Response> => {
     },
     options,
   )
-}
-
-export const peachClientMock = (options = {}): Partial<PeachClient> => {
-  const ret = {}
-  return Object.assign(ret, { socket: { send: sinon.stub().returns(ret) } as any }, options)
 }

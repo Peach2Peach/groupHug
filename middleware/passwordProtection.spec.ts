@@ -8,7 +8,7 @@ import {
   requestMock,
   responseMock,
 } from '../test/unit/controllers/expressMocks'
-import * as constants from '../constants'
+import * as decryptConfig from '../src/utils/system/decryptConfig'
 
 chai.use(sinonChai)
 
@@ -17,7 +17,7 @@ describe('passwordProtection', () => {
     Sinon.restore()
   })
   it('calls next function if decrypted is false and url is /v1/start', () => {
-    Sinon.stub(constants, 'decrypted').get(() => false)
+    Sinon.stub(decryptConfig, 'decrypted').get(() => false)
     const request = requestMock({ url: '/v1/start' })
     const response = responseMock()
     const next = Sinon.stub()
@@ -28,7 +28,7 @@ describe('passwordProtection', () => {
   })
 
   it('returns error if url is any other and decrypted is false', () => {
-    Sinon.stub(constants, 'decrypted').get(() => false)
+    Sinon.stub(decryptConfig, 'decrypted').get(() => false)
 
     const request = requestMock({ url: '/v1/psbt' })
     const response = responseMock()
@@ -43,7 +43,7 @@ describe('passwordProtection', () => {
     })
   })
   it('calls next function if decrypted is true', () => {
-    Sinon.stub(constants, 'decrypted').get(() => true)
+    Sinon.stub(decryptConfig, 'decrypted').get(() => true)
 
     const request = requestMock({ url: '/v1/psbt' })
     const response = responseMock()
