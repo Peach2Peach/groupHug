@@ -1,5 +1,6 @@
 export const KEYS = {
   PSBT: {
+    PREFIX: 'psbt-',
     QUEUE: 'psbt-queue',
   },
   BATCH: 'psbt-batch-',
