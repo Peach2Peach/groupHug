@@ -23,8 +23,8 @@ export const MAXREQUESTRATE = process.env.MAXREQUESTRATE ? Number(process.env.MA
 
 export const SATSINBTC = 100000000
 export const NETWORKID = process.env.NETWORK
-export let NETWORK =
-  NETWORKID === 'testnet' ? networks.testnet : NETWORKID === 'regtest' ? networks.regtest : networks.bitcoin
+export let NETWORK
+  = NETWORKID === 'testnet' ? networks.testnet : NETWORKID === 'regtest' ? networks.regtest : networks.bitcoin
 export const setNetwork = (network: Network) => (NETWORK = network)
 
 export const {
@@ -94,5 +94,13 @@ if (!PASSWORDPROTECTION) initWallets()
 
 export const SIGHASH = {
   ALL: Transaction.SIGHASH_ALL,
-  SINGLE_ANYONECANPAY: 0x83,
+  SINGLE_ANYONECANPAY: Transaction.SIGHASH_SINGLE + Transaction.SIGHASH_ANYONECANPAY,
+}
+
+export const RESPONSE_CODES = {
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  NOT_FOUND: 404,
+  INTERNAL_SERVER_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503,
 }
