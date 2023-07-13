@@ -1,3 +1,5 @@
+/* eslint-disable max-statements */
+/* eslint-disable no-await-in-loop */
 import { networks, payments, Psbt } from 'bitcoinjs-lib'
 import { expect } from 'chai'
 import { before, describe, it } from 'mocha'

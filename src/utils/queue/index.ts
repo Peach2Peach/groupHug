@@ -1,4 +1,4 @@
 export { addPSBTToQueue, addPSBTToQueueWithClient } from './addPSBTToQueue'
 export { getPSBTsFromQueue } from './getPSBTsFromQueue'
-export { registerRevocation } from './registerRevocation'
+export { registerPSBT } from './registerPSBT'
 export { removePSBTFromQueue, removePSBTFromQueueWithClient } from './removePSBTFromQueue'

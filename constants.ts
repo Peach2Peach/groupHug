@@ -11,8 +11,9 @@ const DEFAULTS = {
   DB_HOST: 'localhost',
   DB_PORT: 6379,
   MAXREQUESTRATE: 10,
-  MAX_BATCH_SIZE: 100,
-  MAX_BATCH_TIME: 43200,
+  BATCH_SIZE_THRESHOLD: 100,
+  BATCH_TIME_THRESHOLD: 43200,
+  BUCKETS: 10,
   FEE: 2,
 }
 
@@ -52,8 +53,9 @@ export const {
 // possibly encrypted
 export const { DB_AUTH, PRIVKEY, FEE_COLLECTOR_PUBKEY } = process.env
 
-export const MAX_BATCH_SIZE = Number(process.env.MAX_BATCH_SIZE || DEFAULTS.MAX_BATCH_SIZE)
-export const MAX_BATCH_TIME = Number(process.env.MAX_BATCH_TIME || DEFAULTS.MAX_BATCH_TIME)
+export const BATCH_SIZE_THRESHOLD = Number(process.env.BATCH_SIZE_THRESHOLD || DEFAULTS.BATCH_SIZE_THRESHOLD)
+export const BATCH_TIME_THRESHOLD = Number(process.env.BATCH_TIME_THRESHOLD || DEFAULTS.BATCH_TIME_THRESHOLD)
+export const BUCKETS = Number(process.env.BUCKETS || DEFAULTS.BUCKETS)
 export let FEE = Number(process.env.FEE || DEFAULTS.FEE) / 100
 export const setFee = (fee: number) => (FEE = fee)
 
@@ -69,3 +71,5 @@ export const RESPONSE_CODES = {
   INTERNAL_SERVER_ERROR: 500,
   SERVICE_UNAVAILABLE: 503,
 }
+
+export const MSINS = 1000

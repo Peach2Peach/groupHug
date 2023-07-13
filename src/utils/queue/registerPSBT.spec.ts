@@ -2,11 +2,11 @@ import { expect } from 'chai'
 import { psbt1 } from '../../../test/data/psbtData'
 import { db } from '../db'
 import { KEYS } from '../db/keys'
-import { registerRevocation } from './registerRevocation'
+import { registerPSBT } from './registerPSBT'
 
-describe('removePSBTFromQueue', () => {
-  it('stores psbt with fee rate to queue in database', async () => {
-    const result = await registerRevocation(psbt1)
+describe('registerPSBT', () => {
+  it('stores psbt data', async () => {
+    const result = await registerPSBT(psbt1)
     const { id, revocationToken } = result.getResult()
     expect(await db.hgetall(KEYS.PSBT.PREFIX + id)).to.deep.equal({
       psbt: psbt1.toBase64(),

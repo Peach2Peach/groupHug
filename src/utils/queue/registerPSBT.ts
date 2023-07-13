@@ -5,7 +5,7 @@ import { db } from '../db'
 import { KEYS } from '../db/keys'
 import { SubClient } from '../db/SubClient'
 
-export const registerRevocationWithClient = async (client: SubClient, psbt: Psbt) => {
+export const registerPSBTWithClient = async (client: SubClient, psbt: Psbt) => {
   const base64 = psbt.toBase64()
   const id = sha256(base64)
   const revocationToken = randomUUID().replace(/-/gu, '')
@@ -18,4 +18,4 @@ export const registerRevocationWithClient = async (client: SubClient, psbt: Psbt
   return { id, revocationToken }
 }
 
-export const registerRevocation = (psbt: Psbt) => db.transaction((client) => registerRevocationWithClient(client, psbt))
+export const registerPSBT = (psbt: Psbt) => db.transaction((client) => registerPSBTWithClient(client, psbt))

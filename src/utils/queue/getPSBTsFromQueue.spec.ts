@@ -5,7 +5,7 @@ import { addPSBTToQueueWithClient } from './addPSBTToQueue'
 import { getPSBTsFromQueue } from './getPSBTsFromQueue'
 
 describe('getPSBTsFromQueue', () => {
-  it('get psbts from queue by fee range', async () => {
+  it('get psbts from queue between min gte and max lt', async () => {
     await db.transaction(async (client) => {
       await Promise.all([
         addPSBTToQueueWithClient(client, psbt1, 2),
@@ -14,7 +14,8 @@ describe('getPSBTsFromQueue', () => {
       ])
     })
 
-    expect(await getPSBTsFromQueue(2, 3)).to.deep.equal([psbt1, psbt3])
+    expect(await getPSBTsFromQueue(2, 3)).to.deep.equal([psbt1])
+    expect(await getPSBTsFromQueue(2, 4)).to.deep.equal([psbt1, psbt3])
   })
   it('get all psbts from queue', async () => {
     await db.transaction(async (client) => {

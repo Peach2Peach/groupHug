@@ -36,8 +36,9 @@ The following are used to connect to the database
 - `DB_HOST`: ip, url to database (default: `localhost`)
 - `DB_PORT`: port to database (default: `6379`)
 
-- `MAX_BATCH_SIZE`: the maximum number that can go into a batch (default `100`)
-- `MAX_BATCH_TIME`: maximum time in minutes a batch is open for entry (default `43200`)
+- `BATCH_SIZE_THRESHOLD`: number of entries in bucket that trigger batch when reached (default `100`)
+- `BATCH_TIME_THRESHOLD`: maximum time in minutes a batch is open for entry before batching (default `43200`)
+- `BUCKETS`: number of buckets to batch in (default `10`)
 - `FEE`: the fees we take for our service (default `2`)
 
 Multisig related variables

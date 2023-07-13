@@ -2,7 +2,6 @@ import { Psbt } from 'bitcoinjs-lib'
 import { getTx } from '../../src/utils/electrs'
 import { sum } from '../../src/utils/math'
 import { addPSBTToQueue } from '../../src/utils/queue'
-import { registerRevocation } from '../../src/utils/queue/registerRevocation'
 import { respondWithError } from '../../src/utils/response'
 import { AddPSBTRequest, AddPSBTResponse } from './types'
 
