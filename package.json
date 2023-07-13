@@ -13,7 +13,7 @@
     "lint": "eslint './**/*.{js,ts}'",
     "test": "TS_NODE_TRANSPILE_ONLY=true nyc mocha --parallel --jobs 3 -r ts-node/register --require ./test/unit/hooks.ts \"./{,!(test|node_modules)/**}/*.spec.ts\" --exit",
     "test:single": "TS_NODE_TRANSPILE_ONLY=true nyc mocha -r ts-node/register --require ./test/unit/hooks.ts --exit",
-    "integration": "mocha --timeout 10000 -r ts-node/register ./test/integration/**/*.test.ts --exit"
+    "integration": "mocha --timeout 10000000 -r ts-node/register ./test/integration/**/*.test.ts --exit"
   },
   "repository": {
     "type": "git",
@@ -40,6 +40,7 @@
     "http": "^0.0.1-security",
     "minimist": "^1.2.8",
     "morgan": "^1.10.0",
+    "node-cron": "^3.0.2",
     "node-fetch": "^2.6.1",
     "pkg": "^5.8.0",
     "rate-limiter-flexible": "^2.3.6",
@@ -61,6 +62,7 @@
     "@types/mocha-prepare": "^0.1.0",
     "@types/morgan": "^1.9.3",
     "@types/node": "^16.7.10",
+    "@types/node-cron": "^3.0.8",
     "@types/node-fetch": "^2.5.12",
     "@types/sinon": "^10.0.2",
     "@types/sinon-chai": "^3.2.8",

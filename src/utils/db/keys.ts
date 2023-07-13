@@ -8,4 +8,7 @@ export const KEYS = {
     PENDING: 'transaction-pending',
     CONFIRMED: 'transaction-confirmed',
   },
+  JOB: {
+    PREFIX: 'jobHistory-',
+  },
 }

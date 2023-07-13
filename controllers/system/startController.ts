@@ -1,7 +1,7 @@
 import { FEE, NETWORK } from '../../constants'
 import { decryptConfig, decrypted } from '../../src/utils/system/decryptConfig'
 import { initWallets } from '../../src/wallets/initWallets'
-// import { initJobs } from '../../cronjobs'
+import { initJobs } from '../../cronjobs/initJobs'
 import { initDatabase } from '../../src/utils/db'
 import getLogger from '../../src/utils/logger'
 import { StartRequest, StartResponse } from './types'
@@ -19,8 +19,7 @@ export const startController = async (req: StartRequest, res: StartResponse) => 
     if (decrypted) {
       await initDatabase()
       initWallets(PRIVKEY, FEE_COLLECTOR_PUBKEY, NETWORK)
-      // TODO init jobs
-      // initJobs()
+      initJobs()
       serverLogger.info('Server initialised!')
       serverLogger.info(['Fee:', FEE])
     }
