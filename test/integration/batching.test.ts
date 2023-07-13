@@ -1,25 +1,28 @@
 import { networks, payments, Psbt } from 'bitcoinjs-lib'
 import { expect } from 'chai'
 import { before, describe, it } from 'mocha'
-import { FEE, feeWallet, hotWallet, loadFeeWallet, loadHotWallet, NETWORK, setNetwork, SIGHASH } from '../../constants'
-import { isTestnet, signatureValidator } from '../../src/utils/bitcoin'
+import {
+  FEE,
+  feeWallet,
+  hotWallet,
+  loadFeeWallet,
+  loadHotWallet,
+  NETWORK,
+  setNetwork,
+  SIGHASH,
+} from '../../constants'
+import { isTestnet } from '../../src/utils/bitcoin'
 import { regtestUtils } from './_regtest'
 import { psbt1, psbt2, psbt3 } from './psbt'
 import { buyerAddress, seller } from './signers'
 import { getMultisigScript } from './helpers/getMultisigScript'
-import { getFinalScript } from './helpers/getFinalScript'
 import { getAddressFromScript } from './helpers/getAddressFromScript'
 import { buildPSBT } from './helpers/buildPSBT'
+import { finalize } from '../../src/utils/psbt/finalize'
+import { signAllInputs } from '../../src/utils/psbt/signAllInputs'
 
-export const getDerivationPathByIndex = (index: number) => `m/48'/${isTestnet(NETWORK) ? '1' : '0'}'/0'/${index}'`
-
-export const finalize = (psbt: Psbt) => {
-  if (psbt.validateSignaturesOfAllInputs(signatureValidator)) {
-    psbt.txInputs.forEach((input, i) => psbt.finalizeInput(i, getFinalScript))
-    return psbt.extractTransaction()
-  }
-  throw Error('Signatures invalid for transaction')
-}
+export const getDerivationPathByIndex = (index: number) =>
+  `m/48'/${isTestnet(NETWORK) ? '1' : '0'}'/0'/${index}'`
 
 export const getFeeAddress = () => {
   // TODO make dynamic
@@ -51,9 +54,18 @@ describe('peach multisig escrow address', () => {
     const escrowScript1 = getMultisigScript(seller.publicKey, signer1.publicKey)
     const escrowScript2 = getMultisigScript(seller.publicKey, signer2.publicKey)
     const escrowScript3 = getMultisigScript(seller.publicKey, signer3.publicKey)
-    const fundingUTXO1 = await regtestUtils.faucet(getAddressFromScript(escrowScript1), 100000)
-    const fundingUTXO2 = await regtestUtils.faucet(getAddressFromScript(escrowScript2), 200000)
-    const fundingUTXO3 = await regtestUtils.faucet(getAddressFromScript(escrowScript3), 300000)
+    const fundingUTXO1 = await regtestUtils.faucet(
+      getAddressFromScript(escrowScript1),
+      100000,
+    )
+    const fundingUTXO2 = await regtestUtils.faucet(
+      getAddressFromScript(escrowScript2),
+      200000,
+    )
+    const fundingUTXO3 = await regtestUtils.faucet(
+      getAddressFromScript(escrowScript3),
+      300000,
+    )
     const transaction1 = buildPSBT(escrowScript1, fundingUTXO1, buyerAddress)
     const transaction2 = buildPSBT(escrowScript2, fundingUTXO2, buyerAddress)
     const transaction3 = buildPSBT(escrowScript3, fundingUTXO3, buyerAddress)
@@ -67,23 +79,22 @@ describe('peach multisig escrow address', () => {
 
     const batchedTransaction = new Psbt({ network: networks.regtest })
     const txs = [transaction1, transaction2, transaction3]
-    batchedTransaction.addInputs(txs.map((tx) => ({ ...tx.txInputs[0], ...tx.data.inputs[0] })))
+    batchedTransaction.addInputs(
+      txs.map((tx) => ({ ...tx.txInputs[0], ...tx.data.inputs[0] })),
+    )
     batchedTransaction.addOutputs(txs.map((tx) => tx.txOutputs[0]))
 
     batchedTransaction.addOutput({
       address: getFeeAddress(),
-      value: (fundingUTXO1.value + fundingUTXO2.value + fundingUTXO3.value) * FEE,
+      value:
+        (fundingUTXO1.value + fundingUTXO2.value + fundingUTXO3.value) * FEE,
     })
 
     expect(batchedTransaction.txOutputs.length).to.equal(4)
 
-    batchedTransaction.txInputs.forEach((input, i) => {
-      batchedTransaction.updateInput(i, { sighashType: SIGHASH.ALL })
-      ;[signer1, signer2, signer3].forEach((signer) => {
-        if (!batchedTransaction.data.inputs[i].witnessScript.includes(signer.publicKey)) return
-        batchedTransaction.signInput(i, signer, [SIGHASH.ALL])
-      })
-    })
+    signAllInputs(batchedTransaction, signer1)
+    signAllInputs(batchedTransaction, signer2)
+    signAllInputs(batchedTransaction, signer3)
 
     const finalTransaction = finalize(batchedTransaction)
 
