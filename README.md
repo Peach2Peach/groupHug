@@ -1,5 +1,14 @@
 # GroupHug Server
 
+Batching server that allows combining PSBT into a single batched transaction.
+
+The PSBTs have to be payouts in full (ie no change). Otherwise, the change output can be stolen.
+The PSBT inputs have to be signed with SINGLE|ANYONECANPAY sig hash.
+
+The batching server collects all PSBTs and when a threshold is reached, all PSBTs are combined, an extra fee output added and then each input is signed by the server with the default ALL sig hash.
+
+The batching server will also add one additional output for optional donations to the service. The extra output value is calculated by summing up all inputs and subtracting the mining fees.
+
 ## Prerequisites
 
 ### redis
