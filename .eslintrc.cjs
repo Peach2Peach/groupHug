@@ -250,6 +250,7 @@ module.exports = {
       files: ['**/*.spec.ts', 'test/**/*.ts', '**/*.cjs'],
       rules: {
         'no-magic-numbers': 'off',
+        'max-len': 'off',
         'max-lines-per-function': ['error', 240],
         'max-statements': ['error', 30],
         'no-unused-expressions': 'off',
