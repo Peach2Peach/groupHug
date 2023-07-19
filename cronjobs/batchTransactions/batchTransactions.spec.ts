@@ -16,7 +16,10 @@ chai.use(sinonChai)
 
 describe('batchTransactions', () => {
   let batchBucketStub: SinonStub
-  const psbts = batchQueue.map(({ psbt }) => Psbt.fromBase64(psbt))
+  const psbts = batchQueue.map(({ feeRate, psbt }) => ({
+    feeRate,
+    psbt: Psbt.fromBase64(psbt),
+  }))
   before(() => {
     Sinon.stub(constants, 'BATCH_SIZE_THRESHOLD').get(() => 10)
     Sinon.stub(constants, 'BATCH_TIME_THRESHOLD').get(() => 600)
@@ -25,8 +28,8 @@ describe('batchTransactions', () => {
     batchBucketStub = Sinon.stub(batchBucket, 'batchBucket')
     await db.transaction(async (client) => {
       await Promise.all(
-        batchQueue.map(({ feeRate }, i) =>
-          addPSBTToQueueWithClient(client, psbts[i], feeRate),
+        psbts.map(({ psbt, feeRate }) =>
+          addPSBTToQueueWithClient(client, psbt, feeRate),
         ),
       )
     })

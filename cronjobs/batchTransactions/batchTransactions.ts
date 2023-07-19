@@ -7,7 +7,6 @@ import { batchBucket } from './batchBucket'
 
 const logger = getLogger('job', 'batchTransactions')
 
-// eslint-disable-next-line max-statements
 export const batchTransactions = async () => {
   logger.debug('Start batch process')
 
@@ -21,7 +20,6 @@ export const batchTransactions = async () => {
   const { fastestFee } = feeEstimatesResult.getValue()
   const feeRanges = getFeeRanges(getSteps(fastestFee, BUCKETS))
   const buckets = await Promise.all(feeRanges.map(([min, max]) => getPSBTsFromQueue(min, max)))
-
   const batchCandidates = await Promise.all(buckets.filter(isBucketReadyForBatch))
 
   while (batchCandidates.length) {
