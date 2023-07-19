@@ -1,8 +1,8 @@
 import { Express } from 'express'
 import { addResponseHeaders } from '../../middleware/addResponseHeaders'
 import getLogger from '../../src/utils/logger'
-import {getStatusController} from './getStatusController'
-import {startController} from './startController'
+import { getStatusController } from './getStatusController'
+import { startController } from './startController'
 
 const serverLogger = getLogger('server', 'log')
 

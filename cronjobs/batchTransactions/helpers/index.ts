@@ -1,5 +1,7 @@
 export { getFeeRanges } from './getFeeRanges'
 export { getSteps } from './getSteps'
+export { getTxAndUTXOForInput } from './getTxAndUTXOForInput'
+export { getTxForInput } from './getTxForInput'
 export { hasBucketReachedSizeThreshold } from './hasBucketReachedSizeThreshold'
 export { hasBucketReachedTimeThreshold } from './hasBucketReachedTimeThreshold'
 export { inputIsUnspent } from './inputIsUnspent'

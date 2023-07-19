@@ -5,7 +5,7 @@ import { NETWORK } from '../../constants'
 import * as initJobs from '../../cronjobs/initJobs'
 import * as initDatabase from '../../src/utils/db'
 import * as decryptConfig from '../../src/utils/system/decryptConfig'
-import * as initWallets from '../../src/wallets/initWallets'
+import * as initWallets from '../../src/wallets'
 import { encrypted, unencrypted } from '../../test/data/envData'
 import { xpriv, xpub } from '../../test/data/walletData'
 import {

@@ -1,9 +1,9 @@
 import { FEE, NETWORK } from '../../constants'
-import { decryptConfig, decrypted } from '../../src/utils/system/decryptConfig'
-import { initWallets } from '../../src/wallets/initWallets'
 import { initJobs } from '../../cronjobs/initJobs'
 import { initDatabase } from '../../src/utils/db'
 import getLogger from '../../src/utils/logger'
+import { decryptConfig, decrypted } from '../../src/utils/system/decryptConfig'
+import { initWallets } from '../../src/wallets'
 import { StartRequest, StartResponse } from './types'
 const serverLogger = getLogger('server', 'log')
 

@@ -23,8 +23,8 @@ export const MAXREQUESTRATE = process.env.MAXREQUESTRATE ? Number(process.env.MA
 
 export const SATSINBTC = 100000000
 export const NETWORKID = process.env.NETWORK
-export let NETWORK =
-  NETWORKID === 'testnet' ? networks.testnet : NETWORKID === 'regtest' ? networks.regtest : networks.bitcoin
+export let NETWORK
+  = NETWORKID === 'testnet' ? networks.testnet : NETWORKID === 'regtest' ? networks.regtest : networks.bitcoin
 export const setNetwork = (network: Network) => (NETWORK = network)
 
 export const {
