@@ -2,9 +2,9 @@ import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import Sinon from 'sinon'
 import { BLOCKEXPLORERURL } from '../../../constants'
-import * as fetch from '../../../middleware/fetch'
 import blockExplorerData from '../../../test/data/blockExplorerData.json'
 import { mockGetTx } from '../../../test/unit/helpers/mockGetTx'
+import { fetchStub } from '../../../test/unit/hooks'
 import { getTx } from './getTx'
 
 describe('getTx', () => {
@@ -26,9 +26,7 @@ describe('getTx', () => {
   })
   it('handles unexpected errors', async () => {
     const error = new Error('error')
-    Sinon.stub(fetch, 'default')
-      .withArgs(`${BLOCKEXPLORERURL}/tx/${txId}`)
-      .rejects(error)
+    fetchStub.withArgs(`${BLOCKEXPLORERURL}/tx/${txId}`).rejects(error)
     const result = await getTx(txId)
     expect(result.getError()).to.deep.equal({
       error: 'INTERNAL_SERVER_ERROR',

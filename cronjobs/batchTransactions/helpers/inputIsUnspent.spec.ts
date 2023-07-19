@@ -1,0 +1,22 @@
+import { expect } from 'chai'
+import { psbt1 } from '../../../test/data/psbtData'
+import { inputIsUnspent } from './inputIsUnspent'
+import blockExplorerData from '../../../test/data/blockExplorerData.json'
+
+describe('inputIsUnspent', () => {
+  it('returns true if no input has been spent already', () => {
+    const utxo = blockExplorerData.utxo.map((u: UTXO) => ({
+      ...u,
+      txid: psbt1.txInputs[0].hash.toString('hex'),
+    }))
+    expect(inputIsUnspent(psbt1.txInputs[0], utxo)).to.be.true
+  })
+  it('returns false if any input has been spent already', () => {
+    const utxo = blockExplorerData.utxo.map((u: UTXO) => ({
+      ...u,
+      txid: 'othertxid',
+    }))
+    expect(inputIsUnspent(psbt1.txInputs[0], utxo)).to.be.false
+    expect(inputIsUnspent(psbt1.txInputs[0], [])).to.be.false
+  })
+})

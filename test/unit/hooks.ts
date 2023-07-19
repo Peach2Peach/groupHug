@@ -1,20 +1,15 @@
-/* eslint-disable max-len */
 import { networks } from 'bitcoinjs-lib'
-import { SinonStub } from 'sinon'
-import {
-  FEE_COLLECTOR_PUBKEY,
-  NETWORK,
-  PRIVKEY,
-  setFee,
-  setNetwork,
-} from '../../constants'
+import Sinon, { SinonStub } from 'sinon'
+import { NETWORK, setFee, setNetwork } from '../../constants'
+import * as fetch from '../../middleware/fetch'
 import {
   db,
   disconnectDatabases,
   initDatabase,
   setClients,
 } from '../../src/utils/db'
-import { initWallets } from '../../src/wallets/initWallets'
+import { initWallets } from '../../src/wallets'
+import { unencrypted } from '../data/envData'
 
 let dbId: number
 
@@ -22,7 +17,7 @@ export let fetchStub: SinonStub
 export const mochaHooks = {
   beforeAll: async () => {
     setFee(2)
-    initWallets(PRIVKEY, FEE_COLLECTOR_PUBKEY, NETWORK)
+    initWallets(unencrypted.PRIVKEY, unencrypted.FEE_COLLECTOR_PUBKEY, NETWORK)
     if (!dbId) {
       await initDatabase({ database: 7 })
       // eslint-disable-next-line require-atomic-updates
@@ -36,8 +31,12 @@ export const mochaHooks = {
 
     setNetwork(networks.regtest)
   },
+  beforeEach: () => {
+    fetchStub = Sinon.stub(fetch, 'default')
+  },
 
   afterEach: async () => {
+    Sinon.restore()
     await db.client.sendCommand(['FLUSHDB'])
   },
 }

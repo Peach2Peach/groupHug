@@ -1,10 +1,10 @@
 import { expect } from 'chai'
+import { Response } from 'node-fetch'
 import Sinon from 'sinon'
 import { BLOCKEXPLORERURL } from '../../../constants'
-import * as fetch from '../../../middleware/fetch'
-import { getFeeEstimates } from './getFeeEstimates'
-import { Response } from 'node-fetch'
 import { feeEstimates, rawFeeEstimates } from '../../../test/data/electrsData'
+import { fetchStub } from '../../../test/unit/hooks'
+import { getFeeEstimates } from './getFeeEstimates'
 
 describe('getFeeEstimates', () => {
   afterEach(() => {
@@ -12,12 +12,10 @@ describe('getFeeEstimates', () => {
   })
 
   it('should call fetch with url and return fee recommendation rounded', async () => {
-    Sinon.stub(fetch, 'default')
-      .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
-      .resolves({
-        json: () => Promise.resolve(rawFeeEstimates),
-        status: 200,
-      } as Response)
+    fetchStub.withArgs(`${BLOCKEXPLORERURL}/fee-estimates`).resolves({
+      json: () => Promise.resolve(rawFeeEstimates),
+      status: 200,
+    } as Response)
 
     const result = await getFeeEstimates()
     expect(result.getValue()).to.deep.equal(feeEstimates)
@@ -26,7 +24,7 @@ describe('getFeeEstimates', () => {
   it('should handle errors', async () => {
     const errorMessage = new Error('error message')
 
-    Sinon.stub(fetch, 'default')
+    fetchStub
       .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
       .rejects(errorMessage)
 

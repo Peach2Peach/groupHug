@@ -3,10 +3,16 @@ export const KEYS = {
     PREFIX: 'psbt-',
     QUEUE: 'psbt-queue',
   },
+  BUCKET: {
+    EXPIRATION: 'bucket-expiration-',
+  },
   BATCH: 'psbt-batch-',
   TRANSACTION: {
     PENDING: 'transaction-pending',
     CONFIRMED: 'transaction-confirmed',
+  },
+  FEE: {
+    INDEX: 'fee-address-index',
   },
   JOB: {
     PREFIX: 'jobHistory-',
