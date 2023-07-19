@@ -1,7 +1,6 @@
-import { strictEqual } from 'assert'
+import { expect } from 'chai'
 import { describe, it } from 'mocha'
 import { db } from '..'
-import { expect } from 'chai'
 
 describe('keys', () => {
   it('should return keys for query', async () => {

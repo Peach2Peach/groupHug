@@ -1,10 +1,8 @@
-import { ok } from 'assert'
-import { bitcoin, regtest, testnet } from 'bitcoinjs-lib/src/networks'
-import { describe, it } from 'mocha'
-import { isProduction } from '.'
-import Sinon from 'sinon'
-import * as constants from '../../../constants'
 import { expect } from 'chai'
+import { describe, it } from 'mocha'
+import Sinon from 'sinon'
+import { isProduction } from '.'
+import * as constants from '../../../constants'
 
 describe('isProduction', () => {
   afterEach(() => {
