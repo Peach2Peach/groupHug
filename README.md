@@ -3,6 +3,7 @@
 Batching server that allows combining PSBT into a single batched transaction.
 
 The PSBTs have to be payouts in full (ie no change). Otherwise, the change output can be stolen.
+In other words, only PSBTs with 1 input and 1 output are accepted.
 The PSBT inputs have to be signed with SINGLE|ANYONECANPAY sig hash.
 
 The batching server collects all PSBTs and when a threshold is reached, all PSBTs are combined, an extra fee output added and then each input is signed by the server with the default ALL sig hash.
@@ -37,7 +38,7 @@ The following are used to connect to the database
 - `DB_PORT`: port to database (default: `6379`)
 
 - `BATCH_SIZE_THRESHOLD`: number of entries in bucket that trigger batch when reached (default `100`)
-- `BATCH_TIME_THRESHOLD`: maximum time in minutes a batch is open for entry before batching (default `43200`)
+- `BATCH_TIME_THRESHOLD`: maximum time in seconds a batch is open for entry before batching (default `43200`)
 - `BUCKETS`: number of buckets to batch in (default `10`)
 - `FEE`: the fees we take for our service (default `2`)
 

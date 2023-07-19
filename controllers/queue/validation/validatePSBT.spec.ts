@@ -6,6 +6,7 @@ import sinonChai from 'sinon-chai'
 import { validatePSBT } from './validatePSBT'
 import {
   missingSignature,
+  psbtWith2ndInput,
   psbtWith2ndOutput,
   validEntryPSBTBase64,
   wrongSighash,
@@ -94,7 +95,23 @@ describe('validatePSBT', () => {
       error: 'BAD_REQUEST',
     })
   })
-  it('returns error if psbt different number of inputs and outputs', () => {
+  it('returns error if psbt has more than 2 inputs', () => {
+    const request = requestMock({
+      body: { psbt: psbtWith2ndInput, feeRate: 10 },
+    })
+
+    const response = responseMock()
+    const next = Sinon.stub()
+
+    validatePSBT(request as Request, response as Response, next)
+
+    expect(next).not.to.have.been.called
+    expect(response.status).to.have.been.calledWith(400)
+    expect(response.json).to.have.been.calledWith({
+      error: 'BAD_REQUEST',
+    })
+  })
+  it('returns error if psbt has more than 2 outputs', () => {
     const request = requestMock({
       body: { psbt: psbtWith2ndOutput, feeRate: 10 },
     })
