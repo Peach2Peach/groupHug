@@ -1,6 +1,6 @@
-import { Psbt } from 'bitcoinjs-lib'
+import { PSBTWithFeeRate } from '../../../src/utils/queue/getPSBTsFromQueue'
 import { hasBucketReachedSizeThreshold } from './hasBucketReachedSizeThreshold'
 import { hasBucketReachedTimeThreshold } from './hasBucketReachedTimeThreshold'
 
-export const isBucketReadyForBatch = (bucket: Psbt[], index: number) =>
-  hasBucketReachedSizeThreshold(bucket) || hasBucketReachedTimeThreshold(index)
+export const isBucketReadyForBatch = (bucket: PSBTWithFeeRate[], index: number) =>
+  hasBucketReachedSizeThreshold(bucket.map(({ psbt }) => psbt)) || hasBucketReachedTimeThreshold(index)

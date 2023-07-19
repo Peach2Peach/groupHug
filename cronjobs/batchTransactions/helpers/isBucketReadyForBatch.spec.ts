@@ -13,17 +13,36 @@ describe('isBucketReadyForBatch', () => {
     Sinon.restore()
   })
   it('returns true if the size of the bucket is equal or bigger than the threshold', async () => {
-    expect(await isBucketReadyForBatch([psbt1, psbt2], 1)).to.be.true
-    expect(await isBucketReadyForBatch([psbt1, psbt2, psbt3], 1)).to.be.true
+    expect(
+      await isBucketReadyForBatch(
+        [
+          { feeRate: 1, psbt: psbt1 },
+          { feeRate: 1, psbt: psbt2 },
+        ],
+        1,
+      ),
+    ).to.be.true
+    expect(
+      await isBucketReadyForBatch(
+        [
+          { feeRate: 1, psbt: psbt1 },
+          { feeRate: 1, psbt: psbt2 },
+          { feeRate: 1, psbt: psbt3 },
+        ],
+        1,
+      ),
+    ).to.be.true
   })
   it('returns true if time threshold has been reached', async () => {
-    expect(await isBucketReadyForBatch([psbt1], 1)).to.be.true
+    expect(await isBucketReadyForBatch([{ feeRate: 1, psbt: psbt1 }], 1)).to.be
+      .true
   })
   it('returns false if the size of the bucket less than thethreshold and time threshold has not been reached', async () => {
     await db.transaction(async (client) => {
       await client.set(KEYS.BUCKET.EXPIRATION + '1', true, 1000)
     })
-    expect(await isBucketReadyForBatch([psbt1], 1)).to.be.false
+    expect(await isBucketReadyForBatch([{ feeRate: 1, psbt: psbt1 }], 1)).to.be
+      .false
     expect(await isBucketReadyForBatch([], 1)).to.be.false
   })
 })

@@ -59,7 +59,10 @@ describe('getUnspentPsbts', () => {
   it('checks whether each input has been spent', async () => {
     const filtered = await getUnspentPsbts(bucket)
 
-    expect(filtered).to.deep.equal(bucket)
+    expect(filtered.psbts).to.deep.equal(bucket)
+    expect(filtered.utxos).to.deep.equal(
+      bucket.map((psbt) => psbt.txInputs[0]).map(spiceUTXOWithPSBTInput),
+    )
 
     for (const psbt of bucket) {
       expect(inputIsUnspentStub).to.have.been.calledWith(
@@ -77,7 +80,8 @@ describe('getUnspentPsbts', () => {
     }))
     const filtered = await getUnspentPsbts(bucket)
 
-    expect(filtered).to.deep.equal([])
+    expect(filtered.psbts).to.deep.equal([])
+    expect(filtered.utxos).to.deep.equal([])
     expect(await getPSBTsFromQueue()).to.deep.equal([])
   })
 })

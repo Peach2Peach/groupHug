@@ -2,8 +2,17 @@ import { Psbt } from 'bitcoinjs-lib'
 import { db } from '../db'
 import { KEYS } from '../db/keys'
 
+export type PSBTWithFeeRate = {
+  feeRate: number
+  psbt: Psbt
+}
 const MARGIN = 0.001
-export const getPSBTsFromQueue = async (minFeeRate = 1, maxFeeRate: number = undefined) => {
-  const base64s = await db.zrange(KEYS.PSBT.QUEUE, minFeeRate, maxFeeRate ? maxFeeRate - MARGIN : undefined, true)
-  return base64s.map((base64) => Psbt.fromBase64(base64))
+export const getPSBTsFromQueue = async (minFeeRate = 1, maxFeeRate: number = undefined): Promise<PSBTWithFeeRate[]> => {
+  const entries = await db.zrangewithscores(
+    KEYS.PSBT.QUEUE,
+    minFeeRate,
+    maxFeeRate ? maxFeeRate - MARGIN : undefined,
+    true,
+  )
+  return entries.map(({ score, value }) => ({ feeRate: score, psbt: Psbt.fromBase64(value) }))
 }

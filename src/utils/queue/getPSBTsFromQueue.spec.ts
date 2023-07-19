@@ -14,8 +14,13 @@ describe('getPSBTsFromQueue', () => {
       ])
     })
 
-    expect(await getPSBTsFromQueue(2, 3)).to.deep.equal([psbt1])
-    expect(await getPSBTsFromQueue(2, 4)).to.deep.equal([psbt1, psbt3])
+    expect(await getPSBTsFromQueue(2, 3)).to.deep.equal([
+      { feeRate: 2, psbt: psbt1 },
+    ])
+    expect(await getPSBTsFromQueue(2, 4)).to.deep.equal([
+      { feeRate: 2, psbt: psbt1 },
+      { feeRate: 3, psbt: psbt3 },
+    ])
   })
   it('get all psbts from queue', async () => {
     await db.transaction(async (client) => {
@@ -26,8 +31,8 @@ describe('getPSBTsFromQueue', () => {
       ])
     })
     const queue = await getPSBTsFromQueue()
-    expect(queue).to.deep.include(psbt1)
-    expect(queue).to.deep.include(psbt2)
-    expect(queue).to.deep.include(psbt3)
+    expect(queue).to.deep.include({ feeRate: 2, psbt: psbt1 })
+    expect(queue).to.deep.include({ feeRate: 4, psbt: psbt2 })
+    expect(queue).to.deep.include({ feeRate: 3, psbt: psbt3 })
   })
 })
