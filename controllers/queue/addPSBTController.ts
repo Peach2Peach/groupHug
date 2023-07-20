@@ -5,7 +5,7 @@ import { respondWithError } from '../../src/utils/response'
 import { AddPSBTRequest, AddPSBTResponse } from './types'
 
 export const addPSBTController = async (req: AddPSBTRequest, res: AddPSBTResponse) => {
-  const { psbt: base64, feeRate } = req.body
+  const { psbt: base64, feeRate, index } = req.body
 
   // TODO check network argument on every instance
   const psbt = Psbt.fromBase64(base64)
@@ -16,7 +16,7 @@ export const addPSBTController = async (req: AddPSBTRequest, res: AddPSBTRespons
     return respondWithError(res, 'BAD_REQUEST')
   }
 
-  const result = await addPSBTToQueue(psbt, feeRate)
+  const result = await addPSBTToQueue(psbt, feeRate, index)
   if (result.isError()) return respondWithError(res, 'INTERNAL_SERVER_ERROR')
 
   const { id, revocationToken } = result.getResult()

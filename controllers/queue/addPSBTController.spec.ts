@@ -1,3 +1,4 @@
+import { Psbt } from 'bitcoinjs-lib'
 import chai, { expect } from 'chai'
 import { Response } from 'express'
 import { describe, it } from 'mocha'
@@ -9,7 +10,7 @@ import { KEYS } from '../../src/utils/db/keys'
 import { getPSBTsFromQueue } from '../../src/utils/queue'
 import * as addPSBTToQueue from '../../src/utils/queue/addPSBTToQueue'
 import blockExplorerData from '../../test/data/blockExplorerData.json'
-import { validEntryPSBT, validEntryPSBTBase64 } from '../../test/data/psbtData'
+import { batchQueue } from '../../test/data/psbtData'
 import {
   requestMock,
   responseMock,
@@ -31,15 +32,19 @@ describe('addPSBTController', () => {
     Sinon.restore()
   })
   it('accepts psbt and stores it in the queue with correct fee rate', async () => {
-    mockGetTx(validEntryPSBT.txInputs[0].hash.toString('hex'), confirmedTx)
+    const psbt = Psbt.fromBase64(batchQueue[0].psbt)
+    mockGetTx(psbt.txInputs[0].hash.toString('hex'), confirmedTx)
     const request = requestMock({
-      body: { psbt: validEntryPSBTBase64, feeRate: 10 },
+      body: { psbt: batchQueue[0].psbt, feeRate: batchQueue[0].feeRate },
     })
     const response = responseMock()
 
     await addPSBTController(request as AddPSBTRequest, response as Response)
 
-    expect(await getPSBTsFromQueue(10, 10)).to.deep.include(validEntryPSBT)
+    expect(await getPSBTsFromQueue()).to.deep.include({
+      psbt,
+      feeRate: batchQueue[0].feeRate,
+    })
     expect(response.json).to.be.calledWith({
       id: Sinon.match.string,
       revocationToken: Sinon.match.string,
@@ -49,15 +54,44 @@ describe('addPSBTController', () => {
     expect(jsonResponse.id.length).to.equal(64)
     expect(jsonResponse.revocationToken.length).to.equal(32)
     expect(await db.hgetall(KEYS.PSBT.PREFIX + jsonResponse.id)).to.deep.equal({
-      psbt: validEntryPSBTBase64,
+      psbt: batchQueue[0].psbt,
       revocationToken: jsonResponse.revocationToken,
     })
   })
-
-  it('returns BAD_REQUEST error if inputs are not yet confirmed', async () => {
-    mockGetTx(validEntryPSBT.txInputs[0].hash.toString('hex'), unConfirmedTx)
+  it('accepts psbt and stores it in the queue with correct fee rate and index', async () => {
+    const psbt = Psbt.fromBase64(batchQueue[0].psbt)
+    mockGetTx(psbt.txInputs[0].hash.toString('hex'), confirmedTx)
     const request = requestMock({
-      body: { psbt: validEntryPSBTBase64, feeRate: 10 },
+      body: batchQueue[0],
+    })
+    const response = responseMock()
+
+    await addPSBTController(request as AddPSBTRequest, response as Response)
+
+    expect(await getPSBTsFromQueue()).to.deep.include({
+      psbt,
+      feeRate: batchQueue[0].feeRate,
+    })
+    expect(response.json).to.be.calledWith({
+      id: Sinon.match.string,
+      revocationToken: Sinon.match.string,
+    })
+
+    const [jsonResponse] = (response.json as SinonStub).getCall(0).args
+    expect(jsonResponse.id.length).to.equal(64)
+    expect(jsonResponse.revocationToken.length).to.equal(32)
+    expect(await db.hgetall(KEYS.PSBT.PREFIX + jsonResponse.id)).to.deep.equal({
+      psbt: batchQueue[0].psbt,
+      revocationToken: jsonResponse.revocationToken,
+      index: String(batchQueue[0].index),
+    })
+  })
+  it('returns BAD_REQUEST error if inputs are not yet confirmed', async () => {
+    const psbt = Psbt.fromBase64(batchQueue[0].psbt)
+    mockGetTx(psbt.txInputs[0].hash.toString('hex'), unConfirmedTx)
+
+    const request = requestMock({
+      body: { psbt: batchQueue[0].psbt, feeRate: 10 },
     })
     const response = responseMock()
 
@@ -72,9 +106,10 @@ describe('addPSBTController', () => {
     Sinon.stub(addPSBTToQueue, 'addPSBTToQueue').resolves(
       new TransactionResult(false, undefined, 'error'),
     )
-    mockGetTx(validEntryPSBT.txInputs[0].hash.toString('hex'), confirmedTx)
+    const psbt = Psbt.fromBase64(batchQueue[0].psbt)
+    mockGetTx(psbt.txInputs[0].hash.toString('hex'), confirmedTx)
     const request = requestMock({
-      body: { psbt: validEntryPSBTBase64, feeRate: 10 },
+      body: { psbt: batchQueue[0].psbt, feeRate: 10 },
     })
     const response = responseMock()
 

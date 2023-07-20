@@ -14,5 +14,5 @@ export const getPSBTsFromQueue = async (minFeeRate = 1, maxFeeRate: number = und
     maxFeeRate ? maxFeeRate - MARGIN : undefined,
     true,
   )
-  return entries.map(({ score, value }) => ({ feeRate: score, psbt: Psbt.fromBase64(value) }))
+  return entries.map(({ score: feeRate, value }) => ({ feeRate, psbt: Psbt.fromBase64(value) }))
 }

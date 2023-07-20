@@ -14,8 +14,8 @@ export const validatePSBT = (req: Request, res: Response, next: NextFunction) =>
       .parse(feeRateUnparsed)
     const base64 = z.string().nonempty()
       .parse(base64Unparsed)
-    const index = z.number().gte(0)
-      .parse(indexUnparsed)
+    const index = indexUnparsed ? z.number().gte(0)
+      .parse(indexUnparsed) : undefined
     const psbt = Psbt.fromBase64(base64)
 
     if (psbt.txInputs.length !== 1) return respondWithError(res, 'BAD_REQUEST')
@@ -23,7 +23,7 @@ export const validatePSBT = (req: Request, res: Response, next: NextFunction) =>
     if (!validatePSBTSignatures(psbt)) return respondWithError(res, 'BAD_REQUEST')
     if (!isSignedWithSighash(psbt, 'SINGLE_ANYONECANPAY')) return respondWithError(res, 'BAD_REQUEST')
 
-    signAllInputs(psbt, getSignerByIndex(hotWallet, index, NETWORK))
+    if (index) signAllInputs(psbt, getSignerByIndex(hotWallet, index, NETWORK))
     finalize(psbt)
 
     if (feeRate > psbt.getFeeRate()) return respondWithError(res, 'BAD_REQUEST')

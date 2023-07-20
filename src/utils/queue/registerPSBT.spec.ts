@@ -13,4 +13,13 @@ describe('registerPSBT', () => {
       revocationToken,
     })
   })
+  it('stores psbt data with index for signing', async () => {
+    const result = await registerPSBT(psbt1, 1)
+    const { id, revocationToken } = result.getResult()
+    expect(await db.hgetall(KEYS.PSBT.PREFIX + id)).to.deep.equal({
+      psbt: psbt1.toBase64(),
+      revocationToken,
+      index: '1',
+    })
+  })
 })

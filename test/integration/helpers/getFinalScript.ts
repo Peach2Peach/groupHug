@@ -47,17 +47,23 @@ export const getFinalScript = (
   const decompiled = script.decompile(bitcoinScript)
 
   const meaningFulSignatures = input.partialSig.every(
-    (sig) => bitcoinScript.toString('hex').indexOf(sig.pubkey.toString('hex')) !== -1,
+    (sig) =>
+      bitcoinScript.toString('hex').indexOf(sig.pubkey.toString('hex')) !== -1,
   )
   if (!decompiled) {
     throw new Error(`Can not finalize input #${inputIndex}`)
   }
   if (!meaningFulSignatures) {
-    throw new Error(`Can not finalize input #${inputIndex}. Signatures do not correspond to public keys`)
+    throw new Error(
+      `Can not finalize input #${inputIndex}. Signatures do not correspond to public keys`,
+    )
   }
 
   const sortedSignatures = input.partialSig
-    .sort((a, b) => bitcoinScript.indexOf(b.pubkey) - bitcoinScript.indexOf(a.pubkey))
+    .sort(
+      (a, b) =>
+        bitcoinScript.indexOf(b.pubkey) - bitcoinScript.indexOf(a.pubkey),
+    )
     .map((partialSig) => partialSig.signature)
     .reverse()
 
@@ -66,13 +72,19 @@ export const getFinalScript = (
     redeem: {
       network,
       output: bitcoinScript,
-      input: script.compile([opcodes.OP_0, ...sortedSignatures]),
+      input: script.compile(
+        sortedSignatures.length > 1
+          ? [opcodes.OP_0, ...sortedSignatures]
+          : sortedSignatures,
+      ),
     },
   })
 
   return {
     finalScriptSig: undefined,
     finalScriptWitness:
-      payment.witness && payment.witness.length > 0 ? witnessStackToScriptWitness(payment.witness) : undefined,
+      payment.witness && payment.witness.length > 0
+        ? witnessStackToScriptWitness(payment.witness)
+        : undefined,
   }
 }
