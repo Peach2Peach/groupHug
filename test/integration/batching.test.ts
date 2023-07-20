@@ -3,7 +3,7 @@
 import { networks, Psbt } from 'bitcoinjs-lib'
 import { expect } from 'chai'
 import { before, describe, it } from 'mocha'
-import { FEE, setNetwork, SIGHASH } from '../../constants'
+import { setNetwork, SIGHASH } from '../../constants'
 import { finalize } from '../../src/utils/psbt/finalize'
 import { signAllInputs } from '../../src/utils/psbt/signAllInputs'
 import {
@@ -70,7 +70,7 @@ describe('peach multisig escrow address', () => {
     batchedTransaction.addOutput({
       address: getFeeAddress(),
       value:
-        (fundingUTXO1.value + fundingUTXO2.value + fundingUTXO3.value) * FEE,
+        (fundingUTXO1.value + fundingUTXO2.value + fundingUTXO3.value) * 0.02,
     })
 
     expect(batchedTransaction.txOutputs.length).to.equal(4)

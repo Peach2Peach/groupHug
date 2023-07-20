@@ -14,7 +14,6 @@ const DEFAULTS = {
   BATCH_SIZE_THRESHOLD: 100,
   BATCH_TIME_THRESHOLD: 43200,
   BUCKETS: 10,
-  FEE: 2,
 }
 
 export const PASSWORDPROTECTION = process.env.PASSWORDPROTECTION !== 'false'
@@ -23,8 +22,8 @@ export const MAXREQUESTRATE = process.env.MAXREQUESTRATE ? Number(process.env.MA
 
 export const SATSINBTC = 100000000
 export const NETWORKID = process.env.NETWORK
-export let NETWORK
-  = NETWORKID === 'testnet' ? networks.testnet : NETWORKID === 'regtest' ? networks.regtest : networks.bitcoin
+export let NETWORK =
+  NETWORKID === 'testnet' ? networks.testnet : NETWORKID === 'regtest' ? networks.regtest : networks.bitcoin
 export const setNetwork = (network: Network) => (NETWORK = network)
 
 export const {
@@ -56,8 +55,6 @@ export const { DB_AUTH, PRIVKEY, FEE_COLLECTOR_PUBKEY } = process.env
 export const BATCH_SIZE_THRESHOLD = Number(process.env.BATCH_SIZE_THRESHOLD || DEFAULTS.BATCH_SIZE_THRESHOLD)
 export const BATCH_TIME_THRESHOLD = Number(process.env.BATCH_TIME_THRESHOLD || DEFAULTS.BATCH_TIME_THRESHOLD)
 export const BUCKETS = Number(process.env.BUCKETS || DEFAULTS.BUCKETS)
-export let FEE = Number(process.env.FEE || DEFAULTS.FEE) / 100
-export const setFee = (fee: number) => (FEE = fee)
 
 export const SIGHASH = {
   ALL: Transaction.SIGHASH_ALL,

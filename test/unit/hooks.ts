@@ -1,6 +1,6 @@
 import { networks } from 'bitcoinjs-lib'
 import Sinon, { SinonStub } from 'sinon'
-import { NETWORK, setFee, setNetwork } from '../../constants'
+import { NETWORK, setNetwork } from '../../constants'
 import * as fetch from '../../middleware/fetch'
 import {
   db,
@@ -16,7 +16,6 @@ let dbId: number
 export let fetchStub: SinonStub
 export const mochaHooks = {
   beforeAll: async () => {
-    setFee(2)
     initWallets(unencrypted.PRIVKEY, unencrypted.FEE_COLLECTOR_PUBKEY, NETWORK)
     if (!dbId) {
       await initDatabase({ database: 7 })
