@@ -8,23 +8,21 @@ import { mockGetTx } from '../../../test/unit/helpers/mockGetTx'
 import { mockGetUTXO } from '../../../test/unit/helpers/mockGetUTXO'
 import { fetchStub } from '../../../test/unit/hooks'
 import { getTxAndUTXOForInput } from './getTxAndUTXOForInput'
+import { spiceUTXOWithPSBT } from '../../../test/unit/helpers/spiceUTXOWithPSBT'
 
 describe('getTxAndUTXOForInput', () => {
   const txId = psbt1.txInputs[0].hash.toString('hex')
-
+  const spicedUTXO = spiceUTXOWithPSBT(psbt1)
   afterEach(() => {
     Sinon.restore()
   })
   it('fetches utxo details', async () => {
     mockGetTx(txId, blockExplorerData.tx)
-    mockGetUTXO(
-      blockExplorerData.tx.vout[0].scriptpubkey_address,
-      blockExplorerData.utxo,
-    )
+    mockGetUTXO(blockExplorerData.tx.vout[0].scriptpubkey_address, spicedUTXO)
     const result = await getTxAndUTXOForInput(psbt1.txInputs[0])
     expect(result).to.deep.equal({
       tx: blockExplorerData.tx,
-      utxo: blockExplorerData.utxo,
+      utxo: [spicedUTXO[0]],
     })
   })
   it('returns undefined if tx could not be retrueved', async () => {
