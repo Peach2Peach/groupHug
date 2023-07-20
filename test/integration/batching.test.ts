@@ -1,34 +1,25 @@
 /* eslint-disable max-statements */
 /* eslint-disable no-await-in-loop */
-import { networks, payments, Psbt } from 'bitcoinjs-lib'
+import { networks, Psbt } from 'bitcoinjs-lib'
 import { expect } from 'chai'
 import { before, describe, it } from 'mocha'
-import { FEE, NETWORK, setNetwork, SIGHASH } from '../../constants'
-import { hotWallet, loadHotWallet } from '../../src/wallets/hotWallet'
-import { feeWallet, loadFeeWallet } from '../../src/wallets/feeWallet'
-import { isTestnet } from '../../src/utils/bitcoin'
-import { regtestUtils } from './_regtest'
-import { psbt1, psbt2, psbt3 } from './psbt'
-import { buyerAddress, seller } from './signers'
-import { getMultisigScript } from './helpers/getMultisigScript'
-import { getAddressFromScript } from './helpers/getAddressFromScript'
-import { buildPSBT } from './helpers/buildPSBT'
+import { FEE, setNetwork, SIGHASH } from '../../constants'
 import { finalize } from '../../src/utils/psbt/finalize'
 import { signAllInputs } from '../../src/utils/psbt/signAllInputs'
+import {
+  getSignerByIndex,
+  hotWallet,
+  loadFeeWallet,
+  loadHotWallet,
+} from '../../src/wallets'
 import { xpriv, xpub } from '../data/walletData'
-
-export const getDerivationPathByIndex = (index: number) =>
-  `m/48'/${isTestnet(NETWORK) ? '1' : '0'}'/0'/${index}'`
-
-export const getFeeAddress = () => {
-  // TODO make dynamic
-  const feeCollector = feeWallet.derivePath('0/0')
-
-  return payments.p2wpkh({
-    pubkey: feeCollector.publicKey,
-    network: NETWORK,
-  }).address
-}
+import { regtestUtils } from './_regtest'
+import { buildPSBT } from './helpers/buildPSBT'
+import { getAddressFromScript } from './helpers/getAddressFromScript'
+import { getFeeAddress } from './helpers/getFeeAddress'
+import { getMultisigScript } from './helpers/getMultisigScript'
+import { psbt1, psbt2, psbt3 } from './psbt'
+import { buyerAddress, seller } from './signers'
 
 describe('peach multisig escrow address', () => {
   before(async () => {
@@ -40,9 +31,9 @@ describe('peach multisig escrow address', () => {
   })
 
   it('Can combine psbts', async () => {
-    const signer1 = hotWallet.derivePath(getDerivationPathByIndex(psbt1.index))
-    const signer2 = hotWallet.derivePath(getDerivationPathByIndex(psbt2.index))
-    const signer3 = hotWallet.derivePath(getDerivationPathByIndex(psbt3.index))
+    const signer1 = getSignerByIndex(hotWallet, psbt1.index, networks.regtest)
+    const signer2 = getSignerByIndex(hotWallet, psbt2.index, networks.regtest)
+    const signer3 = getSignerByIndex(hotWallet, psbt3.index, networks.regtest)
     const escrowScript1 = getMultisigScript(seller.publicKey, signer1.publicKey)
     const escrowScript2 = getMultisigScript(seller.publicKey, signer2.publicKey)
     const escrowScript3 = getMultisigScript(seller.publicKey, signer3.publicKey)
