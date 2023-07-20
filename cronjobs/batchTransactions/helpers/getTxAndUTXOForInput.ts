@@ -10,5 +10,5 @@ export const getTxAndUTXOForInput = async (input: PsbtTxInput) => {
   const output = tx.vout[input.index]
   const { result: utxo } = await getUTXO(output.scriptpubkey_address)
 
-  return { tx, utxo }
+  return { tx, utxo: utxo.filter((utx) => utx.txid === input.hash.toString('hex')) }
 }
