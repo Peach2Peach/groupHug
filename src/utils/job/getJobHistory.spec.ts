@@ -1,7 +1,7 @@
 import { ok, strictEqual } from 'assert'
 import { describe, it } from 'mocha'
 import { getJobHistory, logJobExecution } from '.'
-import { sleep } from '../system'
+import { sleep } from '../../../test/unit/helpers/sleep'
 
 describe('getJobHistory', () => {
   it('gets the execution history of a job', async () => {

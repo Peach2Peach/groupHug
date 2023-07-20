@@ -1,7 +1,7 @@
 import { ok } from 'assert'
 import { describe, it } from 'mocha'
 import { getAllJobs, logJobExecution } from '.'
-import { sleep } from '../system'
+import { sleep } from '../../../test/unit/helpers/sleep'
 
 describe('getAllJobs', () => {
   it('gets all jobs that have run at least once', async () => {
