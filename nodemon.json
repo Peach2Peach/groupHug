@@ -10,5 +10,5 @@
   ],
   "ext": ".ts,.js,.env",
   "ignore": ["*.spec.ts"],
-  "exec": "ts-node --files ./server-regtest.ts"
+  "exec": "ts-node --files ./server.ts"
 }

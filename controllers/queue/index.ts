@@ -5,7 +5,7 @@ import { validatePSBT } from './validation'
 
 const serverLogger = getLogger('server', 'log')
 
-export const rest = (app: Express): void => {
+export const Queue = (app: Express): void => {
   app.post('/v1/addPSBT', validatePSBT, addPSBTController)
 
   serverLogger.info('Installed user endpoints')

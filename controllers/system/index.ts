@@ -6,7 +6,7 @@ import { startController } from './startController'
 
 const serverLogger = getLogger('server', 'log')
 
-export default (app: Express): void => {
+export const System = (app: Express): void => {
   app.post('/v1/start', startController)
   app.get(
     '/v1/system/status',

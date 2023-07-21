@@ -1,11 +1,25 @@
-import { NETWORK } from '../../constants'
+import { BATCH_SIZE_THRESHOLD, BATCH_TIME_THRESHOLD, BUCKETS, NETWORK } from '../../constants'
 import { initJobs } from '../../cronjobs/initJobs'
 import { initDatabase } from '../../src/utils/db'
 import getLogger from '../../src/utils/logger'
-import { decryptConfig, decrypted } from '../../src/utils/system/decryptConfig'
+import { FEE_COLLECTOR_PUBKEY, PRIVKEY, decryptConfig, decrypted } from '../../src/utils/system/decryptConfig'
 import { initWallets } from '../../src/wallets'
 import { StartRequest, StartResponse } from './types'
-const serverLogger = getLogger('server', 'log')
+export const serverLogger = getLogger('server', 'log')
+
+export const startServer = async (password: string) => {
+  decryptConfig(password)
+
+  if (decrypted) {
+    await initDatabase()
+    initWallets(PRIVKEY, FEE_COLLECTOR_PUBKEY, NETWORK)
+    initJobs()
+    serverLogger.info('Server initialised!')
+    serverLogger.info('BUCKETS', BUCKETS)
+    serverLogger.info('BATCH_TIME_THRESHOLD', BATCH_TIME_THRESHOLD)
+    serverLogger.info('BATCH_TIME_THRESHOLD', BATCH_TIME_THRESHOLD)
+  }
+}
 
 export const startController = async (req: StartRequest, res: StartResponse) => {
   if (decrypted) {
@@ -14,14 +28,7 @@ export const startController = async (req: StartRequest, res: StartResponse) => 
 
   const { password } = req.body
   try {
-    const { PRIVKEY, FEE_COLLECTOR_PUBKEY } = decryptConfig(password)
-
-    if (decrypted) {
-      await initDatabase()
-      initWallets(PRIVKEY, FEE_COLLECTOR_PUBKEY, NETWORK)
-      initJobs()
-      serverLogger.info('Server initialised!')
-    }
+    await startServer(password)
     res.json({ success: decrypted })
   } catch (e) {
     serverLogger.error(['Failed server start attempt'])
