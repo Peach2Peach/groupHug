@@ -1,4 +1,4 @@
-import { FEE, NETWORK } from '../../constants'
+import { NETWORK } from '../../constants'
 import { initJobs } from '../../cronjobs/initJobs'
 import { initDatabase } from '../../src/utils/db'
 import getLogger from '../../src/utils/logger'
@@ -21,7 +21,6 @@ export const startController = async (req: StartRequest, res: StartResponse) => 
       initWallets(PRIVKEY, FEE_COLLECTOR_PUBKEY, NETWORK)
       initJobs()
       serverLogger.info('Server initialised!')
-      serverLogger.info(['Fee:', FEE])
     }
     res.json({ success: decrypted })
   } catch (e) {

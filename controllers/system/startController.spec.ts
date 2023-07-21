@@ -1,11 +1,10 @@
 import chai, { expect } from 'chai'
 import Sinon, { SinonStub } from 'sinon'
 import sinonChai from 'sinon-chai'
-import { NETWORK } from '../../constants'
 import * as initJobs from '../../cronjobs/initJobs'
 import * as initDatabase from '../../src/utils/db'
 import * as decryptConfig from '../../src/utils/system/decryptConfig'
-import * as initWallets from '../../src/wallets'
+import * as initWallets from '../../src/wallets/initWallets'
 import { encrypted, unencrypted } from '../../test/data/envData'
 import { xpriv, xpub } from '../../test/data/walletData'
 import {
@@ -14,6 +13,7 @@ import {
 } from '../../test/unit/controllers/expressMocks'
 import { startController } from './startController'
 import { StartRequest, StartResponse } from './types'
+import { networks } from 'bitcoinjs-lib'
 
 chai.use(sinonChai)
 
@@ -52,8 +52,12 @@ describe('startController', () => {
 
     expect(decryptConfigStub).to.have.been.calledWith(password)
     expect(initDatabaseStub).to.have.been.called
-    expect(initWalletsStub).to.have.been.calledWith(xpriv, xpub, NETWORK)
-    expect(initJobsStub).to.have.been.calledWith(xpriv, xpub, NETWORK)
+    expect(initWalletsStub).to.have.been.calledWith(
+      xpriv,
+      xpub,
+      networks.regtest,
+    )
+    expect(initJobsStub).to.have.been.called
     expect(statusResponse.json).to.have.been.calledWith({ success: true })
   })
   it('should return success when already decrypted', async () => {
