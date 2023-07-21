@@ -5,6 +5,7 @@ import { KEYS } from '../../../src/utils/db/keys'
 import { addPSBTToQueueWithClient } from '../../../src/utils/queue'
 import { batchQueue } from '../../../test/data/psbtData'
 import { markBatchedTransactionAsPending } from './markBatchedTransactionAsPending'
+import { hasBucketReachedTimeThreshold } from './hasBucketReachedTimeThreshold'
 
 describe('markBatchedTransactionAsPending', () => {
   const psbts = batchQueue.slice(0, 3).map(({ feeRate, psbt }) => ({
@@ -24,7 +25,7 @@ describe('markBatchedTransactionAsPending', () => {
   })
   it('moves psbts from pending queue to batch', async () => {
     expect(await db.zcard(KEYS.PSBT.QUEUE)).to.equal(3)
-    await markBatchedTransactionAsPending(psbts, txId)
+    await markBatchedTransactionAsPending(psbts, 0, txId)
     expect(await db.zcard(KEYS.PSBT.QUEUE)).to.equal(0)
     expect(await db.zcard(KEYS.BATCH + txId)).to.equal(3)
     expect(await db.zrange(KEYS.BATCH + txId)).to.deep.equal(
@@ -32,7 +33,12 @@ describe('markBatchedTransactionAsPending', () => {
     )
   })
   it('adds tx id to pending queue', async () => {
-    await markBatchedTransactionAsPending(psbts, txId)
+    await markBatchedTransactionAsPending(psbts, 0, txId)
     expect(await db.sismember(KEYS.TRANSACTION.PENDING, txId)).to.be.true
+  })
+  it('resets bucket expiration', async () => {
+    expect(await hasBucketReachedTimeThreshold(0)).to.be.true
+    await markBatchedTransactionAsPending(psbts, 0, txId)
+    expect(await hasBucketReachedTimeThreshold(0)).to.be.false
   })
 })
