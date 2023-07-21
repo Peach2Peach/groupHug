@@ -1,4 +1,4 @@
-import { Psbt } from 'bitcoinjs-lib'
+import { Psbt, networks } from 'bitcoinjs-lib'
 import { expect } from 'chai'
 import { batchQueue } from '../../../test/data/psbtData'
 import { getAverageFeeRate } from './getAverageFeeRate'
@@ -6,7 +6,7 @@ import { getAverageFeeRate } from './getAverageFeeRate'
 describe('getAverageFeeRate', () => {
   const psbts = batchQueue.map(({ feeRate, psbt }) => ({
     feeRate,
-    psbt: Psbt.fromBase64(psbt),
+    psbt: Psbt.fromBase64(psbt, { network: networks.regtest }),
   }))
 
   it('should calculate average fee rate of bucket', () => {

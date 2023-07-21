@@ -3,12 +3,12 @@ import { getTx } from '../../src/utils/electrs'
 import { addPSBTToQueue } from '../../src/utils/queue'
 import { respondWithError } from '../../src/utils/response'
 import { AddPSBTRequest, AddPSBTResponse } from './types'
+import { NETWORK } from '../../constants'
 
 export const addPSBTController = async (req: AddPSBTRequest, res: AddPSBTResponse) => {
   const { psbt: base64, feeRate, index } = req.body
 
-  // TODO check network argument on every instance
-  const psbt = Psbt.fromBase64(base64)
+  const psbt = Psbt.fromBase64(base64, { network: NETWORK })
 
   const results = await Promise.all(psbt.txInputs.map((input) => getTx(input.hash.toString('hex'))))
   const transactions = results.map((result) => result.getValue())

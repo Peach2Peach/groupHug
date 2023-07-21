@@ -1,4 +1,4 @@
-import { Psbt, PsbtTxInput } from 'bitcoinjs-lib'
+import { Psbt, PsbtTxInput, networks } from 'bitcoinjs-lib'
 import chai, { expect } from 'chai'
 import Sinon, { SinonStub } from 'sinon'
 import sinonChai from 'sinon-chai'
@@ -20,7 +20,9 @@ chai.use(sinonChai)
 describe('getUnspentPsbts', () => {
   let getTxAndUTXOForInputStub: SinonStub
   let inputIsUnspentStub: SinonStub
-  const psbts = batchQueue.map(({ psbt }) => Psbt.fromBase64(psbt))
+  const psbts = batchQueue.map(({ psbt }) =>
+    Psbt.fromBase64(psbt, { network: networks.regtest }),
+  )
   const bucket = psbts.slice(0, 10)
 
   const fakeGetTxAndUTXOForInput = (input: PsbtTxInput) =>

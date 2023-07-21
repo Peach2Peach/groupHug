@@ -1,4 +1,4 @@
-import { Psbt } from 'bitcoinjs-lib'
+import { Psbt, networks } from 'bitcoinjs-lib'
 import chai, { expect } from 'chai'
 import { Response } from 'express'
 import { describe, it } from 'mocha'
@@ -32,7 +32,9 @@ describe('addPSBTController', () => {
     Sinon.restore()
   })
   it('accepts psbt and stores it in the queue with correct fee rate', async () => {
-    const psbt = Psbt.fromBase64(batchQueue[0].psbt)
+    const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
+      network: networks.regtest,
+    })
     mockGetTx(psbt.txInputs[0].hash.toString('hex'), confirmedTx)
     const request = requestMock({
       body: { psbt: batchQueue[0].psbt, feeRate: batchQueue[0].feeRate },
@@ -59,7 +61,9 @@ describe('addPSBTController', () => {
     })
   })
   it('accepts psbt and stores it in the queue with correct fee rate and index', async () => {
-    const psbt = Psbt.fromBase64(batchQueue[0].psbt)
+    const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
+      network: networks.regtest,
+    })
     mockGetTx(psbt.txInputs[0].hash.toString('hex'), confirmedTx)
     const request = requestMock({
       body: batchQueue[0],
@@ -87,7 +91,9 @@ describe('addPSBTController', () => {
     })
   })
   it('returns BAD_REQUEST error if inputs are not yet confirmed', async () => {
-    const psbt = Psbt.fromBase64(batchQueue[0].psbt)
+    const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
+      network: networks.regtest,
+    })
     mockGetTx(psbt.txInputs[0].hash.toString('hex'), unConfirmedTx)
 
     const request = requestMock({
@@ -106,7 +112,9 @@ describe('addPSBTController', () => {
     Sinon.stub(addPSBTToQueue, 'addPSBTToQueue').resolves(
       new TransactionResult(false, undefined, 'error'),
     )
-    const psbt = Psbt.fromBase64(batchQueue[0].psbt)
+    const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
+      network: networks.regtest,
+    })
     mockGetTx(psbt.txInputs[0].hash.toString('hex'), confirmedTx)
     const request = requestMock({
       body: { psbt: batchQueue[0].psbt, feeRate: 10 },

@@ -1,6 +1,7 @@
 import { Psbt } from 'bitcoinjs-lib'
 import { db } from '../db'
 import { KEYS } from '../db/keys'
+import { NETWORK } from '../../../constants'
 
 export type PSBTWithFeeRate = {
   feeRate: number
@@ -14,5 +15,5 @@ export const getPSBTsFromQueue = async (minFeeRate = 1, maxFeeRate: number = und
     maxFeeRate ? maxFeeRate - MARGIN : undefined,
     true,
   )
-  return entries.map(({ score: feeRate, value }) => ({ feeRate, psbt: Psbt.fromBase64(value) }))
+  return entries.map(({ score: feeRate, value }) => ({ feeRate, psbt: Psbt.fromBase64(value, { network: NETWORK }) }))
 }

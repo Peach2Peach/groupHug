@@ -1,4 +1,4 @@
-import { Psbt } from 'bitcoinjs-lib'
+import { Psbt, networks } from 'bitcoinjs-lib'
 import chai, { expect } from 'chai'
 import Sinon, { SinonStub } from 'sinon'
 import { db } from '../../src/utils/db'
@@ -18,7 +18,7 @@ describe('batchTransactions', () => {
   let batchBucketStub: SinonStub
   const psbts = batchQueue.map(({ feeRate, psbt }) => ({
     feeRate,
-    psbt: Psbt.fromBase64(psbt),
+    psbt: Psbt.fromBase64(psbt, { network: networks.regtest }),
   }))
   before(() => {
     Sinon.stub(constants, 'BATCH_SIZE_THRESHOLD').get(() => 10)

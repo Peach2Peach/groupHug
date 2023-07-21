@@ -16,7 +16,7 @@ import {
   requestMock,
   responseMock,
 } from '../../../test/unit/controllers/expressMocks'
-import { Psbt } from 'bitcoinjs-lib'
+import { Psbt, networks } from 'bitcoinjs-lib'
 
 chai.use(sinonChai)
 
@@ -66,7 +66,9 @@ describe('validatePSBT', () => {
     })
   })
   it('returns error if psbt has wrong signature', () => {
-    const wrongSig = Psbt.fromBase64(missingSignature)
+    const wrongSig = Psbt.fromBase64(missingSignature, {
+      network: networks.regtest,
+    })
     wrongSig.data.inputs[0].finalScriptSig = Buffer.from('0')
     const request = requestMock({
       body: { psbt: wrongSig.toBase64(), feeRate: 10, index: 0 },

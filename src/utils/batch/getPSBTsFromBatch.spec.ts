@@ -3,6 +3,7 @@ import { psbt1, psbt2, psbt3 } from '../../../test/data/psbtData'
 import { db } from '../db'
 import { addPSBTToBatchWithClient } from './addPSBTToBatch'
 import { getPSBTsFromBatch } from './getPSBTsFromBatch'
+import { networks } from 'bitcoinjs-lib'
 
 describe('getPSBTsFromBatch', () => {
   const txId = 'txId'
@@ -15,7 +16,7 @@ describe('getPSBTsFromBatch', () => {
       ])
     })
 
-    const batch = await getPSBTsFromBatch(txId)
+    const batch = await getPSBTsFromBatch(txId, networks.regtest)
     expect(batch).to.deep.include(psbt1)
     expect(batch).to.deep.include(psbt2)
     expect(batch).to.deep.include(psbt3)
