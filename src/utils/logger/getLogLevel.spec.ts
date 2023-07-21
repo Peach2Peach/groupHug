@@ -4,7 +4,7 @@ import * as constants from '../../../constants'
 import { getLogLevel } from './getLogLevel'
 
 describe('getLogLevel', () => {
-  before(() => {
+  beforeEach(() => {
     Sinon.stub(constants, 'NODE_ENV').get(() => 'development')
     Sinon.stub(constants, 'LOGLEVEL_ERROR').get(() => 'category-error')
     Sinon.stub(constants, 'LOGLEVEL_WARN').get(() => 'category-warn,category')
@@ -12,7 +12,7 @@ describe('getLogLevel', () => {
     Sinon.stub(constants, 'LOGLEVEL_INFO').get(() => 'category-info')
     Sinon.stub(constants, 'LOGLEVEL_DEBUG').get(() => 'category-debug')
   })
-  after(() => {
+  afterEach(() => {
     Sinon.restore()
   })
   it('should return the log level for a specific category and name', () => {

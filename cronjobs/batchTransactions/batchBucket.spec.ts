@@ -1,6 +1,6 @@
 import { Psbt, networks } from 'bitcoinjs-lib'
 import chai, { expect } from 'chai'
-import Sinon from 'sinon'
+import Sinon, { SinonStub } from 'sinon'
 import sinonChai from 'sinon-chai'
 import { addPSBTToQueue } from '../../src/utils/queue'
 import { batchQueue } from '../../test/data/psbtData'
@@ -11,6 +11,7 @@ import * as getUnspentPsbts from './helpers/getUnspentPsbts'
 chai.use(sinonChai)
 
 describe('batchBucket', () => {
+  let getUnspentPsbtsStub: SinonStub
   const psbts = batchQueue.map(({ feeRate, psbt, index }) => ({
     feeRate,
     psbt: Psbt.fromBase64(psbt, { network: networks.regtest }),
@@ -19,7 +20,10 @@ describe('batchBucket', () => {
 
   const bucket = psbts.slice(0, 10)
   beforeEach(async () => {
-    Sinon.stub(getUnspentPsbts, 'getUnspentPsbts').callsFake((_psbts: Psbt[]) =>
+    getUnspentPsbtsStub = Sinon.stub(
+      getUnspentPsbts,
+      'getUnspentPsbts',
+    ).callsFake((_psbts: Psbt[]) =>
       Promise.resolve({
         psbts: _psbts,
         utxos: _psbts.map((psbt) => spiceUTXOWithPSBT(psbt)),
@@ -38,8 +42,20 @@ describe('batchBucket', () => {
     Sinon.restore()
   })
 
+  it('returns error if all psbts have been spent', async () => {
+    getUnspentPsbtsStub.resolves({ psbts: [], utxos: [] })
+    const result = await batchBucket(bucket)
+
+    expect(result.isError()).to.be.true
+    expect(result.getError()).to.equal('No psbts left to spend')
+  })
   it('creates a batched transaction with all psbts and correct fee output', async () => {
-    const finalTransaction = await batchBucket(bucket)
+    const result = await batchBucket(bucket)
+
+    if (!result.isOk()) {
+      throw Error('batchBucket failed' + result.getError())
+    }
+    const finalTransaction = result.getValue()
 
     expect(finalTransaction.ins.length).to.equal(10)
     expect(finalTransaction.outs.length).to.equal(11)
