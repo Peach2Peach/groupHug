@@ -14,7 +14,7 @@ import {
 
 const logger = getLogger('job', 'batchTransactions')
 
-const handleBatch = async (candidate: PSBTWithFeeRate[]) => {
+const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
   const batchBucketResult = await batchBucket(candidate)
 
   if (!batchBucketResult.isOk()) {
@@ -27,7 +27,7 @@ const handleBatch = async (candidate: PSBTWithFeeRate[]) => {
 
   if (result.isOk()) {
     const txId = result.getValue()
-    const markResult = await markBatchedTransactionAsPending(candidate, txId)
+    const markResult = await markBatchedTransactionAsPending(candidate, index, txId)
     return markResult.isOk()
   }
 
@@ -47,15 +47,19 @@ export const batchTransactions = async () => {
   }
 
   const { fastestFee } = feeEstimatesResult.getValue()
-  const feeRanges = getFeeRanges(getSteps(fastestFee, BUCKETS))
+  const feeRanges = getFeeRanges(getSteps(fastestFee, BUCKETS)).reverse()
   const buckets = await Promise.all(feeRanges.map(([min, max]) => getPSBTsFromQueue(min, max)))
-  const batchCandidates = await Promise.all(buckets.filter(isBucketReadyForBatch))
+  const bucketReadyStates = await Promise.all(buckets.map(isBucketReadyForBatch))
+  const batchCandidates = buckets.filter((_b, i) => bucketReadyStates[i])
+
   let success = true
 
+  let i = 0
   while (batchCandidates.length) {
     // eslint-disable-next-line no-await-in-loop
-    const result = await handleBatch(batchCandidates.pop())
+    const result = await handleBatch(batchCandidates.shift(), i)
     if (result === false) success = false
+    i++
   }
   return success
 }

@@ -14,6 +14,9 @@ import {
 import { startController } from './startController'
 import { StartRequest, StartResponse } from './types'
 import { networks } from 'bitcoinjs-lib'
+import { db } from '../../src/utils/db'
+import { KEYS } from '../../src/utils/db/keys'
+import { BATCH_TIME_THRESHOLD } from '../../constants'
 
 chai.use(sinonChai)
 
@@ -39,7 +42,7 @@ describe('startController', () => {
     decryptConfig.setDecrypted(false)
     Sinon.restore()
   })
-  it('should start server by decrypting config, init database and wallets', async () => {
+  it('should start server by decrypting config, init database and wallets and reseting expiration times', async () => {
     const statusRequest = requestMock({
       body: { password },
     })
@@ -59,6 +62,18 @@ describe('startController', () => {
     )
     expect(initJobsStub).to.have.been.called
     expect(statusResponse.json).to.have.been.calledWith({ success: true })
+    expect(await db.client.ttl(KEYS.BUCKET.EXPIRATION + '0')).to.equal(
+      BATCH_TIME_THRESHOLD,
+    )
+    expect(await db.client.ttl(KEYS.BUCKET.EXPIRATION + '3')).to.equal(
+      BATCH_TIME_THRESHOLD,
+    )
+    expect(await db.client.ttl(KEYS.BUCKET.EXPIRATION + '6')).to.equal(
+      BATCH_TIME_THRESHOLD,
+    )
+    expect(await db.client.ttl(KEYS.BUCKET.EXPIRATION + '10')).to.equal(
+      BATCH_TIME_THRESHOLD,
+    )
   })
   it('should return success when already decrypted', async () => {
     decryptConfig.setDecrypted(true)

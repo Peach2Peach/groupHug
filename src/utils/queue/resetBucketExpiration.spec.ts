@@ -5,7 +5,7 @@ import { resetBucketExpiration } from './resetBucketExpiration'
 import { BATCH_TIME_THRESHOLD } from '../../../constants'
 
 describe('resetBucketExpiration', () => {
-  it('deletes psbt data', async () => {
+  it('resets expiration for bucket at index', async () => {
     expect(await db.client.exists(KEYS.BUCKET.EXPIRATION + '0')).to.equal(0)
     await resetBucketExpiration(0)
     expect(await db.client.exists(KEYS.BUCKET.EXPIRATION + '0')).to.equal(1)

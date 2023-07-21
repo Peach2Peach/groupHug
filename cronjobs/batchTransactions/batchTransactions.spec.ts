@@ -2,7 +2,6 @@ import { Psbt, Transaction, networks } from 'bitcoinjs-lib'
 import chai, { expect } from 'chai'
 import Sinon, { SinonStub } from 'sinon'
 import sinonChai from 'sinon-chai'
-import * as constants from '../../constants'
 import { db } from '../../src/utils/db'
 import { KEYS } from '../../src/utils/db/keys'
 import * as getFeeEstimates from '../../src/utils/electrs/getFeeEstimates'
@@ -27,10 +26,6 @@ describe('batchTransactions', () => {
     psbt: Psbt.fromBase64(psbt, { network: networks.regtest }),
   }))
 
-  before(() => {
-    Sinon.stub(constants, 'BATCH_SIZE_THRESHOLD').get(() => 10)
-    Sinon.stub(constants, 'BATCH_TIME_THRESHOLD').get(() => 600)
-  })
   beforeEach(async () => {
     batchBucketStub = Sinon.stub(batchBucket, 'batchBucket').callThrough()
     postTxStub = Sinon.stub(postTx, 'postTx').callsFake((hex) =>

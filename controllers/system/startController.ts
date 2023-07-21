@@ -2,22 +2,26 @@ import { BATCH_SIZE_THRESHOLD, BATCH_TIME_THRESHOLD, BUCKETS, NETWORK } from '..
 import { initJobs } from '../../cronjobs/initJobs'
 import { initDatabase } from '../../src/utils/db'
 import getLogger from '../../src/utils/logger'
-import { FEE_COLLECTOR_PUBKEY, PRIVKEY, decryptConfig, decrypted } from '../../src/utils/system/decryptConfig'
+import { resetAllBucketExpirations } from '../../src/utils/queue/resetAllBucketExpirations'
+import { decryptConfig, decrypted } from '../../src/utils/system/decryptConfig'
 import { initWallets } from '../../src/wallets'
 import { StartRequest, StartResponse } from './types'
 export const serverLogger = getLogger('server', 'log')
 
 export const startServer = async (password: string) => {
-  decryptConfig(password)
+  const { PRIVKEY, FEE_COLLECTOR_PUBKEY } = decryptConfig(password)
 
   if (decrypted) {
     await initDatabase()
     initWallets(PRIVKEY, FEE_COLLECTOR_PUBKEY, NETWORK)
     initJobs()
+
+    await resetAllBucketExpirations()
+
     serverLogger.info('Server initialised!')
-    serverLogger.info('BUCKETS', BUCKETS)
-    serverLogger.info('BATCH_TIME_THRESHOLD', BATCH_TIME_THRESHOLD)
-    serverLogger.info('BATCH_TIME_THRESHOLD', BATCH_TIME_THRESHOLD)
+    serverLogger.info(['BUCKETS', BUCKETS])
+    serverLogger.info(['BATCH_TIME_THRESHOLD', BATCH_TIME_THRESHOLD])
+    serverLogger.info(['BATCH_SIZE_THRESHOLD', BATCH_SIZE_THRESHOLD])
   }
 }
 
