@@ -1,9 +1,8 @@
 import { Psbt, networks } from 'bitcoinjs-lib'
 import chai, { expect } from 'chai'
-import Sinon, { SinonStub } from 'sinon'
+import Sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { addPSBTToQueue } from '../../src/utils/queue'
-import blockExplorerData from '../../test/data/blockExplorerData.json'
 import { batchQueue } from '../../test/data/psbtData'
 import { spiceUTXOWithPSBT } from '../../test/unit/helpers/spiceUTXOWithPSBT'
 import { batchBucket } from './batchBucket'
@@ -12,7 +11,6 @@ import * as getUnspentPsbts from './helpers/getUnspentPsbts'
 chai.use(sinonChai)
 
 describe('batchBucket', () => {
-  let getUnspentPsbtsStub: SinonStub
   const psbts = batchQueue.map(({ feeRate, psbt, index }) => ({
     feeRate,
     psbt: Psbt.fromBase64(psbt, { network: networks.regtest }),
@@ -21,10 +19,7 @@ describe('batchBucket', () => {
 
   const bucket = psbts.slice(0, 10)
   beforeEach(async () => {
-    getUnspentPsbtsStub = Sinon.stub(
-      getUnspentPsbts,
-      'getUnspentPsbts',
-    ).callsFake((_psbts: Psbt[]) =>
+    Sinon.stub(getUnspentPsbts, 'getUnspentPsbts').callsFake((_psbts: Psbt[]) =>
       Promise.resolve({
         psbts: _psbts,
         utxos: _psbts.map((psbt) => spiceUTXOWithPSBT(psbt)),
