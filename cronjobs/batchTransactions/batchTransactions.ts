@@ -1,11 +1,33 @@
 import { BUCKETS } from '../../constants'
-import { getFeeEstimates } from '../../src/utils/electrs'
+import { getFeeEstimates, postTx } from '../../src/utils/electrs'
 import getLogger from '../../src/utils/logger'
 import { getPSBTsFromQueue } from '../../src/utils/queue'
-import { getFeeRanges, getSteps, isBucketReadyForBatch } from './helpers'
+import { PSBTWithFeeRate } from '../../src/utils/queue/getPSBTsFromQueue'
 import { batchBucket } from './batchBucket'
+import {
+  errorFormatBatch,
+  getFeeRanges,
+  getSteps,
+  isBucketReadyForBatch,
+  markBatchedTransactionAsPending,
+} from './helpers'
 
 const logger = getLogger('job', 'batchTransactions')
+
+const handleBatch = async (candidate: PSBTWithFeeRate[]) => {
+  const batchedTransaction = await batchBucket(candidate)
+  // eslint-disable-next-line no-await-in-loop
+  const result = await postTx(batchedTransaction.toHex())
+
+  if (result.isOk()) {
+    const txId = result.getValue()
+    // eslint-disable-next-line no-await-in-loop
+    await markBatchedTransactionAsPending(candidate, txId)
+  } else {
+    logger.error(['Could not broadcast batched transaction', JSON.stringify(result.getError())])
+    logger.error([JSON.stringify(errorFormatBatch(candidate))])
+  }
+}
 
 export const batchTransactions = async () => {
   logger.debug('Start batch process')
@@ -24,7 +46,7 @@ export const batchTransactions = async () => {
 
   while (batchCandidates.length) {
     // eslint-disable-next-line no-await-in-loop
-    await batchBucket(batchCandidates.pop())
+    await handleBatch(batchCandidates.pop())
   }
   return true
 }

@@ -1,6 +1,6 @@
 import { Psbt } from 'bitcoinjs-lib'
-import { SubClient } from '../db/SubClient'
 import { db } from '../db'
+import { SubClient } from '../db/SubClient'
 import { KEYS } from '../db/keys'
 
 export const addPSBTToBatchWithClient = (client: SubClient, txId: string, psbt: Psbt, feeRate: number) =>
