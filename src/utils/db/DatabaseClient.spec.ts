@@ -13,6 +13,7 @@ describe('DatabaseClient', () => {
   }
   let createClientStub: Sinon.SinonStub
   before(() => {
+    // @ts-ignore
     createClientStub = Sinon.stub(redis, 'createClient').returns(fakeClient)
   })
   after(() => {

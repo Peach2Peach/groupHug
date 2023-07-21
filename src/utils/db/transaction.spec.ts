@@ -41,9 +41,7 @@ describe('transaction', () => {
   it('should retry on optimistic locking failured', async () => {
     const multiStub = {
       set: Sinon.stub(),
-      exec: Sinon.stub().resolves('ok')
-        .onSecondCall()
-        .resolves(null),
+      exec: Sinon.stub().resolves('ok').onSecondCall().resolves(null),
       discard: Sinon.stub(),
     }
 
@@ -52,6 +50,7 @@ describe('transaction', () => {
         watch: Sinon.stub(),
         multi: () => multiStub,
       }
+      // @ts-ignore
       await callback(isolatedClient)
     })
     const result1 = await db.transaction((client) => client.set('test', '1'))

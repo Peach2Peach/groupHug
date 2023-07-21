@@ -7,6 +7,7 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "sourceMap": true,
+    "skipLibCheck": true,
     "outDir": "dist",
     "typeRoots": ["./controllers/@types", "./src/@types", "./node_modules/@types"],
     "paths": {
