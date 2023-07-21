@@ -18,7 +18,7 @@ export const startServer = async (password: string) => {
 
     await resetAllBucketExpirations()
 
-    serverLogger.info('Server initialised!')
+    serverLogger.info('GroupHug Server initialised!')
     serverLogger.info(['BUCKETS', BUCKETS])
     serverLogger.info(['BATCH_TIME_THRESHOLD', BATCH_TIME_THRESHOLD])
     serverLogger.info(['BATCH_SIZE_THRESHOLD', BATCH_SIZE_THRESHOLD])

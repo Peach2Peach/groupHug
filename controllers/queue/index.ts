@@ -8,5 +8,5 @@ const serverLogger = getLogger('server', 'log')
 export const Queue = (app: Express): void => {
   app.post('/v1/addPSBT', validatePSBT, addPSBTController)
 
-  serverLogger.info('Installed user endpoints')
+  serverLogger.info('Installed queue endpoints')
 }
