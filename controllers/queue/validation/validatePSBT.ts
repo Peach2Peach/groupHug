@@ -10,9 +10,12 @@ export const validatePSBT = (req: Request, res: Response, next: NextFunction) =>
   const { psbt: base64Unparsed, feeRate: feeRateUnparsed, index: indexUnparsed } = req.body
 
   try {
-    const feeRate = z.number().gte(1).parse(feeRateUnparsed)
-    const base64 = z.string().nonempty().parse(base64Unparsed)
-    const index = indexUnparsed ? z.number().gte(0).parse(indexUnparsed) : undefined
+    const feeRate = z.number().gte(1)
+      .parse(feeRateUnparsed)
+    const base64 = z.string().nonempty()
+      .parse(base64Unparsed)
+    const index = indexUnparsed ? z.number().gte(0)
+      .parse(indexUnparsed) : undefined
     const psbt = Psbt.fromBase64(base64, { network: NETWORK })
 
     if (psbt.txInputs.length !== 1) return respondWithError(res, 'BAD_REQUEST')

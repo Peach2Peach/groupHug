@@ -181,7 +181,7 @@ describe('validatePSBT', () => {
   })
   it('returns error if fee rate is bigger than max possible fee rate for PSBT', () => {
     const request = requestMock({
-      body: { psbt: validEntryPSBTBase64, feeRate: 31, index: 0 },
+      body: { psbt: validEntryPSBTBase64, feeRate: 32, index: 0 },
     })
     const response = responseMock()
     const next = Sinon.stub()
