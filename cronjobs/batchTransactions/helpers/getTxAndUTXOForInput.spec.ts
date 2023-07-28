@@ -9,9 +9,10 @@ import { mockGetUTXO } from '../../../test/unit/helpers/mockGetUTXO'
 import { fetchStub } from '../../../test/unit/hooks'
 import { getTxAndUTXOForInput } from './getTxAndUTXOForInput'
 import { spiceUTXOWithPSBT } from '../../../test/unit/helpers/spiceUTXOWithPSBT'
+import { getTxIdOfInput } from '../../../src/utils/psbt'
 
 describe('getTxAndUTXOForInput', () => {
-  const txId = psbt1.txInputs[0].hash.toString('hex')
+  const txId = getTxIdOfInput(psbt1.txInputs[0])
   const spicedUTXO = spiceUTXOWithPSBT(psbt1)
   afterEach(() => {
     Sinon.restore()

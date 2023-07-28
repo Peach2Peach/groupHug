@@ -7,9 +7,10 @@ import { psbt1 } from '../../../test/data/psbtData'
 import { mockGetTx } from '../../../test/unit/helpers/mockGetTx'
 import { fetchStub } from '../../../test/unit/hooks'
 import { getTxForInput } from './getTxForInput'
+import { getTxIdOfInput } from '../../../src/utils/psbt'
 
 describe('getTxForInput', () => {
-  const txId = psbt1.txInputs[0].hash.toString('hex')
+  const txId = getTxIdOfInput(psbt1.txInputs[0])
 
   afterEach(() => {
     Sinon.restore()

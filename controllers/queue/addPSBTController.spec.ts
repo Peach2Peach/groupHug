@@ -18,6 +18,7 @@ import {
 import { mockGetTx } from '../../test/unit/helpers/mockGetTx'
 import { addPSBTController } from './addPSBTController'
 import { AddPSBTRequest } from './types'
+import { getTxIdOfInput } from '../../src/utils/psbt'
 
 chai.use(sinonChai)
 
@@ -35,7 +36,7 @@ describe('addPSBTController', () => {
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,
     })
-    mockGetTx(psbt.txInputs[0].hash.toString('hex'), confirmedTx)
+    mockGetTx(getTxIdOfInput(psbt.txInputs[0]), confirmedTx)
     const request = requestMock({
       body: { psbt: batchQueue[0].psbt, feeRate: batchQueue[0].feeRate },
     })
@@ -64,7 +65,7 @@ describe('addPSBTController', () => {
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,
     })
-    mockGetTx(psbt.txInputs[0].hash.toString('hex'), confirmedTx)
+    mockGetTx(getTxIdOfInput(psbt.txInputs[0]), confirmedTx)
     const request = requestMock({
       body: batchQueue[0],
     })
@@ -94,7 +95,7 @@ describe('addPSBTController', () => {
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,
     })
-    mockGetTx(psbt.txInputs[0].hash.toString('hex'), unConfirmedTx)
+    mockGetTx(getTxIdOfInput(psbt.txInputs[0]), unConfirmedTx)
 
     const request = requestMock({
       body: { psbt: batchQueue[0].psbt, feeRate: 10 },
@@ -115,7 +116,7 @@ describe('addPSBTController', () => {
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,
     })
-    mockGetTx(psbt.txInputs[0].hash.toString('hex'), confirmedTx)
+    mockGetTx(getTxIdOfInput(psbt.txInputs[0]), confirmedTx)
     const request = requestMock({
       body: { psbt: batchQueue[0].psbt, feeRate: 10 },
     })

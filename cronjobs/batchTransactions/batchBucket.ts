@@ -18,9 +18,9 @@ const buildBatchedTransaction = async (
   extraPSBTData: Record<string, string>[],
   miningFees: number,
 ) => {
-  const batchedTransaction = await getBatchedTransaction(psbts, NETWORK)
+  const batchedTransaction = getBatchedTransaction(psbts, NETWORK)
   batchedTransaction.setMaximumFeeRate(round(averageFeeRate + 1))
-  await addFeeOutput(batchedTransaction, await getUnusedFeeAddress(), calculateServiceFees(psbts) - miningFees)
+  addFeeOutput(batchedTransaction, await getUnusedFeeAddress(), calculateServiceFees(psbts) - miningFees)
   signBatchedTransaction(batchedTransaction, extraPSBTData)
   const finalTransaction = finalize(batchedTransaction)
   return finalTransaction

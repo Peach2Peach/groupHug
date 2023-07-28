@@ -4,13 +4,14 @@ import { addPSBTToQueue } from '../../src/utils/queue'
 import { respondWithError } from '../../src/utils/response'
 import { AddPSBTRequest, AddPSBTResponse } from './types'
 import { NETWORK } from '../../constants'
+import { getTxIdOfInput } from '../../src/utils/psbt'
 
 export const addPSBTController = async (req: AddPSBTRequest, res: AddPSBTResponse) => {
   const { psbt: base64, feeRate, index } = req.body
 
   const psbt = Psbt.fromBase64(base64, { network: NETWORK })
 
-  const results = await Promise.all(psbt.txInputs.map((input) => getTx(input.hash.toString('hex'))))
+  const results = await Promise.all(psbt.txInputs.map((input) => getTx(getTxIdOfInput(input))))
   const transactions = results.map((result) => result.getValue())
   if (transactions.every((t) => t) && transactions.some((tx) => !tx.status.confirmed)) {
     return respondWithError(res, 'BAD_REQUEST')
