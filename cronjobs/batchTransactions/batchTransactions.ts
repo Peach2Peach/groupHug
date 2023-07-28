@@ -15,6 +15,8 @@ import {
 const logger = getLogger('job', 'batchTransactions')
 
 const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
+  logger.debug(['Batching bucket:', index, 'candidates:', candidate.length])
+
   const batchBucketResult = await batchBucket(candidate)
 
   if (!batchBucketResult.isOk()) {
@@ -26,6 +28,8 @@ const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
   const result = await postTx(batchedTransaction.toHex())
 
   if (result.isOk()) {
+    logger.info(['Transaction succesfully batched for bucket', index])
+
     const txId = result.getValue()
     const markResult = await markBatchedTransactionAsPending(candidate, index, txId)
     return markResult.isOk()
@@ -37,8 +41,6 @@ const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
 }
 
 export const batchTransactions = async () => {
-  logger.debug('Start batch process')
-
   const feeEstimatesResult = await getFeeEstimates()
 
   if (feeEstimatesResult.isError()) {
@@ -56,6 +58,8 @@ export const batchTransactions = async () => {
 
   let i = 0
   while (batchCandidates.length) {
+    logger.info(['Batching bucket', i, 'with fee range', feeRanges[i]])
+
     // eslint-disable-next-line no-await-in-loop
     const result = await handleBatch(batchCandidates.shift(), i)
     if (result === false) success = false
