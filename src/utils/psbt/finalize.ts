@@ -1,5 +1,5 @@
 import { Psbt } from 'bitcoinjs-lib'
-import { getFinalScript } from '../../../test/integration/helpers/getFinalScript'
+import { getFinalScript } from './getFinalScript'
 import { validatePSBTSignatures } from './validatePSBTSignatures'
 
 export const finalize = (psbt: Psbt) => {
