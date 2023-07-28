@@ -41,7 +41,9 @@ describe('transaction', () => {
   it('should retry on optimistic locking failured', async () => {
     const multiStub = {
       set: Sinon.stub(),
-      exec: Sinon.stub().resolves('ok').onSecondCall().resolves(null),
+      exec: Sinon.stub().resolves('ok')
+        .onSecondCall()
+        .resolves(null),
       discard: Sinon.stub(),
     }
 
