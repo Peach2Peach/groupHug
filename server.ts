@@ -5,11 +5,9 @@ import { NETWORK, NODE_ENV, PASSWORDPROTECTION, PORT, RESPONSE_CODES } from './c
 import { Queue } from './controllers/queue'
 import { System } from './controllers/system'
 import { startServer } from './controllers/system/startController'
-import { initJobs } from './cronjobs/initJobs'
 import { addResponseHeaders } from './middleware/addResponseHeaders'
 import loggerMiddleware from './middleware/logger'
 import { passwordProtection } from './middleware/passwordProtection'
-import { initDatabase } from './src/utils/db'
 import getLogger from './src/utils/logger'
 
 const logger = getLogger('error', 'log')
@@ -22,8 +20,6 @@ serverLogger.info(['Network:', NETWORK.bech32])
 ;(async () => {
   if (!PASSWORDPROTECTION) {
     await startServer('')
-    await initDatabase()
-    initJobs()
   }
 })()
 
