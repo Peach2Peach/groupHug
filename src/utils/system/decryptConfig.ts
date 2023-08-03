@@ -8,19 +8,25 @@ export let FEE_COLLECTOR_PUBKEY: string
 export let decrypted = false
 export const setDecrypted = (d: boolean) => (decrypted = d)
 
+const getConfig = () => ({
+  DB_AUTH,
+  PRIVKEY,
+  FEE_COLLECTOR_PUBKEY,
+})
+
 export const decryptConfig = (password: string) => {
   setDecrypted(decrypted || !constants.PASSWORDPROTECTION)
   DB_AUTH = constants.DB_AUTH
   PRIVKEY = constants.PRIVKEY
   FEE_COLLECTOR_PUBKEY = constants.FEE_COLLECTOR_PUBKEY
-  if (decrypted) {
-    return {
-      DB_AUTH,
-      PRIVKEY,
-      FEE_COLLECTOR_PUBKEY,
+
+  if (decrypted) return getConfig()
+
+  try {
+    if (AES.decrypt(constants.DB_AUTH, password).toString(enc.Utf8).length === 0) {
+      throw new Error('Password invalid')
     }
-  }
-  if (AES.decrypt(constants.DB_AUTH, password).toString(enc.Utf8).length === 0) {
+  } catch (e) {
     throw new Error('Password invalid')
   }
 
@@ -29,9 +35,5 @@ export const decryptConfig = (password: string) => {
   FEE_COLLECTOR_PUBKEY = AES.decrypt(constants.FEE_COLLECTOR_PUBKEY, password).toString(enc.Utf8)
 
   setDecrypted(true)
-  return {
-    DB_AUTH,
-    PRIVKEY,
-    FEE_COLLECTOR_PUBKEY,
-  }
+  return getConfig()
 }
