@@ -8,7 +8,6 @@ on:
     inputs:
       server:
         description: 'The server to deploy to'
-        default: '100.73.83.124'
         required: true
         type: string
       bin-folder:

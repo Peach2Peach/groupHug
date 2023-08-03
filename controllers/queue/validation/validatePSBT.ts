@@ -26,6 +26,7 @@ export const validatePSBT = (req: Request, res: Response, next: NextFunction) =>
     if (index) signAllInputs(psbt, getSignerByIndex(hotWallet, index, NETWORK))
     finalize(psbt)
 
+    // TODO check if feeRate check includes 40 byte discount
     if (feeRate > psbt.getFeeRate()) return respondWithError(res, 'BAD_REQUEST')
     return next()
   } catch (e) {
