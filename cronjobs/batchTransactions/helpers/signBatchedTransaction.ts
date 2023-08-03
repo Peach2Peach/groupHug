@@ -9,6 +9,7 @@ export const signBatchedTransaction = (batchedTransaction: Psbt, extraPSBTData: 
     const signer = getSignerByIndex(hotWallet, extraPSBTData[i].index, NETWORK)
     if (!batchedTransaction.data.inputs[i].witnessScript.includes(signer.publicKey)) return
 
+    delete batchedTransaction.data.inputs[i].sighashType
     batchedTransaction.updateInput(i, { sighashType: SIGHASH.ALL })
     batchedTransaction.signInput(i, signer, [SIGHASH.ALL])
   })

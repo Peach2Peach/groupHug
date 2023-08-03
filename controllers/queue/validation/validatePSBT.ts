@@ -30,6 +30,7 @@ export const validatePSBT = (req: Request, res: Response, next: NextFunction) =>
     const tx = finalize(psbt)
     const userFee = tx.virtualSize() * feeRate
     const finalFee = psbt.getFee() - DISCOUNT * feeRate
+
     if (userFee >= finalFee) return respondWithError(res, 'BAD_REQUEST')
     return next()
   } catch (e) {
