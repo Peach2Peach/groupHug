@@ -1,18 +1,18 @@
 import { expect } from 'chai'
 import { SinonStub } from 'sinon'
-import { getStatusController } from './getStatusController'
 import {
   requestMock,
   responseMock,
 } from '../../test/unit/controllers/expressMocks'
+import { getStatusController } from './getStatusController'
 import { GetStatusRequest, GetStatusResponse } from './types'
 
 describe('getStatusController', () => {
-  it('returns peach info', async () => {
+  it('returns grouhug info', () => {
     const statusRequest = requestMock()
     const statusResponse = responseMock()
 
-    await getStatusController(
+    getStatusController(
       statusRequest as GetStatusRequest,
       statusResponse as GetStatusResponse,
     )

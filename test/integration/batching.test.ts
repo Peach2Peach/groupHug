@@ -21,7 +21,7 @@ import { getMultisigScript } from './helpers/getMultisigScript'
 import { psbt1, psbt2, psbt3 } from './psbt'
 import { buyerAddress, seller } from './signers'
 
-describe('peach multisig escrow address', () => {
+describe('batching', () => {
   before(async () => {
     setNetwork(networks.regtest)
     loadFeeWallet(xpub, networks.regtest)

@@ -76,7 +76,7 @@ jobs:
           key: ${{ secrets.DEPLOY_REGTEST }}
           port: 22
           source: '*'
-          target: '~/tmp-peach-bins'
+          target: '~/tmp-grouphug-bins'
           overwrite: true
       - name: Deploy using ssh
         uses: appleboy/ssh-action@master
@@ -88,8 +88,8 @@ jobs:
           timeout: 5m
           script: |
             sudo systemctl stop grouphug
-            mv ~/tmp-peach-bins/* ${{inputs.bin-folder}}
+            mv ~/tmp-grouphug-bins/* ${{inputs.bin-folder}}
             cd ${{inputs.bin-folder}}
             chmod +x ./grouphug
             sudo systemctl start grouphug
-            rm -rf ~/tmp-peach-bins/
+            rm -rf ~/tmp-grouphug-bins/
