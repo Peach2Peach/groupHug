@@ -6,6 +6,8 @@ import { finalize, isSignedWithSighash, signAllInputs, validatePSBTSignatures } 
 import { respondWithError } from '../../../src/utils/response/respondWithError'
 import { getSignerByIndex, hotWallet } from '../../../src/wallets'
 
+const DISCOUNT = 40
+
 export const validatePSBT = (req: Request, res: Response, next: NextFunction) => {
   const { psbt: base64Unparsed, feeRate: feeRateUnparsed, index: indexUnparsed } = req.body
 
@@ -24,10 +26,11 @@ export const validatePSBT = (req: Request, res: Response, next: NextFunction) =>
     if (!isSignedWithSighash(psbt, 'SINGLE_ANYONECANPAY')) return respondWithError(res, 'BAD_REQUEST')
 
     if (index) signAllInputs(psbt, getSignerByIndex(hotWallet, index, NETWORK))
-    finalize(psbt)
 
-    // TODO check if feeRate check includes 40 byte discount
-    if (feeRate > psbt.getFeeRate()) return respondWithError(res, 'BAD_REQUEST')
+    const tx = finalize(psbt)
+    const userFee = tx.virtualSize() * feeRate
+    const finalFee = psbt.getFee() - DISCOUNT * feeRate
+    if (userFee >= finalFee) return respondWithError(res, 'BAD_REQUEST')
     return next()
   } catch (e) {
     return respondWithError(res, 'BAD_REQUEST')
