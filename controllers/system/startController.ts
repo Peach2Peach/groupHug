@@ -9,10 +9,10 @@ import { StartRequest, StartResponse } from './types'
 export const serverLogger = getLogger('server', 'log')
 
 export const startServer = async (password: string) => {
-  const { PRIVKEY, FEE_COLLECTOR_PUBKEY } = decryptConfig(password)
+  const { PRIVKEY, FEE_COLLECTOR_PUBKEY, DB_AUTH } = decryptConfig(password)
 
   if (decrypted) {
-    await initDatabase()
+    await initDatabase({ password: DB_AUTH })
     initWallets(PRIVKEY, FEE_COLLECTOR_PUBKEY, NETWORK)
     initJobs()
 
