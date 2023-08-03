@@ -75,7 +75,7 @@ Some transactions require the batching service to co-sign transactions. For this
 There are 2 configurations for the escrow:
 
 - `PRIVKEY`: use the main xpriv from derivation path `m`
-- `FEE_COLLECTOR_PUBKEY`: use the xpub from derivation path `m/84'/1'/0'`
+- `FEE_COLLECTOR_PUBKEY`: use the xpub from derivation path `m/84'/0'/0'`
 
 ## Starting development
 
