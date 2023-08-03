@@ -1,9 +1,9 @@
+import { Psbt, networks } from 'bitcoinjs-lib'
 import chai, { expect } from 'chai'
 import { Request, Response } from 'express'
 import { describe, it } from 'mocha'
 import Sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { validatePSBT } from './validatePSBT'
 import {
   batchQueue,
   missingSignature,
@@ -16,7 +16,7 @@ import {
   requestMock,
   responseMock,
 } from '../../../test/unit/controllers/expressMocks'
-import { Psbt, networks } from 'bitcoinjs-lib'
+import { validatePSBT } from './validatePSBT'
 
 chai.use(sinonChai)
 
@@ -45,9 +45,7 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({
-      error: 'BAD_REQUEST',
-    })
+    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
   })
   it('returns error if psbt has no signature', () => {
     const request = requestMock({
@@ -61,9 +59,7 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({
-      error: 'BAD_REQUEST',
-    })
+    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
   })
   it('returns error if psbt has wrong signature', () => {
     const wrongSig = Psbt.fromBase64(missingSignature, {
@@ -81,9 +77,7 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({
-      error: 'BAD_REQUEST',
-    })
+    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
   })
   it('returns error if psbt has wrong sighash', () => {
     const request = requestMock({
@@ -97,9 +91,7 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({
-      error: 'BAD_REQUEST',
-    })
+    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
   })
   it('returns error if psbt is invalid', () => {
     const request = requestMock({
@@ -113,9 +105,7 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({
-      error: 'BAD_REQUEST',
-    })
+    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
   })
   it('returns error if psbt has more than 2 inputs', () => {
     const request = requestMock({
@@ -129,9 +119,7 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({
-      error: 'BAD_REQUEST',
-    })
+    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
   })
   it('returns error if psbt has more than 2 outputs', () => {
     const request = requestMock({
@@ -145,9 +133,7 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({
-      error: 'BAD_REQUEST',
-    })
+    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
   })
   it('returns error if fee rate less than 1', () => {
     const request = requestMock({
@@ -160,9 +146,7 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({
-      error: 'BAD_REQUEST',
-    })
+    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
   })
   it('returns error if fee rate is invalid', () => {
     const request = requestMock({
@@ -175,14 +159,13 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({
-      error: 'BAD_REQUEST',
-    })
+    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
   })
-  it('returns error if fee rate is bigger than max possible fee rate for PSBT', () => {
+  it('returns error if desired user fee rate is bigger than max possible fee rate for PSBT', () => {
     const request = requestMock({
-      body: { psbt: validEntryPSBTBase64, feeRate: 32, index: 0 },
+      body: { psbt: validEntryPSBTBase64, feeRate: 24, index: 0 },
     })
+
     const response = responseMock()
     const next = Sinon.stub()
 
@@ -190,8 +173,6 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({
-      error: 'BAD_REQUEST',
-    })
+    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
   })
 })
