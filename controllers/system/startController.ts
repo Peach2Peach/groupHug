@@ -9,10 +9,10 @@ import { StartRequest, StartResponse } from './types'
 export const serverLogger = getLogger('server', 'log')
 
 export const startServer = async (password: string) => {
-  const { PRIVKEY, FEE_COLLECTOR_PUBKEY } = decryptConfig(password)
+  const { PRIVKEY, FEE_COLLECTOR_PUBKEY, DB_AUTH } = decryptConfig(password)
 
   if (decrypted) {
-    await initDatabase()
+    await initDatabase({ password: DB_AUTH })
     initWallets(PRIVKEY, FEE_COLLECTOR_PUBKEY, NETWORK)
     initJobs()
 
@@ -23,6 +23,7 @@ export const startServer = async (password: string) => {
     serverLogger.info(['BATCH_TIME_THRESHOLD', BATCH_TIME_THRESHOLD])
     serverLogger.info(['BATCH_SIZE_THRESHOLD', BATCH_SIZE_THRESHOLD])
   }
+  return decrypted
 }
 
 export const startController = async (req: StartRequest, res: StartResponse) => {
@@ -32,10 +33,9 @@ export const startController = async (req: StartRequest, res: StartResponse) => 
 
   const { password } = req.body
   try {
-    await startServer(password)
-    res.json({ success: decrypted })
+    res.json({ success: await startServer(password) })
   } catch (e) {
-    serverLogger.error(['Failed server start attempt'])
+    serverLogger.error(['Failed server start attempt', e])
     res.json({ success: false })
   }
 }
