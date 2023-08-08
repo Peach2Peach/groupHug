@@ -1,9 +1,9 @@
-export class TransactionResult {
+export class TransactionResult<R> {
   private ok: boolean
   private error: string
-  private result: any
+  private result: R
 
-  constructor (ok: boolean, result?: any, error?: string) {
+  constructor (ok: boolean, result?: R, error?: string) {
     this.ok = ok
     this.error = error
     this.result = result
@@ -21,7 +21,7 @@ export class TransactionResult {
     return this.error
   }
 
-  public getResult (): any {
+  public getResult (): R {
     return this.result
   }
 }

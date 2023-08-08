@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import { Response } from 'node-fetch'
 import Sinon from 'sinon'
 import { BLOCKEXPLORERURL } from '../../../constants'
 import { feeEstimates, rawFeeEstimates } from '../../../test/data/electrsData'
+import { getFetchResponse } from '../../../test/unit/helpers/getFetchResponse'
 import { fetchStub } from '../../../test/unit/hooks'
 import { getFeeEstimates } from './getFeeEstimates'
 
@@ -12,10 +12,9 @@ describe('getFeeEstimates', () => {
   })
 
   it('should call fetch with url and return fee recommendation rounded', async () => {
-    fetchStub.withArgs(`${BLOCKEXPLORERURL}/fee-estimates`).resolves({
-      json: () => Promise.resolve(rawFeeEstimates),
-      status: 200,
-    } as Response)
+    fetchStub
+      .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
+      .resolves(getFetchResponse(rawFeeEstimates))
 
     const result = await getFeeEstimates()
     expect(result.getValue()).to.deep.equal(feeEstimates)
