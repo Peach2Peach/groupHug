@@ -1,11 +1,11 @@
 import { createClient, RedisClientOptions } from 'redis'
 import { getDefaultOptions } from '.'
+import { dbLogger } from './dbLogger'
+import { errorListener } from './errorListener'
 import { SubClient } from './SubClient'
 import { TransactionResult } from './TransactionResult'
-import { errorListener } from './errorListener'
-import { dbLogger } from './dbLogger'
 
-type TransactionFunction = (client: SubClient) => Promise<any>
+type TransactionFunction<T> = (client: SubClient) => T
 export class DatabaseClient {
   client: ReturnType<typeof createClient>
 
@@ -142,7 +142,9 @@ export class DatabaseClient {
    *   await client.set('test-key', 'test-val')
    * })
    */
-  transaction (func: TransactionFunction): Promise<TransactionResult> {
+  transaction<F extends TransactionFunction<ReturnType<F>>> (
+    func: F,
+  ): Promise<TransactionResult<Awaited<ReturnType<F>>>> {
     return new Promise((resolve, reject) =>
       this.client.executeIsolated(async (isolatedClient) => {
         const multi = isolatedClient.multi()

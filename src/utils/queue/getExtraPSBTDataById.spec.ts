@@ -1,12 +1,14 @@
 import { expect } from 'chai'
 import { psbt1 } from '../../../test/data/psbtData'
-import { getExtraPSBTData } from './getExtraPSBTData'
+import { getExtraPSBTDataById } from './getExtraPSBTDataById'
 import { registerPSBT } from './registerPSBT'
 
-describe('getExtraPSBTData', () => {
+describe('getExtraPSBTDataById', () => {
   it('gets extra psbt data', async () => {
-    await registerPSBT(psbt1, 2)
-    const { psbt, revocationToken, index } = await getExtraPSBTData(psbt1)
+    const result = await registerPSBT(psbt1, 2)
+    const { psbt, revocationToken, index } = await getExtraPSBTDataById(
+      result.getResult().id,
+    )
     expect(psbt).to.equal(psbt1.toBase64())
     expect(revocationToken).to.have.length(32)
     expect(index).to.equal(2)
