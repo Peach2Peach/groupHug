@@ -6,7 +6,7 @@ import { batchTransactions } from './batchTransactions/batchTransactions'
 const serverLogger = getLogger('server', 'log')
 
 export const initJobs = () => {
-  cron.schedule('* * * * *', () => logJobExecution('batchTransactions', batchTransactions))
+  cron.schedule('*/10 * * * *', () => logJobExecution('batchTransactions', batchTransactions))
 
   serverLogger.info('Jobs initialised!')
 }
