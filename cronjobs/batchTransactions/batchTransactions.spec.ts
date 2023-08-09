@@ -37,7 +37,11 @@ describe('batchTransactions', () => {
         utxos: _psbts.map((psbt) => spiceUTXOWithPSBT(psbt)),
       }),
     )
-    Sinon.stub(getExtraPSBTData, 'getExtraPSBTData').resolves({ index: '1' })
+    Sinon.stub(getExtraPSBTData, 'getExtraPSBTData').resolves({
+      index: 1,
+      psbt: '',
+      revocationToken: '',
+    })
     await db.transaction(async (client) => {
       await Promise.all(
         psbts.map(({ psbt, feeRate }) =>
@@ -75,31 +79,29 @@ describe('batchTransactions', () => {
     )
     expect(await batchTransactions()).to.be.true
 
-    // psbt data is sorted by fee rate, we check if each psbt landed in the right bucket
     expect(batchBucketStub).to.have.been.calledWith(psbts.slice(80, 100))
     expect(batchBucketStub).to.have.been.calledWith(psbts.slice(68, 80))
     expect(batchBucketStub).to.have.been.calledWith(psbts.slice(61, 68))
-    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(58, 61))
-    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(51, 58))
-    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(48, 51))
-    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(45, 48))
-    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(33, 45))
-    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(19, 33))
-    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(9, 19))
+    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(54, 61))
+    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(51, 54))
+    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(47, 51))
+    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(37, 47))
+    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(25, 37))
+    expect(batchBucketStub).to.have.been.calledWith(psbts.slice(9, 25))
     expect(batchBucketStub).to.have.been.calledWith(psbts.slice(0, 9))
 
-    expect(await db.smembers(KEYS.TRANSACTION.PENDING)).to.deep.equal([
-      '0a3ef13d9d3993880b58756bacc2d0cbd46a03b5d4ad894a39f87aab526b0627',
-      'e16fa6bdbd5d824f46dd70be0eb2472dee38c2b08d056a75295ec5ffe5b63421',
-      '8c563459ba3ac30eb323b5f79f61a43123a2569ba8ad5d693a0a5ea0d2826e74',
-      'c1f8a19f732ef5f7c60029d4894b46068d0c9ed8dbf8d4111e9e5c3f44cd35f0',
-      '71c8cabbcbd9bbf22a5d089910896c18c627e350e87f87c2dbb9b79da38f6014',
-      'a4ac1bc8c1ab181911e1c63fe7a379c8dd8cc72b32cf06fcea3c6819ce781cf2',
-      '42b4136360520a54a32471c0a5fefba287df36f81c302e40388e4d817588cb28',
+    const pending = await db.smembers(KEYS.TRANSACTION.PENDING)
+    expect(pending.sort()).to.deep.equal([
       '15bedc190486b31384b2a2f6e5092ee430de55fe156d923828d69d70cd55c762',
-      '64613cb789906145113b5c52f15a46ebd3ef0842624630d0d45fbaaa05bc03eb',
+      '7480668e7d5d23e4a39f5bde00cf86843680dcd83c02c68cd44b69b461bb0f6e',
+      '78e361980cc493633f2f7cf1015a1940d2f5fd53b966fa2f89e6a7cf0118cb3c',
+      '7da6541e8985385e374c442ebea375c071de499994f25e6e6623432eb6a4aef0',
+      '8cce56aec1150339587ab7a7008d51c90d5d47fdf0ab6788d0518e1cdf51f3a1',
+      'a4ac1bc8c1ab181911e1c63fe7a379c8dd8cc72b32cf06fcea3c6819ce781cf2',
+      'c1f8a19f732ef5f7c60029d4894b46068d0c9ed8dbf8d4111e9e5c3f44cd35f0',
+      'd28ca6517dbd7dd991ac217f6be9b6f1ffe61f9a8efd194a2008d5ff6910747a',
       'e74f64cafeeca29e7981a59cb3e2a17ed698237d6c68329d51a4face9d01aff9',
-      '5a53c4850df0654815ad3dbb24c32d84106fef942b08770591a6bed3da5ef274',
+      'f275bc6102f561f69a13f14abebb795877c6a34e1e0314cd31c22a18a751f029',
     ])
   })
 })

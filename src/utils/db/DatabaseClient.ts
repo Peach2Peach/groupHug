@@ -55,10 +55,6 @@ export class DatabaseClient {
     return this.client.sInter(theKeys)
   }
 
-  sintercard (keys: string[]) {
-    return this.client.sInterCard(keys)
-  }
-
   sunion (theKeys: string[]) {
     return this.client.sUnion(theKeys)
   }
@@ -167,7 +163,7 @@ export class DatabaseClient {
           dbLogger.error('Optimistic locking failure')
           return resolve(await this.transaction(func))
         }
-        return resolve(new TransactionResult(true, transactionResult))
+        return resolve(new TransactionResult(true, transactionResult as Awaited<ReturnType<F>>))
       }),
     )
   }

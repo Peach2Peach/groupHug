@@ -5,6 +5,7 @@ export const KEYS = {
   },
   BUCKET: {
     EXPIRATION: 'bucket-expiration-',
+    STATUS: 'bucket-status-',
   },
   BATCH: 'psbt-batch-',
   TRANSACTION: {
