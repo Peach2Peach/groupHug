@@ -8,10 +8,10 @@ describe('getBucketStatus', () => {
     await Promise.all([saveBucketStatus(0, 10, 20), resetBucketExpiration(0)])
 
     expect(await getBucketStatus(0)).to.deep.equal({
-      index: 0,
       participants: 10,
       maxParticipants: 20,
       timeRemaining: 600,
+      completed: false,
     })
   })
 })
