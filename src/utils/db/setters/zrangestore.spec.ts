@@ -5,17 +5,24 @@ import { db } from '..'
 describe('zrangestore', () => {
   beforeEach(async () => {
     await db.transaction(async (client) => {
-      await client.zadd('test-set-key', 10, 'a')
-      await client.zadd('test-set-key', 20, 'b')
-      await client.zadd('test-set-key', 30, 'c')
-      await client.zadd('test-set-key', 40, 'd')
+      await Promise.all([
+        client.zadd('test-set-key', 10, 'a'),
+        client.zadd('test-set-key', 20, 'b'),
+        client.zadd('test-set-key', 30, 'c'),
+        client.zadd('test-set-key', 40, 'd'),
+      ])
     })
   })
   it('should store items with scores', async () => {
     await db.transaction(async (client) => {
       await client.zrangestore('test-set-destination', 'test-set-key')
     })
-    expect(await db.zrange('test-set-destination')).to.deep.equal(['a', 'b', 'c', 'd'])
+    expect(await db.zrange('test-set-destination')).to.deep.equal([
+      'a',
+      'b',
+      'c',
+      'd',
+    ])
   })
   it('should store items within a range by score', async () => {
     await db.transaction(async (client) => {
@@ -25,7 +32,13 @@ describe('zrangestore', () => {
   })
   it('should store items within a range by index', async () => {
     await db.transaction(async (client) => {
-      await client.zrangestore('test-set-destination', 'test-set-key', 2, 3, false)
+      await client.zrangestore(
+        'test-set-destination',
+        'test-set-key',
+        2,
+        3,
+        false,
+      )
     })
     expect(await db.zrange('test-set-destination')).to.deep.equal(['c', 'd'])
   })
