@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 import helmet from 'helmet'
 import http from 'http'
 import { NETWORK, NODE_ENV, PASSWORDPROTECTION, PORT, RESPONSE_CODES } from './constants'
+import { Batch } from './controllers/batch'
 import { Queue } from './controllers/queue'
 import { System } from './controllers/system'
 import { startServer } from './controllers/system/startController'
@@ -44,6 +45,7 @@ app.all('/*', addResponseHeaders({ 'Content-Type': 'application/json' }))
 // Install Controllers
 System(app)
 Queue(app)
+Batch(app)
 
 app.use((req: Request, res: Response<any>) => res.status(RESPONSE_CODES.NOT_FOUND).json({ error: 'NOT_FOUND' }))
 

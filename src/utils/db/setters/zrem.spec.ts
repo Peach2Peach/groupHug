@@ -7,8 +7,10 @@ chai.use(sinonChai)
 describe('zrem', () => {
   it('should remove a member ', async () => {
     await db.transaction(async (client) => {
-      await client.zadd('test-zrem-key', 1, 'A')
-      await client.zadd('test-zrem-key', 3, 'B')
+      await Promise.all([
+        client.zadd('test-zrem-key', 1, 'A'),
+        client.zadd('test-zrem-key', 3, 'B'),
+      ])
       await client.zrem('test-zrem-key', 'B')
     })
 

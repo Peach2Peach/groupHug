@@ -3,6 +3,7 @@ import { NETWORK } from '../../constants'
 import { round } from '../../src/utils/math'
 import { finalize } from '../../src/utils/psbt'
 import { getExtraPSBTData } from '../../src/utils/queue'
+import { PSBTInfo } from '../../src/utils/queue/getExtraPSBTDataById'
 import { PSBTWithFeeRate } from '../../src/utils/queue/getPSBTsFromQueue'
 import { getError, getResult } from '../../src/utils/result'
 import { getUnusedFeeAddress } from '../../src/wallets'
@@ -15,7 +16,7 @@ import { signBatchedTransaction } from './helpers/signBatchedTransaction'
 const buildBatchedTransaction = async (
   psbts: Psbt[],
   averageFeeRate: number,
-  extraPSBTData: Record<string, string>[],
+  extraPSBTData: PSBTInfo[],
   miningFees: number,
 ) => {
   const batchedTransaction = getBatchedTransaction(psbts, NETWORK)

@@ -1,7 +1,7 @@
 import { db } from '../db'
 import { KEYS } from '../db/keys'
 
-type PSBTInfo = {
+export type PSBTInfo = {
   psbt: string
   index: number
   revocationToken: string

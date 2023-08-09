@@ -1,8 +1,9 @@
 import { Psbt } from 'bitcoinjs-lib'
 import { NETWORK, SIGHASH } from '../../../constants'
+import { PSBTInfo } from '../../../src/utils/queue/getExtraPSBTDataById'
 import { getSignerByIndex, hotWallet } from '../../../src/wallets'
 
-export const signBatchedTransaction = (batchedTransaction: Psbt, extraPSBTData: Record<string, string>[]) => {
+export const signBatchedTransaction = (batchedTransaction: Psbt, extraPSBTData: PSBTInfo[]) => {
   batchedTransaction.txInputs.forEach((input, i) => {
     if (!extraPSBTData[i].index) return
 
