@@ -4,6 +4,7 @@ import { KEYS } from '../db/keys'
 export type PSBTInfo = {
   psbt: string
   index: number
+  txId?: string
   revocationToken: string
 }
 export const getExtraPSBTDataById = async (id: string): Promise<PSBTInfo> => {
@@ -13,6 +14,7 @@ export const getExtraPSBTDataById = async (id: string): Promise<PSBTInfo> => {
   return {
     psbt: rawInfo.psbt,
     revocationToken: rawInfo.revocationToken,
+    txId: rawInfo.txId,
     index: Number(rawInfo.index),
   }
 }

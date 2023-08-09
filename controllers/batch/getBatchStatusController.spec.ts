@@ -3,6 +3,7 @@ import { Response } from 'express'
 import { describe, it } from 'mocha'
 import Sinon from 'sinon'
 import sinonChai from 'sinon-chai'
+import { markBatchedTransactionAsPending } from '../../cronjobs/batchTransactions/helpers'
 import * as getFeeEstimates from '../../src/utils/electrs/getFeeEstimates'
 import {
   addPSBTToQueue,
@@ -46,10 +47,10 @@ describe('getBatchStatusController', () => {
     )
 
     expect(response.json).to.be.calledWith({
-      index: 9,
       participants: participants + 1,
       maxParticipants: maxParticipants + 1,
       timeRemaining: 600,
+      completed: false,
     })
   })
   it('returns batch status of an ongoing batch for given psbt id', async () => {
@@ -65,10 +66,36 @@ describe('getBatchStatusController', () => {
     )
 
     expect(response.json).to.be.calledWith({
-      index: 9,
       participants: participants + 1,
       maxParticipants: maxParticipants + 1,
       timeRemaining: 600,
+      completed: false,
+    })
+  })
+  it('returns batch status of an completed batch for given psbt id', async () => {
+    const txId = 'txId'
+    const result = await addPSBTToQueue(psbt1, 1)
+    await markBatchedTransactionAsPending(
+      [{ psbt: psbt1, feeRate: 1 }],
+      0,
+      txId,
+    )
+    Sinon.stub(getFeeEstimates, 'getFeeEstimates').resolves(
+      getResult(feeEstimates),
+    )
+    const request = requestMock({ query: { id: result.getResult().id } })
+    const response = responseMock()
+    await getBatchStatusController(
+      request as GetBatchStatusRequest,
+      response as Response,
+    )
+
+    expect(response.json).to.be.calledWith({
+      participants: 1,
+      maxParticipants: 1,
+      timeRemaining: 0,
+      completed: true,
+      txId,
     })
   })
   it('returns not found if not bucket status has been registered', async () => {
