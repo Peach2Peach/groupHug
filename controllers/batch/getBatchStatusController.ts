@@ -7,7 +7,6 @@ export const getBatchStatusController = async (req: GetBatchStatusRequest, res: 
   const { feeRate } = req.query
 
   const index = await getBucketIndexByFeeRate(Number(feeRate))
-
   if (index === undefined) return respondWithError(res, 'INTERNAL_SERVER_ERROR')
 
   const bucketStatus = await getBucketStatus(index)
