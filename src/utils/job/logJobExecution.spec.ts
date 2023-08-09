@@ -1,8 +1,10 @@
 /* eslint-disable no-await-in-loop */
 import { ok, strictEqual } from 'assert'
 import { describe, it } from 'mocha'
+import Sinon from 'sinon'
 import { getJobHistory, logJobExecution } from '.'
 import { sleep } from '../../../test/unit/helpers/sleep'
+import * as constants from './constants'
 
 describe('logJobExecution', () => {
   it('logs the execution of a successful job run', async () => {
@@ -44,12 +46,15 @@ describe('logJobExecution', () => {
     ok(history[0].runningTime >= 500)
     ok(history[0].runningTime < 750)
   })
-  it('drops history items above 100 entries', async () => {
-    for (let i = 110; i > 0; i--) {
+  it('drops history items above max entries', async () => {
+    const MAX_ENTRIES = 10
+    Sinon.stub(constants, 'MAX_ENTRIES').get(() => MAX_ENTRIES)
+
+    for (let i = MAX_ENTRIES + 2; i > 0; i--) {
       await logJobExecution('job1', () => false)
       await sleep(1)
     }
     const history = await getJobHistory('job1')
-    strictEqual(history.length, 100)
-  }).timeout(10000)
+    strictEqual(history.length, MAX_ENTRIES)
+  })
 })
