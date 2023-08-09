@@ -90,17 +90,18 @@ describe('batchTransactions', () => {
     expect(batchBucketStub).to.have.been.calledWith(psbts.slice(9, 25))
     expect(batchBucketStub).to.have.been.calledWith(psbts.slice(0, 9))
 
-    expect(await db.smembers(KEYS.TRANSACTION.PENDING)).to.deep.equal([
-      '7da6541e8985385e374c442ebea375c071de499994f25e6e6623432eb6a4aef0',
-      'e74f64cafeeca29e7981a59cb3e2a17ed698237d6c68329d51a4face9d01aff9',
-      'd28ca6517dbd7dd991ac217f6be9b6f1ffe61f9a8efd194a2008d5ff6910747a',
-      'c1f8a19f732ef5f7c60029d4894b46068d0c9ed8dbf8d4111e9e5c3f44cd35f0',
-      'f275bc6102f561f69a13f14abebb795877c6a34e1e0314cd31c22a18a751f029',
-      'a4ac1bc8c1ab181911e1c63fe7a379c8dd8cc72b32cf06fcea3c6819ce781cf2',
-      '78e361980cc493633f2f7cf1015a1940d2f5fd53b966fa2f89e6a7cf0118cb3c',
+    const pending = await db.smembers(KEYS.TRANSACTION.PENDING)
+    expect(pending.sort()).to.deep.equal([
       '15bedc190486b31384b2a2f6e5092ee430de55fe156d923828d69d70cd55c762',
       '7480668e7d5d23e4a39f5bde00cf86843680dcd83c02c68cd44b69b461bb0f6e',
+      '78e361980cc493633f2f7cf1015a1940d2f5fd53b966fa2f89e6a7cf0118cb3c',
+      '7da6541e8985385e374c442ebea375c071de499994f25e6e6623432eb6a4aef0',
       '8cce56aec1150339587ab7a7008d51c90d5d47fdf0ab6788d0518e1cdf51f3a1',
+      'a4ac1bc8c1ab181911e1c63fe7a379c8dd8cc72b32cf06fcea3c6819ce781cf2',
+      'c1f8a19f732ef5f7c60029d4894b46068d0c9ed8dbf8d4111e9e5c3f44cd35f0',
+      'd28ca6517dbd7dd991ac217f6be9b6f1ffe61f9a8efd194a2008d5ff6910747a',
+      'e74f64cafeeca29e7981a59cb3e2a17ed698237d6c68329d51a4face9d01aff9',
+      'f275bc6102f561f69a13f14abebb795877c6a34e1e0314cd31c22a18a751f029',
     ])
   })
 })
