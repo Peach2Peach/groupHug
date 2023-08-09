@@ -45,7 +45,7 @@
     "tiny-secp256k1": "^2.2.1",
     "typescript": "^4.5.2",
     "varuint-bitcoin": "^1.1.2",
-    "winston": "^3.3.3",
+    "winston": "^3.10.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
