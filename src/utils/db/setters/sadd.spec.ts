@@ -11,8 +11,10 @@ describe('sadd', () => {
     expect(await db.smembers('test-set-key')).to.deep.equal(['1'])
 
     await db.transaction(async (client) => {
-      await client.sadd('test-set-key', 'a')
-      await client.sadd('test-set-key', 'b')
+      await Promise.all([
+        client.sadd('test-set-key', 'a'),
+        client.sadd('test-set-key', 'b'),
+      ])
     })
 
     const entry = await db.smembers('test-set-key')
