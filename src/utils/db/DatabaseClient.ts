@@ -55,10 +55,6 @@ export class DatabaseClient {
     return this.client.sInter(theKeys)
   }
 
-  sintercard (keys: string[]) {
-    return this.client.sInterCard(keys)
-  }
-
   sunion (theKeys: string[]) {
     return this.client.sUnion(theKeys)
   }
