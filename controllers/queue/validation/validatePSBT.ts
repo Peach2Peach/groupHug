@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { NETWORK } from '../../../constants'
 import { finalize, isSignedWithSighash, signAllInputs, validatePSBTSignatures } from '../../../src/utils/psbt'
 import { respondWithError } from '../../../src/utils/response/respondWithError'
+import { FeeRateSchema } from '../../../src/utils/validation/schemas'
 import { getSignerByIndex, hotWallet } from '../../../src/wallets'
 
 const DISCOUNT = 40
@@ -12,8 +13,7 @@ export const validatePSBT = (req: Request, res: Response, next: NextFunction) =>
   const { psbt: base64Unparsed, feeRate: feeRateUnparsed, index: indexUnparsed } = req.body
 
   try {
-    const feeRate = z.number().gte(1)
-      .parse(feeRateUnparsed)
+    const feeRate = FeeRateSchema.parse(feeRateUnparsed)
     const base64 = z.string().nonempty()
       .parse(base64Unparsed)
     const index = indexUnparsed ? z.number().gte(0)
