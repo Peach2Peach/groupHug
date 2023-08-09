@@ -5,11 +5,13 @@ import Sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import * as getFeeEstimates from '../../src/utils/electrs/getFeeEstimates'
 import {
+  addPSBTToQueue,
   resetAllBucketExpirations,
   saveBucketStatus,
 } from '../../src/utils/queue'
 import { getError, getResult } from '../../src/utils/result'
 import { feeEstimates } from '../../test/data/electrsData'
+import { psbt1 } from '../../test/data/psbtData'
 import {
   requestMock,
   responseMock,
@@ -37,6 +39,25 @@ describe('getBatchStatusController', () => {
       getResult(feeEstimates),
     )
     const request = requestMock({ query: { feeRate: '1' } })
+    const response = responseMock()
+    await getBatchStatusController(
+      request as GetBatchStatusRequest,
+      response as Response,
+    )
+
+    expect(response.json).to.be.calledWith({
+      index: 9,
+      participants: participants + 1,
+      maxParticipants: maxParticipants + 1,
+      timeRemaining: 600,
+    })
+  })
+  it('returns batch status of an ongoing batch for given psbt id', async () => {
+    const result = await addPSBTToQueue(psbt1, 1)
+    Sinon.stub(getFeeEstimates, 'getFeeEstimates').resolves(
+      getResult(feeEstimates),
+    )
+    const request = requestMock({ query: { id: result.getResult().id } })
     const response = responseMock()
     await getBatchStatusController(
       request as GetBatchStatusRequest,
