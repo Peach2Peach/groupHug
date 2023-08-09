@@ -12,8 +12,6 @@ const logger = getLogger('job', 'batchTransactions')
 const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
   logger.debug(['Batching bucket:', index, 'candidates:', candidate.length])
 
-  saveBucketStatus(index, candidate.length, BATCH_SIZE_THRESHOLD)
-
   const batchBucketResult = await batchBucket(candidate)
 
   if (!batchBucketResult.isOk()) {
@@ -50,6 +48,8 @@ export const batchTransactions = async () => {
   const { fastestFee } = feeEstimatesResult.getValue()
   const feeRanges = getFeeRanges(getSteps(fastestFee, BUCKETS)).reverse()
   const buckets = await Promise.all(feeRanges.map(([min, max]) => getPSBTsFromQueue(min, max)))
+  buckets.forEach((bucket, i) => saveBucketStatus(i, bucket.length, BATCH_SIZE_THRESHOLD))
+
   const bucketReadyStates = await Promise.all(buckets.map(isBucketReadyForBatch))
   const batchCandidates = buckets.filter((_b, i) => bucketReadyStates[i])
 
