@@ -1,21 +1,18 @@
-import { BUCKETS } from '../../constants'
+import { BATCH_SIZE_THRESHOLD, BUCKETS } from '../../constants'
 import { getFeeEstimates, postTx } from '../../src/utils/electrs'
 import getLogger from '../../src/utils/logger'
-import { getPSBTsFromQueue } from '../../src/utils/queue'
+import { getFeeRanges, getPSBTsFromQueue, getSteps } from '../../src/utils/queue'
 import { PSBTWithFeeRate } from '../../src/utils/queue/getPSBTsFromQueue'
+import { saveBucketStatus } from '../../src/utils/queue/saveBucketStatus'
 import { batchBucket } from './batchBucket'
-import {
-  errorFormatBatch,
-  getFeeRanges,
-  getSteps,
-  isBucketReadyForBatch,
-  markBatchedTransactionAsPending,
-} from './helpers'
+import { errorFormatBatch, isBucketReadyForBatch, markBatchedTransactionAsPending } from './helpers'
 
 const logger = getLogger('job', 'batchTransactions')
 
 const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
   logger.debug(['Batching bucket:', index, 'candidates:', candidate.length])
+
+  saveBucketStatus(index, candidate.length, BATCH_SIZE_THRESHOLD)
 
   const batchBucketResult = await batchBucket(candidate)
 
@@ -32,6 +29,8 @@ const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
 
     const txId = result.getValue()
     const markResult = await markBatchedTransactionAsPending(candidate, index, txId)
+    saveBucketStatus(index, 0, BATCH_SIZE_THRESHOLD)
+
     return markResult.isOk()
   }
 
@@ -58,7 +57,7 @@ export const batchTransactions = async () => {
 
   let i = 0
   while (batchCandidates.length) {
-    logger.info(['Batching bucket', i, 'with fee range', feeRanges[i]])
+    logger.info(['Batching bucket', i + 1, 'with fee range', feeRanges[i]])
 
     // eslint-disable-next-line no-await-in-loop
     const result = await handleBatch(batchCandidates.shift(), i)
