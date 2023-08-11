@@ -7,7 +7,7 @@ import { checkTransactionStatus } from './checkTransactionStatus/checkTransactio
 const serverLogger = getLogger('server', 'log')
 
 export const initJobs = () => {
-  cron.schedule('*/10 * * * *', () => logJobExecution('batchTransactions', batchTransactions))
+  cron.schedule('* * * * *', () => logJobExecution('batchTransactions', batchTransactions))
 
   cron.schedule('30 */10 * * * *', () => logJobExecution('checkTransactionStatus', checkTransactionStatus))
 
