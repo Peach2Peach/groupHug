@@ -14,7 +14,7 @@ describe('addPSBTToBatch', () => {
       { score: 2, value: psbt1.toBase64() },
     ])
     expect(await getExtraPSBTDataById(result.getResult().id)).to.deep.equal({
-      index: NaN,
+      index: undefined,
       psbt: psbt1.toBase64(),
       revocationToken: result.getResult().revocationToken,
       txId,
