@@ -8,9 +8,9 @@ export const getBucketStatus = async (index: number) => {
   const ttl = await db.client.ttl(KEYS.BUCKET.EXPIRATION + String(index))
 
   return {
-    index,
     participants: Number(rawInfo.participants),
     maxParticipants: Number(rawInfo.maxParticipants),
     timeRemaining: ttl,
+    completed: false,
   }
 }

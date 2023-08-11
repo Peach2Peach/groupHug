@@ -23,7 +23,7 @@ export const mochaHooks = {
       dbId = (await db.client.incr('test-db')) + 7
       await db.client.expire('test-db', 60)
       await disconnectDatabases()
-      await initDatabase({ password: DB_AUTH, database: dbId })
+      await initDatabase({ password: DB_AUTH, database: Math.max(7, dbId) })
     } else {
       setClients(db)
     }
