@@ -1,6 +1,6 @@
 import { Psbt } from 'bitcoinjs-lib'
 import { NETWORK } from '../../constants'
-import { round } from '../../src/utils/math'
+import { ceil, round } from '../../src/utils/math'
 import { finalize } from '../../src/utils/psbt'
 import { getExtraPSBTData } from '../../src/utils/queue'
 import { PSBTInfo } from '../../src/utils/queue/getExtraPSBTDataById'
@@ -13,6 +13,7 @@ import { calculateServiceFees } from './helpers/calculateServiceFees'
 import { getUnspentPsbts } from './helpers/getUnspentPsbts'
 import { signBatchedTransaction } from './helpers/signBatchedTransaction'
 
+const SIGNATURE_SIZE_DIFF = 2
 const buildBatchedTransaction = async (
   psbts: Psbt[],
   averageFeeRate: number,
@@ -35,7 +36,7 @@ export const batchBucket = async (bucket: PSBTWithFeeRate[]) => {
   const averageFeeRate = getAverageFeeRate(bucket)
   const extraPSBTData = await Promise.all(psbts.map(getExtraPSBTData))
   const stagedTx = await buildBatchedTransaction(psbts, averageFeeRate, extraPSBTData, 0)
-  const miningFees = stagedTx.virtualSize() * averageFeeRate
+  const miningFees = ceil(stagedTx.virtualSize() + SIGNATURE_SIZE_DIFF * averageFeeRate)
   const finalTransaction = await buildBatchedTransaction(psbts, averageFeeRate, extraPSBTData, miningFees)
   return getResult(finalTransaction)
 }

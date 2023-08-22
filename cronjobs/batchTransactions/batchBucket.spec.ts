@@ -62,6 +62,6 @@ describe('batchBucket', () => {
     expect(finalTransaction.outs[10].script.toString('hex')).to.equal(
       '0014c660079108cfbe1fe5278bc79eb1fee5afa9a201',
     )
-    expect(finalTransaction.outs[10].value).to.equal(34482)
+    expect(finalTransaction.outs[10].value).to.equal(35787)
   })
 })
