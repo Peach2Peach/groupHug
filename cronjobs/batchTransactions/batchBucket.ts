@@ -36,7 +36,7 @@ export const batchBucket = async (bucket: PSBTWithFeeRate[]) => {
   const averageFeeRate = getAverageFeeRate(bucket)
   const extraPSBTData = await Promise.all(psbts.map(getExtraPSBTData))
   const stagedTx = await buildBatchedTransaction(psbts, averageFeeRate, extraPSBTData, 0)
-  const miningFees = ceil(stagedTx.virtualSize() + SIGNATURE_SIZE_DIFF * averageFeeRate)
+  const miningFees = ceil((stagedTx.virtualSize() + SIGNATURE_SIZE_DIFF) * averageFeeRate)
   const finalTransaction = await buildBatchedTransaction(psbts, averageFeeRate, extraPSBTData, miningFees)
   return getResult(finalTransaction)
 }
