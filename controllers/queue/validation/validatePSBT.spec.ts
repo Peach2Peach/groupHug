@@ -21,6 +21,8 @@ import { validatePSBT } from './validatePSBT'
 chai.use(sinonChai)
 
 describe('validatePSBT', () => {
+  const highFeePsbt = batchQueue[batchQueue.length - 1]
+
   it('validates psbt successfully', () => {
     const request = requestMock({
       body: batchQueue[0],
@@ -163,7 +165,7 @@ describe('validatePSBT', () => {
   })
   it('returns error if desired user fee rate is bigger than max possible fee rate for PSBT', () => {
     const request = requestMock({
-      body: { psbt: validEntryPSBTBase64, feeRate: 24, index: 0 },
+      body: { ...highFeePsbt, feeRate: 39 },
     })
 
     const response = responseMock()
@@ -174,5 +176,16 @@ describe('validatePSBT', () => {
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
     expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+  })
+  it('validates psbt successfully if desired fee rate is below actual fee rate (donation)', () => {
+    const request = requestMock({
+      body: { ...highFeePsbt, feeRate: 37 },
+    })
+    const response = responseMock()
+    const next = Sinon.stub()
+
+    validatePSBT(request as Request, response as Response, next)
+
+    expect(next).to.have.been.called
   })
 })

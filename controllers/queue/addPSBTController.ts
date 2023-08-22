@@ -1,10 +1,10 @@
 import { Psbt } from 'bitcoinjs-lib'
+import { NETWORK } from '../../constants'
 import { getTx } from '../../src/utils/electrs'
+import { getTxIdOfInput } from '../../src/utils/psbt'
 import { addPSBTToQueue } from '../../src/utils/queue'
 import { respondWithError } from '../../src/utils/response'
 import { AddPSBTRequest, AddPSBTResponse } from './types'
-import { NETWORK } from '../../constants'
-import { getTxIdOfInput } from '../../src/utils/psbt'
 
 export const addPSBTController = async (req: AddPSBTRequest, res: AddPSBTResponse) => {
   const { psbt: base64, feeRate, index } = req.body
