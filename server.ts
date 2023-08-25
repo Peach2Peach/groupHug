@@ -1,3 +1,4 @@
+import cors from 'cors'
 import express, { Request, Response } from 'express'
 import helmet from 'helmet'
 import http from 'http'
@@ -31,6 +32,8 @@ const server = http.createServer(app)
 // Security measures
 app.use(helmet())
 app.disable('x-powered-by')
+
+app.use(cors({ origin: '*' }))
 
 app.set('trust proxy', 1) // trust first proxy
 

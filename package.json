@@ -30,6 +30,7 @@
     "bip174": "^2.0.1",
     "bip32": "^3.0.1",
     "bitcoinjs-lib": "github:Peach2Peach/bitcoinjs-lib",
+    "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
     "dotenv": "^10.0.0",
     "ecpair": "^2.0.1",
