@@ -5,7 +5,7 @@ declare type GetBatchStatusResponseBody = {
   participants: number
   maxParticipants: number
   timeRemaining: number
-  feeRange: number[]
+  feeRange?: number[]
   completed: boolean
   txId?: string
 }
