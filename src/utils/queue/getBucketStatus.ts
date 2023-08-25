@@ -10,6 +10,7 @@ export const getBucketStatus = async (index: number) => {
   return {
     participants: Number(rawInfo.participants),
     maxParticipants: Number(rawInfo.maxParticipants),
+    feeRange: rawInfo.feeRange ? rawInfo.feeRange.split(',').map(Number) : [NaN, NaN],
     timeRemaining: ttl,
     completed: false,
   }

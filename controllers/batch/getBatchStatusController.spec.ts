@@ -29,9 +29,24 @@ describe('getBatchStatusController', () => {
   beforeEach(async () => {
     await Promise.all([
       resetAllBucketExpirations(),
-      saveBucketStatus(10, participants, maxParticipants),
-      saveBucketStatus(9, participants + 1, maxParticipants + 1),
-      saveBucketStatus(8, participants + 2, maxParticipants + 2),
+      saveBucketStatus({
+        index: 10,
+        participants,
+        maxParticipants,
+        feeRange: [10, NaN],
+      }),
+      saveBucketStatus({
+        index: 9,
+        participants: participants + 1,
+        maxParticipants: maxParticipants + 1,
+        feeRange: [5, 9],
+      }),
+      saveBucketStatus({
+        index: 8,
+        participants: participants + 2,
+        maxParticipants: maxParticipants + 2,
+        feeRange: [4, 5],
+      }),
     ])
   })
 
@@ -51,6 +66,7 @@ describe('getBatchStatusController', () => {
       maxParticipants: maxParticipants + 1,
       timeRemaining: 600,
       completed: false,
+      feeRange: [5, 9],
     })
   })
   it('returns batch status of an ongoing batch for given psbt id', async () => {
@@ -69,6 +85,7 @@ describe('getBatchStatusController', () => {
       participants: participants + 1,
       maxParticipants: maxParticipants + 1,
       timeRemaining: 600,
+      feeRange: [5, 9],
       completed: false,
     })
   })
