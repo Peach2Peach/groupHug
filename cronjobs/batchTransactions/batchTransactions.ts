@@ -27,7 +27,7 @@ const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
 
     const txId = result.getValue()
     const markResult = await markBatchedTransactionAsPending(candidate, index, txId)
-    saveBucketStatus(index, 0, BATCH_SIZE_THRESHOLD)
+    saveBucketStatus({ index, participants: 0, maxParticipants: BATCH_SIZE_THRESHOLD })
 
     return markResult.isOk()
   }
@@ -48,7 +48,14 @@ export const batchTransactions = async () => {
   const { fastestFee } = feeEstimatesResult.getValue()
   const feeRanges = getFeeRanges(getSteps(fastestFee, BUCKETS)).reverse()
   const buckets = await Promise.all(feeRanges.map(([min, max]) => getPSBTsFromQueue(min, max)))
-  buckets.forEach((bucket, i) => saveBucketStatus(i, bucket.length, BATCH_SIZE_THRESHOLD))
+  buckets.forEach((bucket, i) =>
+    saveBucketStatus({
+      index: i,
+      participants: bucket.length,
+      maxParticipants: BATCH_SIZE_THRESHOLD,
+      feeRange: feeRanges[i],
+    }),
+  )
 
   const bucketReadyStates = await Promise.all(buckets.map(isBucketReadyForBatch))
   const batchCandidates = buckets.filter((_b, i) => bucketReadyStates[i])

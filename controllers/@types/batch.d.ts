@@ -9,3 +9,9 @@ declare type GetBatchStatusResponseBody = {
   txId?: string
 }
 declare type GetBatchStatusErrorResponseBody = APIError<null>
+
+declare type GetBatchStatusOverviewRequestParams = {}
+declare type GetBatchStatusOverviewRequestQuery = {}
+declare type GetBatchStatusOverviewRequestBody = {}
+declare type GetBatchStatusOverviewResponseBody = GetBatchStatusResponseBody[]
+declare type GetBatchStatusOverviewErrorResponseBody = APIError<null>
