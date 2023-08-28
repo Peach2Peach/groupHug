@@ -115,6 +115,20 @@ describe('getBatchStatusController', () => {
       txId,
     })
   })
+  it('returns not found if psbt could not be found for given id', async () => {
+    Sinon.stub(getFeeEstimates, 'getFeeEstimates').resolves(
+      getResult(feeEstimates),
+    )
+    const request = requestMock({ query: { id: 'unknown' } })
+    const response = responseMock()
+    await getBatchStatusController(
+      request as GetBatchStatusRequest,
+      response as Response,
+    )
+
+    expect(response.status).to.be.calledWith(404)
+    expect(response.json).to.be.calledWith({ error: 'NOT_FOUND' })
+  })
   it('returns not found if not bucket status has been registered', async () => {
     Sinon.stub(getFeeEstimates, 'getFeeEstimates').resolves(
       getResult(feeEstimates),
