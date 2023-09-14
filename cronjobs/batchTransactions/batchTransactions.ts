@@ -7,7 +7,7 @@ import { saveBucketStatus } from '../../src/utils/queue/saveBucketStatus'
 import { batchBucket } from './batchBucket'
 import { errorFormatBatch, isBucketReadyForBatch, markBatchedTransactionAsPending } from './helpers'
 
-const logger = getLogger('job', 'batchTransactions')
+export const logger = getLogger('job', 'batchTransactions')
 
 const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
   logger.debug(['Batching bucket:', index, 'candidates:', candidate.length])
@@ -32,7 +32,11 @@ const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
     return markResult.isOk()
   }
 
-  logger.error(['Could not broadcast batched transaction', JSON.stringify(result.getError())])
+  logger.error([
+    'Could not broadcast batched transaction',
+    JSON.stringify(result.getError()),
+    batchedTransaction.toHex(),
+  ])
   logger.error([JSON.stringify(errorFormatBatch(candidate))])
   return false
 }
