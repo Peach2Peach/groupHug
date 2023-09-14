@@ -3,6 +3,6 @@ import { KEYS } from '../utils/db/keys'
 import { getFeeAddress } from './getFeeAddress'
 
 export const getUnusedFeeAddress = async () => {
-  const index = await db.get(KEYS.FEE.INDEX)
-  return getFeeAddress(Number(index || 0))
+  const index = await db.incr(KEYS.FEE.INDEX)
+  return getFeeAddress(index)
 }
