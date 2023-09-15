@@ -27,12 +27,16 @@ export class DatabaseClient {
     return (await this.client.exists(key)) === 1
   }
 
-  get (key: string): Promise<string> {
+  get (key: string) {
     return this.client.get(key)
   }
 
   hmget (key: string, subkey: string | string[]) {
     return this.client.hmGet(key, subkey)
+  }
+
+  incr (key: string) {
+    return this.client.incr(key)
   }
 
   scard (key: string) {
