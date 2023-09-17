@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/Peach2Peach/grouphug#readme",
   "dependencies": {
-    "bip174": "^2.0.1",
+    "bip174": "^2.1.1",
     "bip32": "^3.0.1",
     "bitcoinjs-lib": "github:Peach2Peach/bitcoinjs-lib",
     "cors": "^2.8.5",
