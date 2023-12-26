@@ -19,19 +19,23 @@ export const validatePSBT = (req: Request, res: Response, next: NextFunction) =>
     const index = indexUnparsed ? z.number().gte(0)
       .parse(indexUnparsed) : undefined
     const psbt = Psbt.fromBase64(base64, { network: NETWORK })
-    if (psbt.txInputs.length !== 1) return respondWithError(res, 'BAD_REQUEST')
-    if (psbt.txOutputs.length !== 1) return respondWithError(res, 'BAD_REQUEST')
-    if (!validatePSBTSignatures(psbt)) return respondWithError(res, 'BAD_REQUEST')
-    if (!isSignedWithSighash(psbt, 'SINGLE_ANYONECANPAY')) return respondWithError(res, 'BAD_REQUEST')
+    if (psbt.txInputs.length !== 1) return respondWithError(res, 'BAD_REQUEST', { details: 'INVALID_INPUTS' })
+    if (psbt.txOutputs.length !== 1) return respondWithError(res, 'BAD_REQUEST', { details: 'INVALID_OUTPUTS' })
+    if (!validatePSBTSignatures(psbt)) return respondWithError(res, 'BAD_REQUEST', { details: 'SIGNATURE_INVALID' })
+    if (!isSignedWithSighash(psbt, 'SINGLE_ANYONECANPAY')) {
+      return respondWithError(res, 'BAD_REQUEST', { details: 'WRONG_SIGHASH' })
+    }
 
     if (index) signAllInputs(psbt, getSignerByIndex(hotWallet, index, NETWORK))
 
     const tx = finalize(psbt)
     const finalFeeRate = psbt.getFee() / (tx.virtualSize() - BYTES_DISCOUNT)
 
-    if (feeRate >= finalFeeRate) return respondWithError(res, 'BAD_REQUEST')
+    if (feeRate >= finalFeeRate) {
+      return respondWithError(res, 'BAD_REQUEST', { details: 'INVALID_FEE_RATE', feeRate, finalFeeRate })
+    }
     return next()
   } catch (e) {
-    return respondWithError(res, 'BAD_REQUEST')
+    return respondWithError(res, 'BAD_REQUEST', { details: '' })
   }
 }
