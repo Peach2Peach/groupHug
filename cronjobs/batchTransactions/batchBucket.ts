@@ -7,6 +7,7 @@ import { PSBTInfo } from '../../src/utils/queue/getExtraPSBTDataById'
 import { PSBTWithFeeRate } from '../../src/utils/queue/getPSBTsFromQueue'
 import { getError, getResult } from '../../src/utils/result'
 import { getUnusedFeeAddress } from '../../src/wallets'
+import { logger } from './batchTransactions'
 import { getAverageFeeRate, getBatchedTransaction } from './helpers'
 import { addFeeOutput } from './helpers/addFeeOutput'
 import { calculateServiceFees } from './helpers/calculateServiceFees'
@@ -14,6 +15,9 @@ import { getUnspentPsbts } from './helpers/getUnspentPsbts'
 import { signBatchedTransaction } from './helpers/signBatchedTransaction'
 
 const SIGNATURE_SIZE_DIFF = 2
+const FEE_RATE_BUFFER = 4
+const DUST_LIMIT = 546
+
 const buildBatchedTransaction = async (
   psbts: Psbt[],
   averageFeeRate: number,
@@ -21,8 +25,14 @@ const buildBatchedTransaction = async (
   miningFees: number,
 ) => {
   const batchedTransaction = getBatchedTransaction(psbts, NETWORK)
-  batchedTransaction.setMaximumFeeRate(round(averageFeeRate + 1))
-  addFeeOutput(batchedTransaction, await getUnusedFeeAddress(), calculateServiceFees(psbts) - miningFees)
+  const serviceFees = calculateServiceFees(psbts)
+  batchedTransaction.setMaximumFeeRate(round(averageFeeRate + FEE_RATE_BUFFER))
+  logger.info(['averageFeeRate', averageFeeRate])
+  logger.info(['serviceFees', serviceFees])
+  logger.info(['miningFees', miningFees])
+
+  const finalServiceFee = serviceFees - miningFees
+  if (finalServiceFee > DUST_LIMIT) addFeeOutput(batchedTransaction, await getUnusedFeeAddress(), finalServiceFee)
   signBatchedTransaction(batchedTransaction, extraPSBTData)
   const finalTransaction = finalize(batchedTransaction)
   return finalTransaction

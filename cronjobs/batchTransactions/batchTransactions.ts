@@ -68,7 +68,7 @@ export const batchTransactions = async () => {
 
   let i = 0
   while (batchCandidates.length) {
-    logger.info(['Batching bucket', i + 1, 'with fee range', feeRanges[i]])
+    logger.info(['Batching bucket', i, 'with fee range', feeRanges[i]])
 
     // eslint-disable-next-line no-await-in-loop
     const result = await handleBatch(batchCandidates.shift(), i)
