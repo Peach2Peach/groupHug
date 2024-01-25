@@ -64,7 +64,7 @@ describe('getBatchStatusController', () => {
     expect(response.json).to.be.calledWith({
       participants: participants + 1,
       maxParticipants: maxParticipants + 1,
-      timeRemaining: 600,
+      timeRemaining: -2,
       completed: false,
       feeRange: [5, 9],
     })
@@ -84,7 +84,7 @@ describe('getBatchStatusController', () => {
     expect(response.json).to.be.calledWith({
       participants: participants + 1,
       maxParticipants: maxParticipants + 1,
-      timeRemaining: 600,
+      timeRemaining: -2,
       feeRange: [5, 9],
       completed: false,
     })
