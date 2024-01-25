@@ -3,8 +3,7 @@ import { db } from '../db'
 import { SubClient } from '../db/SubClient'
 import { KEYS } from '../db/keys'
 
-export const resetBucketExpirationWithClient = async (client: SubClient, index: number) => {
-  await client.set(KEYS.BUCKET.EXPIRATION + String(index), 'true', BATCH_TIME_THRESHOLD * MSINS)
+export const resetBucketExpirationWithClient = async (client: SubClient) => {
+  await client.set(KEYS.BUCKET.EXPIRATION, 'true', BATCH_TIME_THRESHOLD * MSINS)
 }
-export const resetBucketExpiration = (index: number) =>
-  db.transaction((client) => resetBucketExpirationWithClient(client, index))
+export const resetBucketExpiration = () => db.transaction((client) => resetBucketExpirationWithClient(client))

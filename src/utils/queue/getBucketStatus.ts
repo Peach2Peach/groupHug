@@ -5,7 +5,7 @@ export const getBucketStatus = async (index: number) => {
   const rawInfo = await db.hgetall(KEYS.BUCKET.STATUS + String(index))
   if (!rawInfo) return null
 
-  const ttl = await db.client.ttl(KEYS.BUCKET.EXPIRATION + String(index))
+  const ttl = await db.client.ttl(KEYS.BUCKET.EXPIRATION)
 
   return {
     participants: Number(rawInfo.participants),

@@ -12,7 +12,7 @@ describe('getBucketStatus', () => {
         maxParticipants: 20,
         feeRange: [1, 10],
       }),
-      resetBucketExpiration(0),
+      resetBucketExpiration(),
     ])
 
     expect(await getBucketStatus(0)).to.deep.equal({
