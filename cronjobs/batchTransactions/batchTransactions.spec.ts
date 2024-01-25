@@ -15,6 +15,7 @@ import { spiceUTXOWithPSBT } from '../../test/unit/helpers/spiceUTXOWithPSBT'
 import * as batchBucket from './batchBucket'
 import { batchTransactions } from './batchTransactions'
 import * as getUnspentPsbts from './helpers/getUnspentPsbts'
+import { hasBucketReachedTimeThreshold } from './helpers/hasBucketReachedTimeThreshold'
 
 chai.use(sinonChai)
 
@@ -77,6 +78,7 @@ describe('batchTransactions', () => {
     Sinon.stub(getFeeEstimates, 'getFeeEstimates').resolves(
       getResult(feeEstimates),
     )
+    expect(await hasBucketReachedTimeThreshold()).to.be.true
     expect(await batchTransactions()).to.be.true
 
     expect(batchBucketStub).to.have.been.calledWith(psbts.slice(80, 100))
@@ -92,16 +94,18 @@ describe('batchTransactions', () => {
 
     const pending = await db.smembers(KEYS.TRANSACTION.PENDING)
     expect(pending.sort()).to.deep.equal([
-      '0b5e372a4a19bcfb6f963df8cb2ff661f7682fe3fa37cae8ae67a6285488f1b5',
-      '2f96365ee5207328a0bce53e3ea17a503a30b716055061730acf163647089af9',
-      '5c3deee566e397bccb825edfa92718ccafc2874c0b13614f9f525ca2603ddd7e',
-      '80a3d160e87a990abaf86de9aa56c7fe54c071725d67c99bdfe134b92622cd34',
-      'c7b18614308eaba7c6424d787574a3e0d5841e211d69c9737eb86a855ca22a79',
-      'e2768147074e4e435ab2b9b9ab9e063f5c9b11ae11cbcf11a2e9d7ec54df8218',
-      'eb2bdabaf0917eead32be567143c33e3b34a5e01c7488ea7b6098378137a7cfa',
-      'ef1cc758ee289ea386aecc55a38a3e594ecd5cb559a0394798e0e4ee995102af',
+      '150d4a1cb68a9d53a5b44e2521af3f1cede2a7e2e92e0879e9d1dc5e875f4a39',
+      '4fd039b76e71d117de310c0cb3d5011dca0a4ef51ea23abdfe2d351e95662ba8',
+      '51695feea9c1da482e96f0a0f5c4b3574cf558afcda4bdd6c5f6ebf006b85072',
+      '67f9a55097960d6d00639d7a48dc92a4f409446f5b05a36c8afbf17180770978',
+      '6fec6fcf5a28b6e2da4fce8fe27069ba9348a2e7ca8f0ae5eb984cef885d6791',
+      'bfc47b75e36057e599892c1754a783cc53760b9d80532cd99979d356db3cecf8',
+      'e5addd0bffce7d8a8273cc7555834cd6b6bd7c2a4453e687b32e645ab408b18c',
+      'e89ed196629c326f5f039bdedc8b688300afb39c632125c8da237a76df8234fe',
+      'ee89bcb1bb73c0985e5927e16df7c9ceb7c54a388599e28afcf20c91182958d7',
       'ef939a8608090bc4d20ebee5150f8ee958bcd9102c2a124b8fd083223fd9eb2e',
-      'f88fbd51450b8ea5b17f3eb521a5ca5c4227abfde871399050c1c8287e4f79ef',
     ])
+
+    expect(await hasBucketReachedTimeThreshold()).to.be.false
   })
 })

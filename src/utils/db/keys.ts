@@ -4,7 +4,7 @@ export const KEYS = {
     QUEUE: 'psbt-queue',
   },
   BUCKET: {
-    EXPIRATION: 'bucket-expiration-',
+    EXPIRATION: 'bucket-expiration',
     STATUS: 'bucket-status-',
   },
   BATCH: 'psbt-batch-',

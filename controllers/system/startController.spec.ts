@@ -59,18 +59,6 @@ describe('startController', () => {
     )
     expect(initJobsStub).to.have.been.called
     expect(statusResponse.json).to.have.been.calledWith({ success: true })
-    // expect(await db.client.ttl(KEYS.BUCKET.EXPIRATION + '0')).to.equal(
-    //   BATCH_TIME_THRESHOLD,
-    // )
-    // expect(await db.client.ttl(KEYS.BUCKET.EXPIRATION + '3')).to.equal(
-    //   BATCH_TIME_THRESHOLD,
-    // )
-    // expect(await db.client.ttl(KEYS.BUCKET.EXPIRATION + '6')).to.equal(
-    //   BATCH_TIME_THRESHOLD,
-    // )
-    // expect(await db.client.ttl(KEYS.BUCKET.EXPIRATION + '10')).to.equal(
-    //   BATCH_TIME_THRESHOLD,
-    // )
   })
   it('should return success when already decrypted', async () => {
     decryptConfig.setDecrypted(true)
