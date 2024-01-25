@@ -10,6 +10,10 @@ The batching server collects all PSBTs and when a threshold is reached, all PSBT
 
 The batching server will also add one additional output for optional donations to the service. The extra output value is calculated by summing up all inputs and subtracting the mining fees.
 
+## API Docs:
+
+https://docs.peachbitcoin.com/grouphug
+
 ## Prerequisites
 
 ### redis
