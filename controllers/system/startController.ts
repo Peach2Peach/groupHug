@@ -2,7 +2,6 @@ import { BATCH_SIZE_THRESHOLD, BATCH_TIME_THRESHOLD, BUCKETS, NETWORK } from '..
 import { initJobs } from '../../cronjobs/initJobs'
 import { initDatabase } from '../../src/utils/db'
 import getLogger from '../../src/utils/logger'
-import { resetAllBucketExpirations } from '../../src/utils/queue/resetAllBucketExpirations'
 import { decryptConfig, decrypted } from '../../src/utils/system/decryptConfig'
 import { initWallets } from '../../src/wallets'
 import { StartRequest, StartResponse } from './types'
@@ -15,8 +14,6 @@ export const startServer = async (password: string) => {
     await initDatabase({ password: DB_AUTH })
     initWallets(PRIVKEY, FEE_COLLECTOR_PUBKEY, NETWORK)
     initJobs()
-
-    await resetAllBucketExpirations()
 
     serverLogger.info('GroupHug Server initialised!')
     serverLogger.info(['BUCKETS', BUCKETS])

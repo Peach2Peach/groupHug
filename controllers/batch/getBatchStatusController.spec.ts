@@ -5,11 +5,7 @@ import Sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { markBatchedTransactionAsPending } from '../../cronjobs/batchTransactions/helpers'
 import * as getFeeEstimates from '../../src/utils/electrs/getFeeEstimates'
-import {
-  addPSBTToQueue,
-  resetAllBucketExpirations,
-  saveBucketStatus,
-} from '../../src/utils/queue'
+import { addPSBTToQueue, saveBucketStatus } from '../../src/utils/queue'
 import { getError, getResult } from '../../src/utils/result'
 import { feeEstimates } from '../../test/data/electrsData'
 import { psbt1 } from '../../test/data/psbtData'
@@ -28,7 +24,6 @@ describe('getBatchStatusController', () => {
 
   beforeEach(async () => {
     await Promise.all([
-      resetAllBucketExpirations(),
       saveBucketStatus({
         index: 10,
         participants,
@@ -92,11 +87,7 @@ describe('getBatchStatusController', () => {
   it('returns batch status of an completed batch for given psbt id', async () => {
     const txId = 'txId'
     const result = await addPSBTToQueue(psbt1, 1)
-    await markBatchedTransactionAsPending(
-      [{ psbt: psbt1, feeRate: 1 }],
-      0,
-      txId,
-    )
+    await markBatchedTransactionAsPending([{ psbt: psbt1, feeRate: 1 }], txId)
     Sinon.stub(getFeeEstimates, 'getFeeEstimates').resolves(
       getResult(feeEstimates),
     )

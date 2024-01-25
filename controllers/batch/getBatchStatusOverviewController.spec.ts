@@ -4,10 +4,7 @@ import { describe, it } from 'mocha'
 import Sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import * as getFeeEstimates from '../../src/utils/electrs/getFeeEstimates'
-import {
-  resetAllBucketExpirations,
-  saveBucketStatus,
-} from '../../src/utils/queue'
+import { saveBucketStatus } from '../../src/utils/queue'
 import { getResult } from '../../src/utils/result'
 import { feeEstimates } from '../../test/data/electrsData'
 import {
@@ -25,7 +22,6 @@ describe('getBatchStatusOverviewController', () => {
 
   beforeEach(async () => {
     await Promise.all([
-      resetAllBucketExpirations(),
       saveBucketStatus({ index: 10, participants, maxParticipants }),
       saveBucketStatus({
         index: 9,

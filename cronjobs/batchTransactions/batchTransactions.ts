@@ -1,11 +1,16 @@
 import { BATCH_SIZE_THRESHOLD, BUCKETS } from '../../constants'
 import { getFeeEstimates, postTx } from '../../src/utils/electrs'
 import getLogger from '../../src/utils/logger'
-import { getFeeRanges, getPSBTsFromQueue, getSteps } from '../../src/utils/queue'
+import { getFeeRanges, getPSBTsFromQueue, getSteps, resetBucketExpiration } from '../../src/utils/queue'
 import { PSBTWithFeeRate } from '../../src/utils/queue/getPSBTsFromQueue'
 import { saveBucketStatus } from '../../src/utils/queue/saveBucketStatus'
 import { batchBucket } from './batchBucket'
-import { errorFormatBatch, isBucketReadyForBatch, markBatchedTransactionAsPending } from './helpers'
+import {
+  errorFormatBatch,
+  hasBucketReachedTimeThreshold,
+  isBucketReadyForBatch,
+  markBatchedTransactionAsPending,
+} from './helpers'
 
 export const logger = getLogger('job', 'batchTransactions')
 
@@ -26,7 +31,7 @@ const handleBatch = async (candidate: PSBTWithFeeRate[], index: number) => {
     logger.info(['Transaction succesfully batched for bucket', index])
 
     const txId = result.getValue()
-    const markResult = await markBatchedTransactionAsPending(candidate, index, txId)
+    const markResult = await markBatchedTransactionAsPending(candidate, txId)
     saveBucketStatus({ index, participants: 0, maxParticipants: BATCH_SIZE_THRESHOLD })
 
     return markResult.isOk()
@@ -61,19 +66,21 @@ export const batchTransactions = async () => {
     }),
   )
 
-  const bucketReadyStates = await Promise.all(buckets.map(isBucketReadyForBatch))
-  const batchCandidates = buckets.filter((_b, i) => bucketReadyStates[i])
+  const timeThresholdReached = await hasBucketReachedTimeThreshold()
 
-  let success = true
+  const results = await Promise.all(
+    buckets.map((bucket, i) => {
+      if (!timeThresholdReached && !isBucketReadyForBatch(bucket)) {
+        logger.info(['Bucket', i, 'not ready to be batched'])
+        return true
+      }
+      logger.info(['Batching bucket', i, 'with fee range', feeRanges[i]])
+      return handleBatch(bucket, i)
+    }),
+  )
+  const success = results.every((r) => r === true)
 
-  let i = 0
-  while (batchCandidates.length) {
-    logger.info(['Batching bucket', i, 'with fee range', feeRanges[i]])
+  if (timeThresholdReached) await resetBucketExpiration()
 
-    // eslint-disable-next-line no-await-in-loop
-    const result = await handleBatch(batchCandidates.shift(), i)
-    if (result === false) success = false
-    i++
-  }
   return success
 }
