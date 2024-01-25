@@ -56,14 +56,14 @@ describe('getBatchStatusOverviewController', () => {
         participants: 12,
         maxParticipants: 22,
         feeRange: [NaN, NaN],
-        timeRemaining: 600,
+        timeRemaining: -2,
         completed: false,
       },
       {
         participants: 11,
         maxParticipants: 21,
         feeRange: [NaN, NaN],
-        timeRemaining: 600,
+        timeRemaining: -2,
         completed: false,
       },
     ])

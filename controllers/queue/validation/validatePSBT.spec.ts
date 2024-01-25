@@ -47,7 +47,10 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+    expect(response.json).to.have.been.calledWith({
+      details: '',
+      error: 'BAD_REQUEST',
+    })
   })
   it('returns error if psbt has no signature', () => {
     const request = requestMock({
@@ -61,7 +64,10 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+    expect(response.json).to.have.been.calledWith({
+      details: 'SIGNATURE_INVALID',
+      error: 'BAD_REQUEST',
+    })
   })
   it('returns error if psbt has wrong signature', () => {
     const wrongSig = Psbt.fromBase64(missingSignature, {
@@ -79,7 +85,10 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+    expect(response.json).to.have.been.calledWith({
+      details: 'SIGNATURE_INVALID',
+      error: 'BAD_REQUEST',
+    })
   })
   it('returns error if psbt has wrong sighash', () => {
     const request = requestMock({
@@ -93,7 +102,10 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+    expect(response.json).to.have.been.calledWith({
+      details: 'WRONG_SIGHASH',
+      error: 'BAD_REQUEST',
+    })
   })
   it('returns error if psbt is invalid', () => {
     const request = requestMock({
@@ -107,7 +119,10 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+    expect(response.json).to.have.been.calledWith({
+      details: '',
+      error: 'BAD_REQUEST',
+    })
   })
   it('returns error if psbt has more than 2 inputs', () => {
     const request = requestMock({
@@ -121,7 +136,10 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+    expect(response.json).to.have.been.calledWith({
+      details: 'INVALID_INPUTS',
+      error: 'BAD_REQUEST',
+    })
   })
   it('returns error if psbt has more than 2 outputs', () => {
     const request = requestMock({
@@ -135,7 +153,10 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+    expect(response.json).to.have.been.calledWith({
+      details: 'INVALID_OUTPUTS',
+      error: 'BAD_REQUEST',
+    })
   })
   it('returns error if fee rate less than 1', () => {
     const request = requestMock({
@@ -148,7 +169,10 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+    expect(response.json).to.have.been.calledWith({
+      details: '',
+      error: 'BAD_REQUEST',
+    })
   })
   it('returns error if fee rate is invalid', () => {
     const request = requestMock({
@@ -161,7 +185,10 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+    expect(response.json).to.have.been.calledWith({
+      details: '',
+      error: 'BAD_REQUEST',
+    })
   })
   it('returns error if desired user fee rate is bigger than max possible fee rate for PSBT', () => {
     const request = requestMock({
@@ -175,7 +202,12 @@ describe('validatePSBT', () => {
 
     expect(next).not.to.have.been.called
     expect(response.status).to.have.been.calledWith(400)
-    expect(response.json).to.have.been.calledWith({ error: 'BAD_REQUEST' })
+    expect(response.json).to.have.been.calledWith({
+      details: 'INVALID_FEE_RATE',
+      feeRate: 39,
+      finalFeeRate: 38.24742268041237,
+      error: 'BAD_REQUEST',
+    })
   })
   it('validates psbt successfully if desired fee rate is below actual fee rate (donation)', () => {
     const request = requestMock({
