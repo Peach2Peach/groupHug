@@ -6,6 +6,7 @@ import { finalize, isSignedWithSighash, signAllInputs, validatePSBTSignatures } 
 import { respondWithError } from '../../../src/utils/response/respondWithError'
 import { FeeRateSchema } from '../../../src/utils/validation/schemas'
 import { getSignerByIndex, hotWallet } from '../../../src/wallets'
+import { oldHotWallet } from '../../../src/wallets/hotWallet'
 
 const BYTES_DISCOUNT = 40
 
@@ -26,7 +27,9 @@ export const validatePSBT = (req: Request, res: Response, next: NextFunction) =>
       return respondWithError(res, 'BAD_REQUEST', { details: 'WRONG_SIGHASH' })
     }
 
-    if (index) signAllInputs(psbt, getSignerByIndex(hotWallet, index, NETWORK))
+    if (index) {
+      signAllInputs(psbt, getSignerByIndex(hotWallet, index, NETWORK), getSignerByIndex(oldHotWallet, index, NETWORK))
+    }
 
     const tx = finalize(psbt)
     const finalFeeRate = psbt.getFee() / (tx.virtualSize() - BYTES_DISCOUNT)

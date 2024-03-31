@@ -4,6 +4,7 @@ import * as constants from '../../../constants'
 
 export let DB_AUTH: string
 export let PRIVKEY: string
+export let OLD_PRIVKEY: string
 export let FEE_COLLECTOR_PUBKEY: string
 export let decrypted = false
 export const setDecrypted = (d: boolean) => (decrypted = d)
@@ -11,6 +12,7 @@ export const setDecrypted = (d: boolean) => (decrypted = d)
 const getConfig = () => ({
   DB_AUTH,
   PRIVKEY,
+  OLD_PRIVKEY,
   FEE_COLLECTOR_PUBKEY,
 })
 
@@ -18,6 +20,7 @@ export const decryptConfig = (password: string) => {
   setDecrypted(decrypted || !constants.PASSWORDPROTECTION)
   DB_AUTH = constants.DB_AUTH
   PRIVKEY = constants.PRIVKEY
+  OLD_PRIVKEY = constants.OLD_PRIVKEY
   FEE_COLLECTOR_PUBKEY = constants.FEE_COLLECTOR_PUBKEY
 
   if (decrypted) return getConfig()
@@ -32,6 +35,7 @@ export const decryptConfig = (password: string) => {
 
   DB_AUTH = AES.decrypt(constants.DB_AUTH, password).toString(enc.Utf8)
   PRIVKEY = AES.decrypt(constants.PRIVKEY, password).toString(enc.Utf8)
+  OLD_PRIVKEY = AES.decrypt(constants.OLD_PRIVKEY, password).toString(enc.Utf8)
   FEE_COLLECTOR_PUBKEY = AES.decrypt(constants.FEE_COLLECTOR_PUBKEY, password).toString(enc.Utf8)
 
   setDecrypted(true)

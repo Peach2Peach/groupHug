@@ -15,7 +15,8 @@ import { spiceUTXOWithPSBT } from '../../test/unit/helpers/spiceUTXOWithPSBT'
 import * as batchBucket from './batchBucket'
 import { batchTransactions } from './batchTransactions'
 import * as getUnspentPsbts from './helpers/getUnspentPsbts'
-import { hasBucketReachedTimeThreshold } from './helpers/hasBucketReachedTimeThreshold'
+import * as hasBucketReachedTimeThreshold from './helpers/hasBucketReachedTimeThreshold'
+import * as isBucketReadyForBatch from './helpers/isBucketReadyForBatch'
 
 chai.use(sinonChai)
 
@@ -74,11 +75,24 @@ describe('batchTransactions', () => {
     batchBucketStub.resolves(getError('No psbts left to spend'))
     expect(await batchTransactions()).to.be.false
   })
+  it('does not batch if the time threshold has not been reached and the bucket is not ready', async () => {
+    Sinon.stub(getFeeEstimates, 'getFeeEstimates').resolves(
+      getResult(feeEstimates),
+    )
+    Sinon.stub(hasBucketReachedTimeThreshold, 'hasBucketReachedTimeThreshold').resolves(
+      false,
+    )
+    Sinon.stub(isBucketReadyForBatch, 'isBucketReadyForBatch').returns(
+      false,
+    )
+    expect(await batchTransactions()).to.be.true
+    expect(batchBucketStub).to.have.not.been.called
+  })
   it('calls batch buckets with correct psbts, post transactions and return true on success', async () => {
     Sinon.stub(getFeeEstimates, 'getFeeEstimates').resolves(
       getResult(feeEstimates),
     )
-    expect(await hasBucketReachedTimeThreshold()).to.be.true
+    expect(await hasBucketReachedTimeThreshold.hasBucketReachedTimeThreshold()).to.be.true
     expect(await batchTransactions()).to.be.true
 
     expect(batchBucketStub).to.have.been.calledWith(psbts.slice(80, 100))
@@ -106,6 +120,6 @@ describe('batchTransactions', () => {
       'ef939a8608090bc4d20ebee5150f8ee958bcd9102c2a124b8fd083223fd9eb2e',
     ])
 
-    expect(await hasBucketReachedTimeThreshold()).to.be.false
+    expect(await hasBucketReachedTimeThreshold.hasBucketReachedTimeThreshold()).to.be.false
   })
 })

@@ -16,7 +16,7 @@ let dbId: number
 export let fetchStub: SinonStub
 export const mochaHooks = {
   beforeAll: async () => {
-    initWallets(unencrypted.PRIVKEY, unencrypted.FEE_COLLECTOR_PUBKEY, NETWORK)
+    initWallets(unencrypted.PRIVKEY, unencrypted.OLD_PRIVKEY, unencrypted.FEE_COLLECTOR_PUBKEY, NETWORK)
     if (!dbId) {
       await initDatabase({ password: DB_AUTH, database: 7 })
       // eslint-disable-next-line require-atomic-updates

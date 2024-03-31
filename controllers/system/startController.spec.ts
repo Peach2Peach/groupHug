@@ -7,7 +7,7 @@ import * as initDatabase from '../../src/utils/db'
 import * as decryptConfig from '../../src/utils/system/decryptConfig'
 import * as initWallets from '../../src/wallets/initWallets'
 import { encrypted, unencrypted } from '../../test/data/envData'
-import { xpriv, xpub } from '../../test/data/walletData'
+import { oldXpriv, xpriv, xpub } from '../../test/data/walletData'
 import {
   requestMock,
   responseMock,
@@ -54,6 +54,7 @@ describe('startController', () => {
     expect(initDatabaseStub).to.have.been.called
     expect(initWalletsStub).to.have.been.calledWith(
       xpriv,
+      oldXpriv,
       xpub,
       networks.regtest,
     )
