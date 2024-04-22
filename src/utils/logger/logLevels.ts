@@ -11,23 +11,23 @@ type Loglevels = {
   [key: string]: LogLevel;
 };
 export const getLogLevels = (): Loglevels => ({
-  ...LOGLEVEL_ERROR.split(",").reduce(
+  ...LOGLEVEL_ERROR?.split(",").reduce(
     (obj, cat) => ({ ...obj, [cat]: "error" }),
     {},
   ),
-  ...LOGLEVEL_WARN.split(",").reduce(
+  ...LOGLEVEL_WARN?.split(",").reduce(
     (obj, cat) => ({ ...obj, [cat]: "warn" }),
     {},
   ),
-  ...LOGLEVEL_HTTP.split(",").reduce(
+  ...LOGLEVEL_HTTP?.split(",").reduce(
     (obj, cat) => ({ ...obj, [cat]: "http" }),
     {},
   ),
-  ...LOGLEVEL_INFO.split(",").reduce(
+  ...LOGLEVEL_INFO?.split(",").reduce(
     (obj, cat) => ({ ...obj, [cat]: "info" }),
     {},
   ),
-  ...LOGLEVEL_DEBUG.split(",").reduce(
+  ...LOGLEVEL_DEBUG?.split(",").reduce(
     (obj, cat) => ({ ...obj, [cat]: "debug" }),
     {},
   ),

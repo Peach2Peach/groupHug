@@ -46,7 +46,7 @@ export const getFinalScript = (
 } => {
   const decompiled = script.decompile(bitcoinScript);
 
-  const meaningfulSignatures = input.partialSig.every(
+  const meaningfulSignatures = input.partialSig?.every(
     (sig) =>
       bitcoinScript.toString("hex").indexOf(sig.pubkey.toString("hex")) !== -1,
   );
@@ -59,8 +59,8 @@ export const getFinalScript = (
     );
   }
 
-  const sortedSignatures = input.partialSig
-    .sort(
+  const sortedSignatures = input
+    .partialSig!.sort(
       (a, b) =>
         bitcoinScript.indexOf(b.pubkey) - bitcoinScript.indexOf(a.pubkey),
     )

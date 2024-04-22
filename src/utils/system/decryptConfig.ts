@@ -2,10 +2,10 @@
 import { AES, enc } from "crypto-js";
 import * as constants from "../../../constants";
 
-export let DB_AUTH: string;
-export let PRIVKEY: string;
-export let OLD_PRIVKEY: string;
-export let FEE_COLLECTOR_PUBKEY: string;
+export let DB_AUTH: string | undefined;
+export let PRIVKEY: string | undefined;
+export let OLD_PRIVKEY: string | undefined;
+export let FEE_COLLECTOR_PUBKEY: string | undefined;
 export let decrypted = false;
 export const setDecrypted = (d: boolean) => (decrypted = d);
 
@@ -17,6 +17,14 @@ const getConfig = () => ({
 });
 
 export const decryptConfig = (password: string) => {
+  if (
+    !constants.DB_AUTH ||
+    !constants.PRIVKEY ||
+    !constants.OLD_PRIVKEY ||
+    !constants.FEE_COLLECTOR_PUBKEY
+  ) {
+    throw new Error("Config not loaded");
+  }
   setDecrypted(decrypted || !constants.PASSWORDPROTECTION);
   DB_AUTH = constants.DB_AUTH;
   PRIVKEY = constants.PRIVKEY;

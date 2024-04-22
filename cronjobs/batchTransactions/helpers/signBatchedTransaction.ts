@@ -7,25 +7,22 @@ import { logger } from "../batchTransactions";
 
 export const signBatchedTransaction = (
   batchedTransaction: Psbt,
-  extraPSBTData: PSBTInfo[],
+  extraPSBTData: (PSBTInfo | null)[],
 ) => {
   batchedTransaction.txInputs.forEach((input, i) => {
     logger.debug(["signing psbt", i, JSON.stringify(extraPSBTData[i])]);
-    if (!extraPSBTData[i].index) return;
+    const index = extraPSBTData[i]?.index;
+    if (!index) return;
 
-    const signer = getSignerByIndex(hotWallet, extraPSBTData[i].index, NETWORK);
+    const signer = getSignerByIndex(hotWallet, index, NETWORK);
     if (
-      !batchedTransaction.data.inputs[i].witnessScript.includes(
+      !batchedTransaction.data.inputs[i].witnessScript?.includes(
         signer.publicKey,
       )
     ) {
-      const oldSigner = getSignerByIndex(
-        oldHotWallet,
-        extraPSBTData[i].index,
-        NETWORK,
-      );
+      const oldSigner = getSignerByIndex(oldHotWallet, index, NETWORK);
       if (
-        batchedTransaction.data.inputs[i].witnessScript.includes(
+        batchedTransaction.data.inputs[i].witnessScript?.includes(
           oldSigner.publicKey,
         )
       ) {
@@ -37,7 +34,7 @@ export const signBatchedTransaction = (
 
       logger.debug([
         "psbt still did not include signer public key",
-        batchedTransaction.data.inputs[i].witnessScript.toString("hex"),
+        batchedTransaction.data.inputs[i].witnessScript?.toString("hex"),
         signer.publicKey.toString("hex"),
       ]);
 

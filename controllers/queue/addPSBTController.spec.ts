@@ -7,6 +7,7 @@ import sinonChai from "sinon-chai";
 import { db } from "../../src/utils/db";
 import { TransactionResult } from "../../src/utils/db/TransactionResult";
 import { KEYS } from "../../src/utils/db/keys";
+import { getTxIdOfInput } from "../../src/utils/psbt";
 import { getPSBTsFromQueue } from "../../src/utils/queue";
 import * as addPSBTToQueue from "../../src/utils/queue/addPSBTToQueue";
 import blockExplorerData from "../../test/data/blockExplorerData.json";
@@ -18,7 +19,6 @@ import {
 import { mockGetTx } from "../../test/unit/helpers/mockGetTx";
 import { addPSBTController } from "./addPSBTController";
 import { AddPSBTRequest } from "./types";
-import { getTxIdOfInput } from "../../src/utils/psbt";
 
 chai.use(sinonChai);
 
@@ -111,6 +111,7 @@ describe("addPSBTController", () => {
   });
   it("returns INTERNAL_SERVER_ERROR if psbt could not be added to queue", async () => {
     Sinon.stub(addPSBTToQueue, "addPSBTToQueue").resolves(
+      // @ts-ignore
       new TransactionResult(false, undefined, "error"),
     );
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {

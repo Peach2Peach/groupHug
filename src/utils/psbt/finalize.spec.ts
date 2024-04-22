@@ -18,6 +18,7 @@ describe("finalize", () => {
       finalize(missingSignaturePsbt);
       throw new Error("Function did not throw an error");
     } catch (error) {
+      if (!(error instanceof Error)) throw error;
       expect(error.message).to.equal("Signatures invalid for transaction");
     }
   });

@@ -15,8 +15,8 @@ export const getLogLevel = (
   const logLevels = getLogLevels();
   return (
     logLevels[`${category}-${name}`] ||
-    logLevels[category] ||
-    fallback ||
-    getDefaultLevel()
+    (category
+      ? logLevels[category] || fallback || getDefaultLevel()
+      : fallback || getDefaultLevel())
   );
 };

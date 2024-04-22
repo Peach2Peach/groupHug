@@ -9,7 +9,7 @@ import { removePSBTFromQueueWithId } from "./removePSBTFromQueueWithId";
 describe("removePSBTFromQueueWithId", () => {
   it("removes psbt from database", async () => {
     const result = await addPSBTToQueue(psbt1, 2);
-    await removePSBTFromQueueWithId(result.getResult().id);
+    await removePSBTFromQueueWithId(result.getResult()!.id);
     expect(await db.zrange(KEYS.PSBT.QUEUE)).to.deep.equal([]);
     expect(
       await db.client.exists(KEYS.PSBT.PREFIX + sha256(psbt1.toBase64())),

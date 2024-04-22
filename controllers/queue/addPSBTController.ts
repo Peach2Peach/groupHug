@@ -20,7 +20,7 @@ export const addPSBTController = async (
   const transactions = results.map((result) => result.getValue());
   if (
     transactions.every((t) => t) &&
-    transactions.some((tx) => !tx.status.confirmed)
+    transactions.some((tx) => !tx?.status.confirmed)
   ) {
     return respondWithError(res, "BAD_REQUEST");
   }
@@ -28,7 +28,7 @@ export const addPSBTController = async (
   const result = await addPSBTToQueue(psbt, feeRate, index);
   if (result.isError()) return respondWithError(res, "INTERNAL_SERVER_ERROR");
 
-  const { id, revocationToken } = result.getResult();
+  const { id, revocationToken } = result.getResult()!;
   return res.json({
     id,
     revocationToken,

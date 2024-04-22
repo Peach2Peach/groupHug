@@ -15,6 +15,9 @@ export const serverLogger = getLogger("server", "log");
 export const startServer = async (password: string) => {
   const { PRIVKEY, OLD_PRIVKEY, FEE_COLLECTOR_PUBKEY, DB_AUTH } =
     decryptConfig(password);
+  if (!PRIVKEY || !OLD_PRIVKEY || !FEE_COLLECTOR_PUBKEY || !DB_AUTH) {
+    throw new Error("Failed to decrypt config");
+  }
 
   if (decrypted) {
     await initDatabase({ password: DB_AUTH });

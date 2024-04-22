@@ -1,12 +1,13 @@
 import { Psbt } from "bitcoinjs-lib";
+import { getTxAndUTXOForInput, inputIsUnspent } from ".";
 import { db } from "../../../src/utils/db";
 import { removePSBTFromQueueWithClient } from "../../../src/utils/queue";
-import { getTxAndUTXOForInput, inputIsUnspent } from ".";
 
 export const getUnspentPsbts = async (psbts: Psbt[]) => {
   const txAndUTXO = await Promise.all(
     psbts.map((psbt) => psbt.txInputs[0]).map(getTxAndUTXOForInput),
   );
+  // @ts-ignore
   const utxos = txAndUTXO.map(({ utxo }) => utxo);
   const unspent = utxos.map((utxo, i) =>
     inputIsUnspent(psbts[i].txInputs[0], utxo),

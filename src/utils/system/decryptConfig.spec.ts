@@ -7,8 +7,8 @@ import { encrypted, unencrypted } from "../../../test/data/envData";
 import {
   DB_AUTH,
   FEE_COLLECTOR_PUBKEY,
-  PRIVKEY,
   OLD_PRIVKEY,
+  PRIVKEY,
   setDecrypted,
 } from "./decryptConfig";
 
@@ -23,6 +23,7 @@ describe("decryptConfig", () => {
       decryptConfig("wrong");
       throw new Error("Function did not throw an error");
     } catch (error) {
+      if (!(error instanceof Error)) throw error;
       expect(error.message).to.equal("Password invalid");
     }
   });

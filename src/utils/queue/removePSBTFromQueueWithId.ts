@@ -8,7 +8,7 @@ export const removePSBTFromQueueWithIdWithClient = async (
   client: SubClient,
   id: string,
 ) => {
-  const extraData = await getExtraPSBTDataById(id);
+  const extraData = (await getExtraPSBTDataById(id))!;
   await client.zrem(KEYS.PSBT.QUEUE, extraData.psbt);
   return unregisterPSBTWithIdWithClient(client, id);
 };

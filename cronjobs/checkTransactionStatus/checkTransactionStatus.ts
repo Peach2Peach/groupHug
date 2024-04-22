@@ -27,7 +27,7 @@ export const checkTransactionStatus = async () => {
   ]);
 
   const txWithConfirmationInfo = await Promise.all(
-    pending.map(getConfirmations(blockHeight)),
+    pending.map(getConfirmations(blockHeight!)),
   );
   const confirmed = txWithConfirmationInfo.filter(
     ({ confirmations }) => confirmations >= MINIMUM_CONFIRMATIONS,

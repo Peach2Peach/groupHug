@@ -1,8 +1,8 @@
 import chai, { expect } from "chai";
 import { describe, it } from "mocha";
-import { db } from ".";
 import Sinon from "sinon";
 import sinonChai from "sinon-chai";
+import { db } from ".";
 
 chai.use(sinonChai);
 
@@ -35,6 +35,7 @@ describe("transaction", () => {
       });
       throw new Error("Function did not throw an error");
     } catch (error) {
+      if (!(error instanceof Error)) throw error;
       expect(error.message).to.equal("error");
     }
   });

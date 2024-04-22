@@ -14,13 +14,13 @@ import {
 } from "../../src/wallets";
 import { oldHotWallet } from "../../src/wallets/hotWallet";
 import { xpriv, xpub } from "../data/walletData";
+import { regtestUtils } from "./_regtest";
 import { buildPSBT } from "./helpers/buildPSBT";
 import { getAddressFromScript } from "./helpers/getAddressFromScript";
 import { getFeeAddress } from "./helpers/getFeeAddress";
 import { getMultisigScript } from "./helpers/getMultisigScript";
 import { psbt1, psbt2, psbt3 } from "./psbt";
 import { buyerAddress, seller } from "./signers";
-import { regtestUtils } from "./_regtest";
 
 describe("batching", () => {
   before(async () => {
@@ -63,15 +63,15 @@ describe("batching", () => {
       signer3.publicKey,
     );
     const fundingUTXO1 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript1),
+      getAddressFromScript(escrowScript1)!,
       100000,
     );
     const fundingUTXO2 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript2),
+      getAddressFromScript(escrowScript2)!,
       200000,
     );
     const fundingUTXO3 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript3),
+      getAddressFromScript(escrowScript3)!,
       300000,
     );
     const transaction1 = buildPSBT(escrowScript1, fundingUTXO1, buyerAddress);
@@ -93,7 +93,7 @@ describe("batching", () => {
     batchedTransaction.addOutputs(txs.map((tx) => tx.txOutputs[0]));
 
     batchedTransaction.addOutput({
-      address: getFeeAddress(),
+      address: getFeeAddress()!,
       value:
         (fundingUTXO1.value + fundingUTXO2.value + fundingUTXO3.value) * 0.02,
     });
@@ -168,15 +168,15 @@ describe("batching", () => {
       signer3.publicKey,
     );
     const fundingUTXO1 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript1),
+      getAddressFromScript(escrowScript1)!,
       100000,
     );
     const fundingUTXO2 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript2),
+      getAddressFromScript(escrowScript2)!,
       200000,
     );
     const fundingUTXO3 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript3),
+      getAddressFromScript(escrowScript3)!,
       300000,
     );
     const transaction1 = buildPSBT(escrowScript1, fundingUTXO1, buyerAddress);
@@ -198,7 +198,7 @@ describe("batching", () => {
     batchedTransaction.addOutputs(txs.map((tx) => tx.txOutputs[0]));
 
     batchedTransaction.addOutput({
-      address: getFeeAddress(),
+      address: getFeeAddress()!,
       value:
         (fundingUTXO1.value + fundingUTXO2.value + fundingUTXO3.value) * 0.02,
     });

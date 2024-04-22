@@ -66,7 +66,7 @@ export const batchTransactions = async () => {
     return false;
   }
 
-  const { fastestFee } = feeEstimatesResult.getValue();
+  const { fastestFee } = feeEstimatesResult.getValue()!;
   const feeRanges = getFeeRanges(getSteps(fastestFee, BUCKETS)).reverse();
   const buckets = await Promise.all(
     feeRanges.map(([min, max]) => getPSBTsFromQueue(min, max)),

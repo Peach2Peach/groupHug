@@ -21,7 +21,7 @@ const DUST_LIMIT = 546;
 const buildBatchedTransaction = async (
   psbts: Psbt[],
   averageFeeRate: number,
-  extraPSBTData: PSBTInfo[],
+  extraPSBTData: (PSBTInfo | null)[],
   miningFees: number,
 ) => {
   const batchedTransaction = getBatchedTransaction(psbts, NETWORK);
@@ -35,7 +35,7 @@ const buildBatchedTransaction = async (
   if (finalServiceFee > DUST_LIMIT)
     addFeeOutput(
       batchedTransaction,
-      await getUnusedFeeAddress(),
+      (await getUnusedFeeAddress())!,
       finalServiceFee,
     );
   signBatchedTransaction(batchedTransaction, extraPSBTData);

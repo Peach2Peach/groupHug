@@ -69,7 +69,7 @@ describe("getBatchStatusController", () => {
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
       getResult(feeEstimates),
     );
-    const request = requestMock({ query: { id: result.getResult().id } });
+    const request = requestMock({ query: { id: result.getResult()!.id } });
     const response = responseMock();
     await getBatchStatusController(
       request as GetBatchStatusRequest,
@@ -91,7 +91,7 @@ describe("getBatchStatusController", () => {
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
       getResult(feeEstimates),
     );
-    const request = requestMock({ query: { id: result.getResult().id } });
+    const request = requestMock({ query: { id: result.getResult()!.id } });
     const response = responseMock();
     await getBatchStatusController(
       request as GetBatchStatusRequest,

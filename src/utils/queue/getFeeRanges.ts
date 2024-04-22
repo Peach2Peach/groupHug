@@ -3,6 +3,7 @@ export const getFeeRanges = (steps: number[]) => {
     i === 0 ? 1 : self[i - 1],
     value,
   ]);
+  // @ts-ignore
   ranges.push([steps[steps.length - 1], undefined]);
   return ranges;
 };

@@ -7,7 +7,7 @@ import {
 } from "./types";
 
 export const getBatchStatusOverviewController = async (
-  req: GetBatchStatusOverviewRequest,
+  _req: GetBatchStatusOverviewRequest,
   res: GetBatchStatusOverviewResponse,
 ) => {
   const indexes = Array(BUCKETS).fill(null);

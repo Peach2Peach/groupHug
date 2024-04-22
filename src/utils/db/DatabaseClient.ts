@@ -70,8 +70,8 @@ export class DatabaseClient {
     stop: number | "+inf" = "+inf",
     byScore = true,
     rev: boolean = false,
-    offset: number = undefined,
-    count: number = undefined,
+    offset: number | undefined = undefined,
+    count: number | undefined = undefined,
   ) {
     return this.client.zRange(
       key,
@@ -79,7 +79,7 @@ export class DatabaseClient {
       String(rev && byScore ? start : stop),
       {
         BY: byScore ? "SCORE" : undefined,
-        LIMIT: count ? { offset, count } : undefined,
+        LIMIT: count && offset ? { offset, count } : undefined,
         REV: rev ? true : undefined,
       },
     );
@@ -169,6 +169,7 @@ export class DatabaseClient {
         if (transactionResult === false) {
           multi.discard();
           return resolve(
+            // @ts-ignore
             new TransactionResult(false, undefined, "transaction aborted"),
           );
         }

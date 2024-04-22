@@ -1,7 +1,7 @@
 export class TransactionResult<R> {
   private ok: boolean;
-  private error: string;
-  private result: R;
+  private error: string | undefined;
+  private result: R | undefined;
 
   constructor(ok: boolean, result?: R, error?: string) {
     this.ok = ok;
@@ -9,19 +9,19 @@ export class TransactionResult<R> {
     this.result = result;
   }
 
-  public isOk(): boolean {
+  public isOk() {
     return this.ok;
   }
 
-  public isError(): boolean {
+  public isError() {
     return !this.ok;
   }
 
-  public getError(): string {
+  public getError() {
     return this.error;
   }
 
-  public getResult(): R {
+  public getResult() {
     return this.result;
   }
 }

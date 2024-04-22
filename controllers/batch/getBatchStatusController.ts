@@ -11,7 +11,7 @@ import { respondWithError } from "../../src/utils/response";
 import { GetBatchStatusRequest, GetBatchStatusResponse } from "./types";
 
 const getCompletedBatchStatus = async (psbtInfo: PSBTInfo) => {
-  const participants = await getPSBTsFromBatch(psbtInfo.txId, NETWORK);
+  const participants = await getPSBTsFromBatch(psbtInfo.txId!, NETWORK);
   return {
     participants: participants.length,
     maxParticipants: participants.length,
@@ -33,7 +33,7 @@ export const getBatchStatusController = async (
     if (!psbtInfo) return respondWithError(res, "NOT_FOUND");
     if (psbtInfo.txId) return res.json(await getCompletedBatchStatus(psbtInfo));
 
-    feeRate = await getFeeRate(psbtInfo.psbt);
+    feeRate = (await getFeeRate(psbtInfo.psbt))!;
   }
 
   const index = await getBucketIndexByFeeRate(Number(feeRate));

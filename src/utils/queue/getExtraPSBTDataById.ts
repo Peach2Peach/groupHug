@@ -7,7 +7,7 @@ export type PSBTInfo = {
   txId?: string;
   revocationToken: string;
 };
-export const getExtraPSBTDataById = async (id: string): Promise<PSBTInfo> => {
+export const getExtraPSBTDataById = async (id: string) => {
   const rawInfo = await db.hgetall(KEYS.PSBT.PREFIX + id);
   if (!rawInfo) return null;
 

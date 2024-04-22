@@ -23,8 +23,8 @@ describe("revokePSBTController", () => {
   let revocationToken: string;
   beforeEach(async () => {
     const result = await registerPSBT(psbt1);
-    id = result.getResult().id;
-    revocationToken = result.getResult().revocationToken;
+    id = result.getResult()!.id;
+    revocationToken = result.getResult()!.revocationToken;
   });
   it("removes PSBT from queue", async () => {
     const request = requestMock({ body: { id, revocationToken } });

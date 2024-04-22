@@ -43,6 +43,7 @@ describe("batchTransactions", () => {
       index: 1,
       psbt: "",
       revocationToken: "",
+      txId: "",
     });
     await db.transaction(async (client) => {
       await Promise.all(

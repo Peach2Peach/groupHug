@@ -9,7 +9,7 @@ describe("addPSBTToQueue", () => {
   const feeRate = 2;
   it("stores psbt with fee rate to queue in database", async () => {
     const result = await addPSBTToQueue(psbt1, feeRate, index);
-    const { id, revocationToken } = result.getResult();
+    const { id, revocationToken } = result.getResult()!;
     expect(await db.zrangewithscores(KEYS.PSBT.QUEUE)).to.deep.equal([
       { score: feeRate, value: psbt1.toBase64() },
     ]);

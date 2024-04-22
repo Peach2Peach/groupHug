@@ -19,8 +19,8 @@ describe("validateRevokePSBT", () => {
   let revocationToken: string;
   beforeEach(async () => {
     const result = await registerPSBT(psbt1);
-    id = result.getResult().id;
-    revocationToken = result.getResult().revocationToken;
+    id = result.getResult()!.id;
+    revocationToken = result.getResult()!.revocationToken;
   });
 
   it("validates revocation request successfully", async () => {

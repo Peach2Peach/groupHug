@@ -1,7 +1,7 @@
 import { Psbt } from "bitcoinjs-lib";
+import { NETWORK } from "../../../constants";
 import { db } from "../db";
 import { KEYS } from "../db/keys";
-import { NETWORK } from "../../../constants";
 
 export type PSBTWithFeeRate = {
   feeRate: number;
@@ -10,7 +10,7 @@ export type PSBTWithFeeRate = {
 const MARGIN = 0.001;
 export const getPSBTsFromQueue = async (
   minFeeRate = 1,
-  maxFeeRate: number = undefined,
+  maxFeeRate: number | undefined = undefined,
 ): Promise<PSBTWithFeeRate[]> => {
   const entries = await db.zrangewithscores(
     KEYS.PSBT.QUEUE,

@@ -43,8 +43,8 @@ describe("logJobExecution", () => {
     ok(!history[1].runningTime);
 
     // check approximate running time
-    ok(history[0].runningTime >= 500);
-    ok(history[0].runningTime < 750);
+    ok(history[0].runningTime! >= 500);
+    ok(history[0].runningTime! < 750);
   });
   it("drops history items above max entries", async () => {
     const MAX_ENTRIES = 10;
