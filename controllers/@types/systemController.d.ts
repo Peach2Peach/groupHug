@@ -1,15 +1,15 @@
-declare type GetStatusRequestParams = {}
-declare type GetStatusRequestQuery = {}
-declare type GetStatusRequestBody = {}
-declare type GetStatusResponseBody =
+type GetStatusRequestParams = {};
+type GetStatusRequestQuery = {};
+type GetStatusRequestBody = {};
+type GetStatusResponseBody =
   | {
-      error: null
-      status: 'online'
-      serverTime: number
+      error: null;
+      status: 'online';
+      serverTime: number;
     }
-  | APIError<null>
+  | APIError<null>;
 
-declare type StartRequestParams = {}
-declare type StartRequestQuery = {}
-declare type StartRequestBody = { password: string }
-declare type StartResponseBody = { success: boolean } | APIError<null>
+type StartRequestParams = {};
+type StartRequestQuery = {};
+type StartRequestBody = { password: string };
+type StartResponseBody = { success: boolean } | APIError<null>;
