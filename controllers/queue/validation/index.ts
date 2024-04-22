@@ -1,2 +1,2 @@
-export { validatePSBT } from './validatePSBT'
-export { validateRevokePSBT } from './validateRevokePSBT'
+export { validatePSBT } from "./validatePSBT";
+export { validateRevokePSBT } from "./validateRevokePSBT";

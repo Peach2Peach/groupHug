@@ -1,90 +1,95 @@
-import { createClient, RedisClientOptions } from 'redis'
-import { getDefaultOptions } from '.'
-import { dbLogger } from './dbLogger'
-import { errorListener } from './errorListener'
-import { SubClient } from './SubClient'
-import { TransactionResult } from './TransactionResult'
+import { createClient, RedisClientOptions } from "redis";
+import { getDefaultOptions } from ".";
+import { dbLogger } from "./dbLogger";
+import { errorListener } from "./errorListener";
+import { SubClient } from "./SubClient";
+import { TransactionResult } from "./TransactionResult";
 
-type TransactionFunction<T> = (client: SubClient) => T
+type TransactionFunction<T> = (client: SubClient) => T;
 export class DatabaseClient {
-  client: ReturnType<typeof createClient>
+  client: ReturnType<typeof createClient>;
 
-  constructor (clientOptions: Partial<RedisClientOptions>) {
-    this.client = createClient({ ...getDefaultOptions(), ...clientOptions })
-    this.client.on('error', errorListener)
+  constructor(clientOptions: Partial<RedisClientOptions>) {
+    this.client = createClient({ ...getDefaultOptions(), ...clientOptions });
+    this.client.on("error", errorListener);
 
-    this.client.connect()
+    this.client.connect();
   }
 
-  async quit (): Promise<void> {
-    await this.client.quit()
+  async quit(): Promise<void> {
+    await this.client.quit();
   }
 
-  keys (pattern: string) {
-    return this.client.keys(pattern)
+  keys(pattern: string) {
+    return this.client.keys(pattern);
   }
-  async exists (key: string) {
-    return (await this.client.exists(key)) === 1
-  }
-
-  get (key: string) {
-    return this.client.get(key)
+  async exists(key: string) {
+    return (await this.client.exists(key)) === 1;
   }
 
-  hmget (key: string, subkey: string | string[]) {
-    return this.client.hmGet(key, subkey)
+  get(key: string) {
+    return this.client.get(key);
   }
 
-  incr (key: string) {
-    return this.client.incr(key)
+  hmget(key: string, subkey: string | string[]) {
+    return this.client.hmGet(key, subkey);
   }
 
-  scard (key: string) {
-    return this.client.sCard(key)
+  incr(key: string) {
+    return this.client.incr(key);
   }
 
-  smembers (key: string) {
-    return this.client.sMembers(key)
+  scard(key: string) {
+    return this.client.sCard(key);
   }
 
-  spop (key: string, count = 1) {
-    return this.client.sPop(key, count)
+  smembers(key: string) {
+    return this.client.sMembers(key);
   }
 
-  sismember (key: string, value: string) {
-    return this.client.sIsMember(key, value)
+  spop(key: string, count = 1) {
+    return this.client.sPop(key, count);
   }
 
-  sinter (theKeys: string[]) {
-    return this.client.sInter(theKeys)
+  sismember(key: string, value: string) {
+    return this.client.sIsMember(key, value);
   }
 
-  sunion (theKeys: string[]) {
-    return this.client.sUnion(theKeys)
+  sinter(theKeys: string[]) {
+    return this.client.sInter(theKeys);
+  }
+
+  sunion(theKeys: string[]) {
+    return this.client.sUnion(theKeys);
   }
 
   // eslint-disable-next-line max-params
-  zrange (
+  zrange(
     key: string,
-    start: number | '-inf' = '-inf',
-    stop: number | '+inf' = '+inf',
+    start: number | "-inf" = "-inf",
+    stop: number | "+inf" = "+inf",
     byScore = true,
     rev: boolean = false,
     offset: number = undefined,
     count: number = undefined,
   ) {
-    return this.client.zRange(key, String(rev && byScore ? stop : start), String(rev && byScore ? start : stop), {
-      BY: byScore ? 'SCORE' : undefined,
-      LIMIT: count ? { offset, count } : undefined,
-      REV: rev ? true : undefined,
-    })
+    return this.client.zRange(
+      key,
+      String(rev && byScore ? stop : start),
+      String(rev && byScore ? start : stop),
+      {
+        BY: byScore ? "SCORE" : undefined,
+        LIMIT: count ? { offset, count } : undefined,
+        REV: rev ? true : undefined,
+      },
+    );
   }
 
   // eslint-disable-next-line max-params
-  zrangewithscores (
+  zrangewithscores(
     key: string,
-    start: number | '-inf' = '-inf',
-    stop: number | '+inf' = '+inf',
+    start: number | "-inf" = "-inf",
+    stop: number | "+inf" = "+inf",
     byScore = true,
     rev = false,
   ) {
@@ -93,46 +98,50 @@ export class DatabaseClient {
       String(rev && byScore ? stop : start),
       String(rev && byScore ? start : stop),
       {
-        BY: byScore ? 'SCORE' : undefined,
+        BY: byScore ? "SCORE" : undefined,
         REV: rev ? true : undefined,
       },
-    )
+    );
   }
-  zinter (keys: string[]) {
-    return this.client.zInter(keys)
-  }
-
-  zcount (key: string, start: number | '-inf' = '-inf', stop: number | '+inf' = '+inf') {
-    return this.client.zCount(key, String(start), String(stop))
+  zinter(keys: string[]) {
+    return this.client.zInter(keys);
   }
 
-  zincrby (key: string, amount: number, value: string) {
-    return this.client.zIncrBy(key, amount, value)
+  zcount(
+    key: string,
+    start: number | "-inf" = "-inf",
+    stop: number | "+inf" = "+inf",
+  ) {
+    return this.client.zCount(key, String(start), String(stop));
   }
 
-  zcard (key: string) {
-    return this.client.ZCARD(key)
+  zincrby(key: string, amount: number, value: string) {
+    return this.client.zIncrBy(key, amount, value);
   }
 
-  async zpopmin (key: string): Promise<string | undefined> {
-    const item = await this.client.ZPOPMIN(key)
-    if (!item) return
-    return item.value
+  zcard(key: string) {
+    return this.client.ZCARD(key);
   }
 
-  async hgetall (key: string): Promise<Record<string, string> | null> {
-    const response = await this.client.hGetAll(key)
-
-    if (!response || Object.keys(response).length === 0) return null
-    return { ...response }
+  async zpopmin(key: string): Promise<string | undefined> {
+    const item = await this.client.ZPOPMIN(key);
+    if (!item) return;
+    return item.value;
   }
 
-  hdel (key: string, field: string) {
-    return this.client.hDel(key, field)
+  async hgetall(key: string): Promise<Record<string, string> | null> {
+    const response = await this.client.hGetAll(key);
+
+    if (!response || Object.keys(response).length === 0) return null;
+    return { ...response };
   }
 
-  zscore (key: string, element: string): Promise<number | null> {
-    return this.client.zScore(key, element)
+  hdel(key: string, field: string) {
+    return this.client.hDel(key, field);
+  }
+
+  zscore(key: string, element: string): Promise<number | null> {
+    return this.client.zScore(key, element);
   }
 
   /**
@@ -142,33 +151,40 @@ export class DatabaseClient {
    *   await client.set('test-key', 'test-val')
    * })
    */
-  transaction<F extends TransactionFunction<ReturnType<F>>> (
+  transaction<F extends TransactionFunction<ReturnType<F>>>(
     func: F,
   ): Promise<TransactionResult<Awaited<ReturnType<F>>>> {
     return new Promise((resolve, reject) =>
       this.client.executeIsolated(async (isolatedClient) => {
-        const multi = isolatedClient.multi()
-        let transactionResult
+        const multi = isolatedClient.multi();
+        let transactionResult;
         try {
-          transactionResult = await func(new SubClient(isolatedClient, multi))
+          transactionResult = await func(new SubClient(isolatedClient, multi));
         } catch (e) {
-          multi.discard()
-          reject(e)
-          return
+          multi.discard();
+          reject(e);
+          return;
         }
 
         if (transactionResult === false) {
-          multi.discard()
-          return resolve(new TransactionResult(false, undefined, 'transaction aborted'))
+          multi.discard();
+          return resolve(
+            new TransactionResult(false, undefined, "transaction aborted"),
+          );
         }
 
-        const results = await multi.exec()
+        const results = await multi.exec();
         if (!results) {
-          dbLogger.error('Optimistic locking failure')
-          return resolve(await this.transaction(func))
+          dbLogger.error("Optimistic locking failure");
+          return resolve(await this.transaction(func));
         }
-        return resolve(new TransactionResult(true, transactionResult as Awaited<ReturnType<F>>))
+        return resolve(
+          new TransactionResult(
+            true,
+            transactionResult as Awaited<ReturnType<F>>,
+          ),
+        );
       }),
-    )
+    );
   }
 }

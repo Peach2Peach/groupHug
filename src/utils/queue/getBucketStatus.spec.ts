@@ -1,10 +1,10 @@
-import { expect } from 'chai'
-import { getBucketStatus } from './getBucketStatus'
-import { resetBucketExpiration } from './resetBucketExpiration'
-import { saveBucketStatus } from './saveBucketStatus'
+import { expect } from "chai";
+import { getBucketStatus } from "./getBucketStatus";
+import { resetBucketExpiration } from "./resetBucketExpiration";
+import { saveBucketStatus } from "./saveBucketStatus";
 
-describe('getBucketStatus', () => {
-  it('resets expiration for bucket at index', async () => {
+describe("getBucketStatus", () => {
+  it("resets expiration for bucket at index", async () => {
     await Promise.all([
       saveBucketStatus({
         index: 0,
@@ -13,7 +13,7 @@ describe('getBucketStatus', () => {
         feeRange: [1, 10],
       }),
       resetBucketExpiration(),
-    ])
+    ]);
 
     expect(await getBucketStatus(0)).to.deep.equal({
       participants: 10,
@@ -21,6 +21,6 @@ describe('getBucketStatus', () => {
       timeRemaining: 600,
       feeRange: [1, 10],
       completed: false,
-    })
-  })
-})
+    });
+  });
+});

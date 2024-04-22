@@ -1,24 +1,24 @@
-import chai, { expect } from 'chai'
-import { Response } from 'express'
-import { describe, it } from 'mocha'
-import Sinon from 'sinon'
-import sinonChai from 'sinon-chai'
-import * as getFeeEstimates from '../../src/utils/electrs/getFeeEstimates'
-import { saveBucketStatus } from '../../src/utils/queue'
-import { getResult } from '../../src/utils/result'
-import { feeEstimates } from '../../test/data/electrsData'
+import chai, { expect } from "chai";
+import { Response } from "express";
+import { describe, it } from "mocha";
+import Sinon from "sinon";
+import sinonChai from "sinon-chai";
+import * as getFeeEstimates from "../../src/utils/electrs/getFeeEstimates";
+import { saveBucketStatus } from "../../src/utils/queue";
+import { getResult } from "../../src/utils/result";
+import { feeEstimates } from "../../test/data/electrsData";
 import {
   requestMock,
   responseMock,
-} from '../../test/unit/controllers/expressMocks'
-import { getBatchStatusOverviewController } from './getBatchStatusOverviewController'
-import { GetBatchStatusRequest } from './types'
+} from "../../test/unit/controllers/expressMocks";
+import { getBatchStatusOverviewController } from "./getBatchStatusOverviewController";
+import { GetBatchStatusRequest } from "./types";
 
-chai.use(sinonChai)
+chai.use(sinonChai);
 
-describe('getBatchStatusOverviewController', () => {
-  const participants = 10
-  const maxParticipants = 20
+describe("getBatchStatusOverviewController", () => {
+  const participants = 10;
+  const maxParticipants = 20;
 
   beforeEach(async () => {
     await Promise.all([
@@ -33,19 +33,19 @@ describe('getBatchStatusOverviewController', () => {
         participants: participants + 2,
         maxParticipants: maxParticipants + 2,
       }),
-    ])
-  })
+    ]);
+  });
 
-  it('returns batch status of an ongoing batches', async () => {
-    Sinon.stub(getFeeEstimates, 'getFeeEstimates').resolves(
+  it("returns batch status of an ongoing batches", async () => {
+    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
       getResult(feeEstimates),
-    )
-    const request = requestMock()
-    const response = responseMock()
+    );
+    const request = requestMock();
+    const response = responseMock();
     await getBatchStatusOverviewController(
       request as GetBatchStatusRequest,
       response as Response,
-    )
+    );
 
     expect(response.json).to.be.calledWith([
       {
@@ -62,6 +62,6 @@ describe('getBatchStatusOverviewController', () => {
         timeRemaining: -2,
         completed: false,
       },
-    ])
-  })
-})
+    ]);
+  });
+});

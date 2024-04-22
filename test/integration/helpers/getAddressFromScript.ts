@@ -1,4 +1,4 @@
-import { networks, payments } from 'bitcoinjs-lib'
+import { networks, payments } from "bitcoinjs-lib";
 
 export const getAddressFromScript = (script: Buffer) => {
   const p2wsh = payments.p2wsh({
@@ -7,6 +7,6 @@ export const getAddressFromScript = (script: Buffer) => {
       output: script,
       network: networks.regtest,
     },
-  })
-  return p2wsh.address
-}
+  });
+  return p2wsh.address;
+};

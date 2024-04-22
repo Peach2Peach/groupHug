@@ -11,11 +11,11 @@ jobs:
       NODE_ENV: development
       NETWORK: regtest
       FEE: 2
-      LOGLEVEL_ERROR: ''
-      LOGLEVEL_WARN: ''
-      LOGLEVEL_HTTP: ''
-      LOGLEVEL_INFO: ''
-      LOGLEVEL_DEBUG: ''
+      LOGLEVEL_ERROR: ""
+      LOGLEVEL_WARN: ""
+      LOGLEVEL_HTTP: ""
+      LOGLEVEL_INFO: ""
+      LOGLEVEL_DEBUG: ""
     runs-on: ubuntu-latest
 
     strategy:
@@ -29,7 +29,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Start Redis v${{ matrix.redis-version }}
         uses: superchargejs/redis-github-action@1.1.0

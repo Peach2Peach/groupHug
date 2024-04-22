@@ -4,7 +4,7 @@ type GetStatusRequestBody = {};
 type GetStatusResponseBody =
   | {
       error: null;
-      status: 'online';
+      status: "online";
       serverTime: number;
     }
   | APIError<null>;

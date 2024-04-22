@@ -1,3 +1,3 @@
-import { NODE_ENV } from '../../../constants'
+import { NODE_ENV } from "../../../constants";
 
-export const isProduction = () => NODE_ENV === 'production'
+export const isProduction = () => NODE_ENV === "production";

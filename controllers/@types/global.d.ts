@@ -3,7 +3,7 @@ type APISuccess = {
 };
 
 type APIError<E> = {
-  error: E | 'INTERNAL_SERVER_ERROR' | 'BAD_REQUEST' | 'TOO_MANY_REQUESTS';
+  error: E | "INTERNAL_SERVER_ERROR" | "BAD_REQUEST" | "TOO_MANY_REQUESTS";
   message?: string;
   details?: any;
 };

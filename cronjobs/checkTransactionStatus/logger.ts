@@ -1,3 +1,3 @@
-import getLogger from '../../src/utils/logger'
+import getLogger from "../../src/utils/logger";
 
-export const logger = getLogger('job', 'checkTransactionStatus')
+export const logger = getLogger("job", "checkTransactionStatus");

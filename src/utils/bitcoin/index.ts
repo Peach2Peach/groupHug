@@ -1,2 +1,2 @@
-export { isTestnet } from './isTestnet'
-export { signatureValidator } from './signatureValidator'
+export { isTestnet } from "./isTestnet";
+export { signatureValidator } from "./signatureValidator";

@@ -1,1 +1,1 @@
-export { validateGetBatchStatus } from './validateGetBatchStatus'
+export { validateGetBatchStatus } from "./validateGetBatchStatus";

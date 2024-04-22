@@ -1,9 +1,9 @@
-import { expect } from 'chai'
-import { getFeeRanges } from './getFeeRanges'
-import { getSteps } from './getSteps'
+import { expect } from "chai";
+import { getFeeRanges } from "./getFeeRanges";
+import { getSteps } from "./getSteps";
 
-describe('getSteps', () => {
-  it('should divide a value into a given amount of steps', () => {
+describe("getSteps", () => {
+  it("should divide a value into a given amount of steps", () => {
     expect(getFeeRanges(getSteps(100, 10))).to.deep.equal([
       [1, 12],
       [12, 23],
@@ -15,7 +15,7 @@ describe('getSteps', () => {
       [78, 89],
       [89, 100],
       [100, undefined],
-    ])
+    ]);
     expect(getFeeRanges(getSteps(63, 10))).to.deep.equal([
       [1, 7],
       [7, 14],
@@ -27,6 +27,6 @@ describe('getSteps', () => {
       [49, 56],
       [56, 63],
       [63, undefined],
-    ])
-  })
-})
+    ]);
+  });
+});
