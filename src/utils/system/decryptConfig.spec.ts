@@ -17,8 +17,23 @@ describe("decryptConfig", () => {
     setDecrypted(false);
     Sinon.restore();
   });
+  it("should throw error if config is not loaded", () => {
+    try {
+      decryptConfig("password");
+      throw new Error("Function did not throw an error");
+    } catch (error) {
+      if (!(error instanceof Error)) throw error;
+      expect(error.message).to.equal("Config not loaded");
+    }
+  });
   it("should throw error if password is incorrect", () => {
     Sinon.stub(constants, "PASSWORDPROTECTION").get(() => true);
+    Sinon.stub(constants, "DB_AUTH").get(() => unencrypted.DB_AUTH);
+    Sinon.stub(constants, "PRIVKEY").get(() => unencrypted.PRIVKEY);
+    Sinon.stub(constants, "OLD_PRIVKEY").get(() => unencrypted.OLD_PRIVKEY);
+    Sinon.stub(constants, "FEE_COLLECTOR_PUBKEY").get(
+      () => unencrypted.FEE_COLLECTOR_PUBKEY,
+    );
     try {
       decryptConfig("wrong");
       throw new Error("Function did not throw an error");
