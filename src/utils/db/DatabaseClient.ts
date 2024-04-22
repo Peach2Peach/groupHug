@@ -1,5 +1,6 @@
 import { createClient, RedisClientOptions } from "redis";
 import { getDefaultOptions } from ".";
+import { isDefined } from "../validation";
 import { dbLogger } from "./dbLogger";
 import { errorListener } from "./errorListener";
 import { SubClient } from "./SubClient";
@@ -79,7 +80,7 @@ export class DatabaseClient {
       String(rev && byScore ? start : stop),
       {
         BY: byScore ? "SCORE" : undefined,
-        LIMIT: count && offset ? { offset, count } : undefined,
+        LIMIT: count && isDefined(offset) ? { offset, count } : undefined,
         REV: rev ? true : undefined,
       },
     );
