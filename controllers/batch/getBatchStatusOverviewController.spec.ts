@@ -21,19 +21,7 @@ describe("getBatchStatusOverviewController", () => {
   const maxParticipants = 20;
 
   beforeEach(async () => {
-    await Promise.all([
-      saveBucketStatus({ index: 10, participants, maxParticipants }),
-      saveBucketStatus({
-        index: 9,
-        participants: participants + 1,
-        maxParticipants: maxParticipants + 1,
-      }),
-      saveBucketStatus({
-        index: 8,
-        participants: participants + 2,
-        maxParticipants: maxParticipants + 2,
-      }),
-    ]);
+    await Promise.all([saveBucketStatus({ participants, maxParticipants })]);
   });
 
   it("returns batch status of an ongoing batches", async () => {
@@ -47,21 +35,11 @@ describe("getBatchStatusOverviewController", () => {
       response as Response,
     );
 
-    expect(response.json).to.be.calledWith([
-      {
-        participants: 12,
-        maxParticipants: 22,
-        feeRange: [NaN, NaN],
-        timeRemaining: -2,
-        completed: false,
-      },
-      {
-        participants: 11,
-        maxParticipants: 21,
-        feeRange: [NaN, NaN],
-        timeRemaining: -2,
-        completed: false,
-      },
-    ]);
+    expect(response.json).to.be.calledWith({
+      participants,
+      maxParticipants,
+      timeRemaining: -2,
+      completed: false,
+    });
   });
 });

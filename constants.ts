@@ -14,7 +14,6 @@ const DEFAULTS = {
   MAXREQUESTRATE: 10,
   BATCH_SIZE_THRESHOLD: 100,
   BATCH_TIME_THRESHOLD: 43200,
-  BUCKETS: 10,
 };
 
 export const PASSWORDPROTECTION = process.env.PASSWORDPROTECTION !== "false";
@@ -47,7 +46,6 @@ export const {
   LOGLEVEL_DEBUG,
 } = process.env;
 
-// possibly encrypted
 export const { DB_AUTH, PRIVKEY, OLD_PRIVKEY, FEE_COLLECTOR_PUBKEY } =
   process.env;
 
@@ -57,7 +55,6 @@ export const BATCH_SIZE_THRESHOLD = Number(
 export const BATCH_TIME_THRESHOLD = Number(
   process.env.BATCH_TIME_THRESHOLD || DEFAULTS.BATCH_TIME_THRESHOLD,
 );
-export const BUCKETS = Number(process.env.BUCKETS || DEFAULTS.BUCKETS);
 
 export const SIGHASH = {
   ALL: Transaction.SIGHASH_ALL,

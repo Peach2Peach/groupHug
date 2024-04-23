@@ -1,18 +1,17 @@
 import { db } from "../db";
 import { KEYS } from "../db/keys";
 
-export const getBucketStatus = async (index: number) => {
-  const rawInfo = await db.hgetall(KEYS.BUCKET.STATUS + String(index));
-  if (!rawInfo) return null;
+export const getBucketStatus = async () => {
+  const [rawParticipants, rawMaxParticipants] = await db.hmget(
+    KEYS.BUCKET.STATUS,
+    ["participants", "maxParticipants", "feeRange"],
+  );
 
   const ttl = await db.client.ttl(KEYS.BUCKET.EXPIRATION);
 
   return {
-    participants: Number(rawInfo.participants),
-    maxParticipants: Number(rawInfo.maxParticipants),
-    feeRange: rawInfo.feeRange
-      ? rawInfo.feeRange.split(",").map(Number)
-      : [NaN, NaN],
+    participants: Number(rawParticipants),
+    maxParticipants: Number(rawMaxParticipants),
     timeRemaining: ttl,
     completed: false,
   };

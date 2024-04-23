@@ -2,16 +2,15 @@ import { Psbt, networks } from "bitcoinjs-lib";
 import chai, { expect } from "chai";
 import Sinon, { SinonStub } from "sinon";
 import sinonChai from "sinon-chai";
+import { getTxIdOfInput } from "../../src/utils/psbt";
 import { addPSBTToQueue } from "../../src/utils/queue";
 import { batchQueue } from "../../test/data/psbtData";
-import { spiceUTXOWithPSBT } from "../../test/unit/helpers/spiceUTXOWithPSBT";
 import { batchBucket } from "./batchBucket";
-import * as getUnspentPsbts from "./helpers/getUnspentPsbts";
+import * as getUTXOForInput from "./helpers/getUTXOForInput";
 
 chai.use(sinonChai);
 
 describe("batchBucket", () => {
-  let getUnspentPsbtsStub: SinonStub;
   const psbts = batchQueue.map(({ feeRate, psbt, index }) => ({
     feeRate,
     psbt: Psbt.fromBase64(psbt, { network: networks.regtest }),
@@ -19,17 +18,8 @@ describe("batchBucket", () => {
   }));
 
   const bucket = psbts.slice(0, 10);
+  let getUTXOForInputStub: SinonStub;
   beforeEach(async () => {
-    getUnspentPsbtsStub = Sinon.stub(
-      getUnspentPsbts,
-      "getUnspentPsbts",
-    ).callsFake((_psbts: Psbt[]) =>
-      Promise.resolve({
-        psbts: _psbts,
-        utxos: _psbts.map((psbt) => spiceUTXOWithPSBT(psbt)),
-      }),
-    );
-
     await Promise.all(
       psbts
         .slice(0, 10)
@@ -37,13 +27,31 @@ describe("batchBucket", () => {
           addPSBTToQueue(psbt, feeRate, index),
         ),
     );
+    getUTXOForInputStub = Sinon.stub(
+      getUTXOForInput,
+      "getUTXOForInput",
+    ).callsFake((input) =>
+      Promise.resolve([
+        {
+          txid: getTxIdOfInput(input),
+          vout: input.index,
+          value: 100000000,
+          status: {
+            confirmed: true,
+            block_height: 1,
+            block_hash: "",
+            block_time: 0,
+          },
+        },
+      ]),
+    );
   });
   after(() => {
     Sinon.restore();
   });
 
   it("returns error if all psbts have been spent", async () => {
-    getUnspentPsbtsStub.resolves({ psbts: [], utxos: [] });
+    getUTXOForInputStub.callsFake(() => Promise.resolve([]));
     const result = await batchBucket(bucket);
 
     expect(result.isError()).to.be.true;

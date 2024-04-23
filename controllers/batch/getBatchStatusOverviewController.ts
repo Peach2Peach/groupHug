@@ -1,6 +1,4 @@
-import { BUCKETS } from "../../constants";
 import { getBucketStatus } from "../../src/utils/queue";
-import { isDefined } from "../../src/utils/validation";
 import {
   GetBatchStatusOverviewRequest,
   GetBatchStatusOverviewResponse,
@@ -10,7 +8,6 @@ export const getBatchStatusOverviewController = async (
   _req: GetBatchStatusOverviewRequest,
   res: GetBatchStatusOverviewResponse,
 ) => {
-  const indexes = Array(BUCKETS).fill(null);
-  const statuses = await Promise.all(indexes.map((v, i) => getBucketStatus(i)));
-  return res.json(statuses.filter(isDefined));
+  const status = await getBucketStatus();
+  return res.json(status);
 };

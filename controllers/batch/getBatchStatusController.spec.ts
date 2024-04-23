@@ -6,7 +6,7 @@ import sinonChai from "sinon-chai";
 import { markBatchedTransactionAsPending } from "../../cronjobs/batchTransactions/helpers";
 import * as getFeeEstimates from "../../src/utils/electrs/getFeeEstimates";
 import { addPSBTToQueue, saveBucketStatus } from "../../src/utils/queue";
-import { getError, getResult } from "../../src/utils/result";
+import { getResult } from "../../src/utils/result";
 import { feeEstimates } from "../../test/data/electrsData";
 import { psbt1 } from "../../test/data/psbtData";
 import {
@@ -23,26 +23,10 @@ describe("getBatchStatusController", () => {
   const maxParticipants = 20;
 
   beforeEach(async () => {
-    await Promise.all([
-      saveBucketStatus({
-        index: 10,
-        participants,
-        maxParticipants,
-        feeRange: [10, NaN],
-      }),
-      saveBucketStatus({
-        index: 9,
-        participants: participants + 1,
-        maxParticipants: maxParticipants + 1,
-        feeRange: [5, 9],
-      }),
-      saveBucketStatus({
-        index: 8,
-        participants: participants + 2,
-        maxParticipants: maxParticipants + 2,
-        feeRange: [4, 5],
-      }),
-    ]);
+    await saveBucketStatus({
+      participants,
+      maxParticipants,
+    });
   });
 
   it("returns batch status of an ongoing batch for given feeRate", async () => {
@@ -57,11 +41,10 @@ describe("getBatchStatusController", () => {
     );
 
     expect(response.json).to.be.calledWith({
-      participants: participants + 1,
-      maxParticipants: maxParticipants + 1,
+      participants,
+      maxParticipants,
       timeRemaining: -2,
       completed: false,
-      feeRange: [5, 9],
     });
   });
   it("returns batch status of an ongoing batch for given psbt id", async () => {
@@ -77,10 +60,9 @@ describe("getBatchStatusController", () => {
     );
 
     expect(response.json).to.be.calledWith({
-      participants: participants + 1,
-      maxParticipants: maxParticipants + 1,
+      participants,
+      maxParticipants,
       timeRemaining: -2,
-      feeRange: [5, 9],
       completed: false,
     });
   });
@@ -119,33 +101,5 @@ describe("getBatchStatusController", () => {
 
     expect(response.status).to.be.calledWith(404);
     expect(response.json).to.be.calledWith({ error: "NOT_FOUND" });
-  });
-  it("returns not found if not bucket status has been registered", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getResult(feeEstimates),
-    );
-    const request = requestMock({ query: { feeRate: "20" } });
-    const response = responseMock();
-    await getBatchStatusController(
-      request as GetBatchStatusRequest,
-      response as Response,
-    );
-
-    expect(response.status).to.be.calledWith(404);
-    expect(response.json).to.be.calledWith({ error: "NOT_FOUND" });
-  });
-  it("returns internal server error if fee estimate could not be fetched", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getError({ error: "INTERNAL_SERVER_ERROR" }),
-    );
-    const request = requestMock({ query: { feeRate: "20" } });
-    const response = responseMock();
-    await getBatchStatusController(
-      request as GetBatchStatusRequest,
-      response as Response,
-    );
-
-    expect(response.status).to.be.calledWith(500);
-    expect(response.json).to.be.calledWith({ error: "INTERNAL_SERVER_ERROR" });
   });
 });

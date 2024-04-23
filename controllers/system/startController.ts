@@ -1,7 +1,6 @@
 import {
   BATCH_SIZE_THRESHOLD,
   BATCH_TIME_THRESHOLD,
-  BUCKETS,
   NETWORK,
 } from "../../constants";
 import { initJobs } from "../../cronjobs/initJobs";
@@ -25,7 +24,6 @@ export const startServer = async (password: string) => {
     initJobs();
 
     serverLogger.info("GroupHug Server initialised!");
-    serverLogger.info(["BUCKETS", BUCKETS]);
     serverLogger.info(["BATCH_TIME_THRESHOLD", BATCH_TIME_THRESHOLD]);
     serverLogger.info(["BATCH_SIZE_THRESHOLD", BATCH_SIZE_THRESHOLD]);
   }
