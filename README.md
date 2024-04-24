@@ -49,6 +49,7 @@ The following are used to connect to the database
 Multisig related variables
 
 - `PRIVKEY`: private key for co-signing transactions (recommend to use `PASSWORDPROTECTION=true`!)
+- `OLD_PRIVKEY`: old private key for co-signing transactions (recommend to use `PASSWORDPROTECTION=true`!)
 - `FEE_COLLECTOR_PUBKEY`: public key to derive addresses for fee collection (recommend to use `PASSWORDPROTECTION=true`!)
 
 - `MAXREQUESTRATE`: how many requests per IP address per second (default: `1000`)

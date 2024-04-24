@@ -8,6 +8,7 @@ import {
   DB_AUTH,
   FEE_COLLECTOR_PUBKEY,
   PRIVKEY,
+  OLD_PRIVKEY,
   setDecrypted,
 } from './decryptConfig'
 
@@ -28,6 +29,7 @@ describe('decryptConfig', () => {
   it('should return raw configs if password protection if off', () => {
     Sinon.stub(constants, 'DB_AUTH').get(() => unencrypted.DB_AUTH)
     Sinon.stub(constants, 'PRIVKEY').get(() => unencrypted.PRIVKEY)
+    Sinon.stub(constants, 'OLD_PRIVKEY').get(() => unencrypted.OLD_PRIVKEY)
     Sinon.stub(constants, 'FEE_COLLECTOR_PUBKEY').get(
       () => unencrypted.FEE_COLLECTOR_PUBKEY,
     )
@@ -40,6 +42,7 @@ describe('decryptConfig', () => {
   it('should decrypt configs with password', () => {
     Sinon.stub(constants, 'DB_AUTH').get(() => encrypted.DB_AUTH)
     Sinon.stub(constants, 'PRIVKEY').get(() => encrypted.PRIVKEY)
+    Sinon.stub(constants, 'OLD_PRIVKEY').get(() => encrypted.OLD_PRIVKEY)
     Sinon.stub(constants, 'FEE_COLLECTOR_PUBKEY').get(
       () => encrypted.FEE_COLLECTOR_PUBKEY,
     )
@@ -47,6 +50,7 @@ describe('decryptConfig', () => {
     expect(decryptConfig('password')).to.deep.equal(unencrypted)
     expect(DB_AUTH).to.equal(unencrypted.DB_AUTH)
     expect(PRIVKEY).to.equal(unencrypted.PRIVKEY)
+    expect(OLD_PRIVKEY).to.equal(unencrypted.OLD_PRIVKEY)
     expect(FEE_COLLECTOR_PUBKEY).to.equal(unencrypted.FEE_COLLECTOR_PUBKEY)
   })
 })

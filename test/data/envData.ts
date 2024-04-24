@@ -1,10 +1,11 @@
 import { AES } from 'crypto-js'
 import { keys } from '../../src/utils/object'
-import { xpriv, xpub } from './walletData'
+import { oldXpriv, xpriv, xpub } from './walletData'
 
 export const unencrypted = {
   DB_AUTH: 'DB_AUTH',
   PRIVKEY: xpriv,
+  OLD_PRIVKEY: oldXpriv,
   FEE_COLLECTOR_PUBKEY: xpub,
 }
 export const encrypted = keys(unencrypted).reduce((obj, key) => {

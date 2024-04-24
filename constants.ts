@@ -1,7 +1,7 @@
-import { Network, Transaction, networks } from 'bitcoinjs-lib'
-import { loadDotenv } from './src/utils/dotenv'
 import BIP32Factory from 'bip32'
+import { Network, networks, Transaction } from 'bitcoinjs-lib'
 import * as ecc from 'tiny-secp256k1'
+import { loadDotenv } from './src/utils/dotenv'
 
 export const bip32 = BIP32Factory(ecc)
 
@@ -42,7 +42,7 @@ export const {
 } = process.env
 
 // possibly encrypted
-export const { DB_AUTH, PRIVKEY, FEE_COLLECTOR_PUBKEY } = process.env
+export const { DB_AUTH, PRIVKEY, OLD_PRIVKEY, FEE_COLLECTOR_PUBKEY } = process.env
 
 export const BATCH_SIZE_THRESHOLD = Number(process.env.BATCH_SIZE_THRESHOLD || DEFAULTS.BATCH_SIZE_THRESHOLD)
 export const BATCH_TIME_THRESHOLD = Number(process.env.BATCH_TIME_THRESHOLD || DEFAULTS.BATCH_TIME_THRESHOLD)
