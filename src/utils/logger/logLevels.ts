@@ -13,22 +13,22 @@ type Loglevels = {
 export const getLogLevels = (): Loglevels => ({
   ...LOGLEVEL_ERROR?.split(",").reduce(
     (obj, cat) => ({ ...obj, [cat]: "error" }),
-    {},
+    {}
   ),
   ...LOGLEVEL_WARN?.split(",").reduce(
     (obj, cat) => ({ ...obj, [cat]: "warn" }),
-    {},
+    {}
   ),
   ...LOGLEVEL_HTTP?.split(",").reduce(
     (obj, cat) => ({ ...obj, [cat]: "http" }),
-    {},
+    {}
   ),
   ...LOGLEVEL_INFO?.split(",").reduce(
     (obj, cat) => ({ ...obj, [cat]: "info" }),
-    {},
+    {}
   ),
   ...LOGLEVEL_DEBUG?.split(",").reduce(
     (obj, cat) => ({ ...obj, [cat]: "debug" }),
-    {},
+    {}
   ),
 });

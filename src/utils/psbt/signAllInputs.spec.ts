@@ -27,4 +27,14 @@ describe("signAllInputs", () => {
     signAllInputs(psbt, buyer, buyer);
     expect(validatePSBTSignatures(psbt)).to.be.false;
   });
+  it("does not sign inputs if there is no witnessScript", () => {
+    const psbt = Psbt.fromBase64(missingSignature, {
+      network: networks.regtest,
+    });
+    psbt.data.inputs.forEach(
+      (_e, i) => (psbt.data.inputs[i].witnessScript = undefined)
+    );
+    signAllInputs(psbt, seller, seller);
+    expect(validatePSBTSignatures(psbt)).to.be.false;
+  });
 });

@@ -1,6 +1,4 @@
-/* eslint-disable max-lines */
-/* eslint-disable max-len */
-import { Psbt, networks } from "bitcoinjs-lib";
+import { networks, Psbt } from "bitcoinjs-lib";
 
 export const psbtBase64_1 =
   "cHNidP8BAFICAAAAAbW33AvhtUBnK1rrgeiMw2r43Shz/6894MK/vPxp+qAhAAAAAAD/////ASJ4AQAAAAAAFgAUddcV+ahFVedSdyya1ivpCzt7uIoAAAAAAAEBK6CGAQAAAAAAIgAgAdjAf2HF7khL7dQpfHgzWM23uTpAkCQTpq4YyNUZ+l8iAgOPAkjMC+vEJetVrxaJpZ+IEZxpQwqGDGoF80DkRcQX10gwRQIhAL0OaWYg+TMs9EvH5g5b1YIbZhz7tch8cyXvs24kyecOAiBOfvxDcG5IgxBACP3KQ3vTzCT27FGi1Daflou9Iaye9IMBAwSDAAAAAQVHUiEDjwJIzAvrxCXrVa8WiaWfiBGcaUMKhgxqBfNA5EXEF9chA2qQHR3OsYOxQ/nUI9hhSSbtcTAq8Em3Af7poq3XkeVyUq4AAA==";

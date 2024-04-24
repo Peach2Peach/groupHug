@@ -27,4 +27,7 @@ describe("getLogLevel", () => {
   it("should return default level if category does not match and fallback level is provided", () => {
     expect(getLogLevel("otherCategory", "name")).to.equal("info");
   });
+  it("should return default level if there are no arguments", () => {
+    expect(getLogLevel()).to.equal("info");
+  });
 });

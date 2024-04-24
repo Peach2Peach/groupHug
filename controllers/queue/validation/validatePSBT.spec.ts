@@ -1,9 +1,10 @@
-import { Psbt, networks } from "bitcoinjs-lib";
+import { networks, Psbt } from "bitcoinjs-lib";
 import chai, { expect } from "chai";
 import { Request, Response } from "express";
 import { describe, it } from "mocha";
 import Sinon from "sinon";
 import sinonChai from "sinon-chai";
+import * as signAllInputs from "../../../src/utils/psbt";
 import {
   batchQueue,
   missingSignature,
@@ -32,6 +33,19 @@ describe("validatePSBT", () => {
 
     validatePSBT(request as Request, response as Response, next);
 
+    expect(next).to.have.been.called;
+  });
+  it("doesn't sign all inputs if index is not provided", () => {
+    const request = requestMock({
+      body: { psbt: validEntryPSBTBase64, feeRate: 10 },
+    });
+    const response = responseMock();
+    const next = Sinon.stub();
+    const signAllInputsStub = Sinon.stub(signAllInputs, "signAllInputs");
+
+    validatePSBT(request as Request, response as Response, next);
+
+    expect(signAllInputsStub).not.to.have.been.called;
     expect(next).to.have.been.called;
   });
 

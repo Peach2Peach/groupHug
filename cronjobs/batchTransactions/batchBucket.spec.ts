@@ -1,11 +1,12 @@
-import { Psbt, networks } from "bitcoinjs-lib";
+import { networks, Psbt } from "bitcoinjs-lib";
 import chai, { expect } from "chai";
 import Sinon, { SinonStub } from "sinon";
 import sinonChai from "sinon-chai";
 import { getTxIdOfInput } from "../../src/utils/psbt";
-import { addPSBTToQueue } from "../../src/utils/queue";
+import { addPSBTToQueue, removePSBTFromQueue } from "../../src/utils/queue";
 import { batchQueue } from "../../test/data/psbtData";
 import { batchBucket } from "./batchBucket";
+import * as calculateServiceFees from "./helpers/calculateServiceFees";
 import * as getUTXOForInput from "./helpers/getUTXOForInput";
 
 chai.use(sinonChai);
@@ -21,15 +22,13 @@ describe("batchBucket", () => {
   let getUTXOForInputStub: SinonStub;
   beforeEach(async () => {
     await Promise.all(
-      psbts
-        .slice(0, 10)
-        .map(({ psbt, feeRate, index }) =>
-          addPSBTToQueue(psbt, feeRate, index),
-        ),
+      bucket.map(({ psbt, feeRate, index }) =>
+        addPSBTToQueue(psbt, feeRate, index)
+      )
     );
     getUTXOForInputStub = Sinon.stub(
       getUTXOForInput,
-      "getUTXOForInput",
+      "getUTXOForInput"
     ).callsFake((input) =>
       Promise.resolve([
         {
@@ -43,7 +42,7 @@ describe("batchBucket", () => {
             block_time: 0,
           },
         },
-      ]),
+      ])
     );
   });
   after(() => {
@@ -68,8 +67,28 @@ describe("batchBucket", () => {
     expect(finalTransaction.ins.length).to.equal(10);
     expect(finalTransaction.outs.length).to.equal(11);
     expect(finalTransaction.outs[10].script.toString("hex")).to.equal(
-      "0014b05c2fd2e1323e7cf7abb46757afef526c3f7b46",
+      "0014b05c2fd2e1323e7cf7abb46757afef526c3f7b46"
     );
     expect(finalTransaction.outs[10].value).to.equal(34541);
+  });
+  it("doesn't add a fee output if the fee is less than the dust limit", async () => {
+    await Promise.all(psbts.map(({ psbt }) => removePSBTFromQueue(psbt)));
+    const highFeeBucket = psbts.slice(-10).map((e) => ({
+      ...e,
+      feeRate: 100,
+    }));
+    await Promise.all(
+      highFeeBucket.map(({ psbt, index }) => addPSBTToQueue(psbt, 100, index))
+    );
+    Sinon.stub(calculateServiceFees, "calculateServiceFees").callsFake(() => 0);
+    const result = await batchBucket(highFeeBucket);
+
+    if (!result.isOk()) {
+      throw Error("batchBucket failed" + result.getError());
+    }
+    const finalTransaction = result.getValue();
+
+    expect(finalTransaction.ins.length).to.equal(10);
+    expect(finalTransaction.outs.length).to.equal(10);
   });
 });

@@ -18,7 +18,7 @@ const BYTES_DISCOUNT = 40;
 export const validatePSBT = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const {
     psbt: base64Unparsed,
@@ -49,11 +49,11 @@ export const validatePSBT = (
       return respondWithError(res, "BAD_REQUEST", { details: "WRONG_SIGHASH" });
     }
 
-    if (index) {
+    if (index !== undefined) {
       signAllInputs(
         psbt,
         getSignerByIndex(hotWallet, index, NETWORK),
-        getSignerByIndex(oldHotWallet, index, NETWORK),
+        getSignerByIndex(oldHotWallet, index, NETWORK)
       );
     }
 
