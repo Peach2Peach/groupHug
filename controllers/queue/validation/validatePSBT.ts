@@ -10,8 +10,8 @@ import {
 } from "../../../src/utils/psbt";
 import { respondWithError } from "../../../src/utils/response/respondWithError";
 import { FeeRateSchema } from "../../../src/utils/validation/schemas";
-import { getSignerByIndex, hotWallet } from "../../../src/wallets";
-import { oldHotWallet } from "../../../src/wallets/hotWallet";
+import { getSignerByIndex } from "../../../src/wallets/getSignerByIndex";
+import { hotWallet, oldHotWallet } from "../../../src/wallets/hotWallet";
 
 const BYTES_DISCOUNT = 40;
 

@@ -2,7 +2,8 @@ import { Express } from "express";
 import getLogger from "../../src/utils/logger";
 import { addPSBTController } from "./addPSBTController";
 import { revokePSBTController } from "./revokePSBTController";
-import { validatePSBT, validateRevokePSBT } from "./validation";
+import { validatePSBT } from "./validation/validatePSBT";
+import { validateRevokePSBT } from "./validation/validateRevokePSBT";
 
 const serverLogger = getLogger("server", "log");
 

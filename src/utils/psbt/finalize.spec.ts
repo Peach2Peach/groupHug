@@ -1,3 +1,4 @@
+import * as bitcoinjs from "bitcoinjs-lib";
 import { networks, Psbt } from "bitcoinjs-lib";
 import { expect } from "chai";
 import Sinon from "sinon";
@@ -81,6 +82,23 @@ describe("finalize", () => {
       expect(error.message).to.equal(
         "Can not finalize input #0. Signatures do not correspond to public keys"
       );
+    }
+  });
+  it("throws an error when there is no finalScriptWitness", () => {
+    const psbt = Psbt.fromBase64(psbtBase64_1, {
+      network: networks.regtest,
+    });
+    Sinon.stub(bitcoinjs, "payments").get(() => ({
+      p2wsh: () => ({
+        witness: undefined,
+      }),
+    }));
+    try {
+      finalize(psbt);
+      throw new Error("Function did not throw an error");
+    } catch (error) {
+      if (!(error instanceof Error)) throw error;
+      expect(error.message).to.equal("Unknown error finalizing input #0");
     }
   });
 });

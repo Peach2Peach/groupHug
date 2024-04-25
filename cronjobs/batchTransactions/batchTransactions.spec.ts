@@ -1,4 +1,4 @@
-import { Psbt, Transaction, networks } from "bitcoinjs-lib";
+import { networks, Psbt, Transaction } from "bitcoinjs-lib";
 import chai, { expect } from "chai";
 import Sinon, { SinonStub } from "sinon";
 import sinonChai from "sinon-chai";
@@ -6,17 +6,17 @@ import * as constants from "../../constants";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import * as getFeeEstimates from "../../src/utils/electrs/getFeeEstimates";
+import * as getTx from "../../src/utils/electrs/getTx";
+import * as getUTXO from "../../src/utils/electrs/getUTXO";
 import * as postTx from "../../src/utils/electrs/postTx";
-import { getTxIdOfInput } from "../../src/utils/psbt";
 import { addPSBTToQueueWithClient } from "../../src/utils/queue";
 import * as getExtraPSBTData from "../../src/utils/queue/getExtraPSBTData";
 import { getError, getResult } from "../../src/utils/result";
+import blockExplorerData from "../../test/data/blockExplorerData.json";
 import { feeEstimates } from "../../test/data/electrsData";
 import { batchQueue } from "../../test/data/psbtData";
 import * as batchBucket from "./batchBucket";
 import { batchTransactions } from "./batchTransactions";
-import * as getUTXOForInput from "./helpers/getUTXOForInput";
-import * as hasBucketReachedTimeThreshold from "./helpers/hasBucketReachedTimeThreshold";
 
 chai.use(sinonChai);
 
@@ -31,24 +31,21 @@ describe("batchTransactions", () => {
   beforeEach(async () => {
     batchBucketStub = Sinon.stub(batchBucket, "batchBucket").callThrough();
     postTxStub = Sinon.stub(postTx, "postTx").callsFake((hex) =>
-      Promise.resolve(getResult(Transaction.fromHex(hex).getId())),
+      Promise.resolve(getResult(Transaction.fromHex(hex).getId()))
     );
-    Sinon.stub(getUTXOForInput, "getUTXOForInput").callsFake((input) => {
-      const txId = getTxIdOfInput(input);
-      return Promise.resolve([
-        {
-          txid: txId,
-          vout: input.index,
-          value: 100000000,
-          status: {
-            confirmed: true,
-            block_height: 1,
-            block_hash: "",
-            block_time: 0,
-          },
-        },
-      ]);
-    });
+    Sinon.stub(getTx, "getTx").callsFake((txid) =>
+      Promise.resolve(getResult({ ...blockExplorerData.tx, txid }))
+    );
+    Sinon.stub(getUTXO, "getUTXO").callsFake(() =>
+      Promise.resolve(
+        getResult(
+          blockExplorerData.utxo.map((utxo) => ({
+            ...utxo,
+            txid: "379a0e107a8fdfe49f1c3286d8ab2e62506cac4864d5f6ae40a393896f3540da",
+          }))
+        )
+      )
+    );
     Sinon.stub(getExtraPSBTData, "getExtraPSBTData").resolves({
       index: 1,
       psbt: "",
@@ -58,8 +55,8 @@ describe("batchTransactions", () => {
     await db.transaction(async (client) => {
       await Promise.all(
         psbts.map(({ psbt, feeRate }) =>
-          addPSBTToQueueWithClient(client, psbt, feeRate),
-        ),
+          addPSBTToQueueWithClient(client, psbt, feeRate)
+        )
       );
     });
   });
@@ -68,52 +65,49 @@ describe("batchTransactions", () => {
   });
   it("abort if fees estimates cannot be fetched", async () => {
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getError({ error: "INTERNAL_SERVER_ERROR" }),
+      getError({ error: "INTERNAL_SERVER_ERROR" })
     );
     expect(await batchTransactions()).to.be.false;
   });
   it("handles post tx errors", async () => {
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getResult(feeEstimates),
+      getResult(feeEstimates)
     );
     postTxStub.resolves(getError({ error: "INTERNAL_SERVER_ERROR" }));
     expect(await batchTransactions()).to.be.false;
   });
   it("handles batchBucket errors", async () => {
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getResult(feeEstimates),
+      getResult(feeEstimates)
     );
     batchBucketStub.resolves(getError("No psbts left to spend"));
     expect(await batchTransactions()).to.be.false;
   });
   it("does not batch if the time and size threshold have not been reached", async () => {
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getResult(feeEstimates),
+      getResult(feeEstimates)
     );
-    Sinon.stub(
-      hasBucketReachedTimeThreshold,
-      "hasBucketReachedTimeThreshold",
-    ).resolves(false);
+    await db.transaction(async (client) => {
+      await client.set(KEYS.BUCKET.EXPIRATION, "true", 0);
+    });
     Sinon.stub(constants, "BATCH_SIZE_THRESHOLD").value(Infinity);
     expect(await batchTransactions()).to.be.true;
     expect(batchBucketStub).to.have.not.been.called;
   });
   it("calls batch bucket with correct psbts, post transactions and return true on success", async () => {
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getResult(feeEstimates),
+      getResult(feeEstimates)
     );
-    expect(await hasBucketReachedTimeThreshold.hasBucketReachedTimeThreshold())
-      .to.be.true;
+    expect(await db.exists(KEYS.BUCKET.EXPIRATION)).to.be.false;
     expect(await batchTransactions()).to.be.true;
 
     expect(batchBucketStub).to.have.been.calledWith(psbts);
 
     const pending = await db.smembers(KEYS.TRANSACTION.PENDING);
     expect(pending.sort()).to.deep.equal([
-      "6ea2eb2768480200afa64aaa11b5863eaa7335686df690a5991958d4976e0b3e",
+      "4a8b642e77016c4266168c7d4733faa18be1c3dfb45ccc06adebae9e86738c65",
     ]);
 
-    expect(await hasBucketReachedTimeThreshold.hasBucketReachedTimeThreshold())
-      .to.be.false;
+    expect(await db.exists(KEYS.BUCKET.EXPIRATION)).to.be.true;
   });
 });

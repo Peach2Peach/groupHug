@@ -8,7 +8,7 @@ import {
   initDatabase,
   setClients,
 } from "../../src/utils/db";
-import { initWallets } from "../../src/wallets";
+import { initWallets } from "../../src/wallets/initWallets";
 import { unencrypted } from "../data/envData";
 
 let dbId: number;
@@ -20,7 +20,7 @@ export const mochaHooks = {
       unencrypted.PRIVKEY,
       unencrypted.OLD_PRIVKEY,
       unencrypted.FEE_COLLECTOR_PUBKEY,
-      NETWORK,
+      NETWORK
     );
     if (!dbId) {
       await initDatabase({ password: DB_AUTH, database: 7 });

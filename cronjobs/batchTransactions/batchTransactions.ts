@@ -1,4 +1,6 @@
 import { BATCH_SIZE_THRESHOLD } from "../../constants";
+import { db } from "../../src/utils/db";
+import { KEYS } from "../../src/utils/db/keys";
 import { getFeeEstimates, postTx } from "../../src/utils/electrs";
 import getLogger from "../../src/utils/logger";
 import {
@@ -8,11 +10,7 @@ import {
 import { PSBTWithFeeRate } from "../../src/utils/queue/getPSBTsFromQueue";
 import { saveBucketStatus } from "../../src/utils/queue/saveBucketStatus";
 import { batchBucket } from "./batchBucket";
-import {
-  errorFormatBatch,
-  hasBucketReachedTimeThreshold,
-  markBatchedTransactionAsPending,
-} from "./helpers";
+import { markBatchedTransactionAsPending } from "./helpers/markBatchedTransactionAsPending";
 
 export const logger = getLogger("job", "batchTransactions");
 
@@ -33,7 +31,7 @@ export const batchTransactions = async () => {
     maxParticipants: BATCH_SIZE_THRESHOLD,
   });
 
-  const timeThresholdReached = await hasBucketReachedTimeThreshold();
+  const timeThresholdReached = !(await db.exists(KEYS.BUCKET.EXPIRATION));
 
   const result = await (() => {
     if (!timeThresholdReached && bucket.length < BATCH_SIZE_THRESHOLD) {
@@ -56,7 +54,7 @@ async function handleBatch(candidate: PSBTWithFeeRate[]) {
 
   if (!batchBucketResult.isOk()) {
     logger.error(["Could not batch transaction", batchBucketResult.getError()]);
-    logger.error([JSON.stringify(errorFormatBatch(candidate))]);
+    logBatchError(candidate);
     return false;
   }
   const batchedTransaction = batchBucketResult.getValue();
@@ -80,6 +78,14 @@ async function handleBatch(candidate: PSBTWithFeeRate[]) {
     JSON.stringify(result.getError()),
     batchedTransaction.toHex(),
   ]);
-  logger.error([JSON.stringify(errorFormatBatch(candidate))]);
+  logBatchError(candidate);
   return false;
+}
+
+function logBatchError(candidate: PSBTWithFeeRate[]) {
+  logger.error([
+    JSON.stringify(
+      candidate.map(({ feeRate, psbt }) => ({ feeRate, psbt: psbt.toBase64() }))
+    ),
+  ]);
 }

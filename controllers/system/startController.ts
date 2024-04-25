@@ -7,16 +7,14 @@ import { initJobs } from "../../cronjobs/initJobs";
 import { initDatabase } from "../../src/utils/db";
 import getLogger from "../../src/utils/logger";
 import { decryptConfig, decrypted } from "../../src/utils/system/decryptConfig";
-import { initWallets } from "../../src/wallets";
+import { initWallets } from "../../src/wallets/initWallets";
 import { StartRequest, StartResponse } from "./types";
-export const serverLogger = getLogger("server", "log");
+
+const serverLogger = getLogger("server", "log");
 
 export const startServer = async (password: string) => {
   const { PRIVKEY, OLD_PRIVKEY, FEE_COLLECTOR_PUBKEY, DB_AUTH } =
     decryptConfig(password);
-  if (!PRIVKEY || !OLD_PRIVKEY || !FEE_COLLECTOR_PUBKEY || !DB_AUTH) {
-    throw new Error("Failed to decrypt config");
-  }
 
   if (decrypted) {
     await initDatabase({ password: DB_AUTH });
@@ -32,7 +30,7 @@ export const startServer = async (password: string) => {
 
 export const startController = async (
   req: StartRequest,
-  res: StartResponse,
+  res: StartResponse
 ) => {
   if (decrypted) {
     return res.json({ success: true });

@@ -29,7 +29,7 @@ describe("startController", () => {
       () => {
         decryptConfig.setDecrypted(true);
         return unencrypted;
-      },
+      }
     );
     initDatabaseStub = Sinon.stub(initDatabase, "initDatabase");
     initWalletsStub = Sinon.stub(initWallets, "initWallets");
@@ -47,7 +47,7 @@ describe("startController", () => {
 
     await startController(
       statusRequest as StartRequest,
-      statusResponse as StartResponse,
+      statusResponse as StartResponse
     );
 
     expect(decryptConfigStub).to.have.been.calledWith(password);
@@ -56,7 +56,7 @@ describe("startController", () => {
       xpriv,
       oldXpriv,
       xpub,
-      networks.regtest,
+      networks.regtest
     );
     expect(initJobsStub).to.have.been.called;
     expect(statusResponse.json).to.have.been.calledWith({ success: true });
@@ -70,7 +70,7 @@ describe("startController", () => {
 
     await startController(
       statusRequest as StartRequest,
-      statusResponse as StartResponse,
+      statusResponse as StartResponse
     );
 
     expect(decryptConfigStub).not.to.have.been.called;
@@ -91,7 +91,7 @@ describe("startController", () => {
 
     await startController(
       statusRequest as StartRequest,
-      statusResponse as StartResponse,
+      statusResponse as StartResponse
     );
 
     expect(initDatabaseStub).not.to.have.been.called;
@@ -108,7 +108,7 @@ describe("startController", () => {
 
     await startController(
       statusRequest as StartRequest,
-      statusResponse as StartResponse,
+      statusResponse as StartResponse
     );
 
     expect(initDatabaseStub).not.to.have.been.called;

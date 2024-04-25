@@ -4,6 +4,7 @@ import { getTx } from "../../src/utils/electrs";
 import { getTxIdOfInput } from "../../src/utils/psbt";
 import { addPSBTToQueue } from "../../src/utils/queue";
 import { respondWithError } from "../../src/utils/response";
+import { isDefined } from "../../src/utils/validation";
 import { AddPSBTRequest, AddPSBTResponse } from "./types";
 
 export const addPSBTController = async (
@@ -19,8 +20,8 @@ export const addPSBTController = async (
   );
   const transactions = results.map((result) => result.getValue());
   if (
-    transactions.every((t) => t) &&
-    transactions.some((tx) => !tx?.status.confirmed)
+    transactions.every(isDefined) &&
+    transactions.some((tx) => !tx.status.confirmed)
   ) {
     return respondWithError(res, "BAD_REQUEST");
   }

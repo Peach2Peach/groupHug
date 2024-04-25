@@ -6,21 +6,21 @@ import { before, describe, it } from "mocha";
 import { setNetwork, SIGHASH } from "../../constants";
 import { finalize } from "../../src/utils/psbt/finalize";
 import { signAllInputs } from "../../src/utils/psbt/signAllInputs";
+import { loadFeeWallet } from "../../src/wallets/feeWallet";
+import { getSignerByIndex } from "../../src/wallets/getSignerByIndex";
 import {
-  getSignerByIndex,
   hotWallet,
-  loadFeeWallet,
   loadHotWallet,
-} from "../../src/wallets";
-import { oldHotWallet } from "../../src/wallets/hotWallet";
+  oldHotWallet,
+} from "../../src/wallets/hotWallet";
 import { xpriv, xpub } from "../data/walletData";
-import { regtestUtils } from "./_regtest";
 import { buildPSBT } from "./helpers/buildPSBT";
 import { getAddressFromScript } from "./helpers/getAddressFromScript";
 import { getFeeAddress } from "./helpers/getFeeAddress";
 import { getMultisigScript } from "./helpers/getMultisigScript";
 import { psbt1, psbt2, psbt3 } from "./psbt";
 import { buyerAddress, seller } from "./signers";
+import { regtestUtils } from "./_regtest";
 
 describe("batching", () => {
   before(async () => {
@@ -36,43 +36,43 @@ describe("batching", () => {
     const oldSigner1 = getSignerByIndex(
       oldHotWallet,
       psbt1.index,
-      networks.regtest,
+      networks.regtest
     );
     const signer2 = getSignerByIndex(hotWallet, psbt2.index, networks.regtest);
     const oldSigner2 = getSignerByIndex(
       oldHotWallet,
       psbt2.index,
-      networks.regtest,
+      networks.regtest
     );
     const signer3 = getSignerByIndex(hotWallet, psbt3.index, networks.regtest);
     const oldSigner3 = getSignerByIndex(
       oldHotWallet,
       psbt3.index,
-      networks.regtest,
+      networks.regtest
     );
     const escrowScript1 = getMultisigScript(
       seller.publicKey,
-      signer1.publicKey,
+      signer1.publicKey
     );
     const escrowScript2 = getMultisigScript(
       seller.publicKey,
-      signer2.publicKey,
+      signer2.publicKey
     );
     const escrowScript3 = getMultisigScript(
       seller.publicKey,
-      signer3.publicKey,
+      signer3.publicKey
     );
     const fundingUTXO1 = await regtestUtils.faucet(
       getAddressFromScript(escrowScript1)!,
-      100000,
+      100000
     );
     const fundingUTXO2 = await regtestUtils.faucet(
       getAddressFromScript(escrowScript2)!,
-      200000,
+      200000
     );
     const fundingUTXO3 = await regtestUtils.faucet(
       getAddressFromScript(escrowScript3)!,
-      300000,
+      300000
     );
     const transaction1 = buildPSBT(escrowScript1, fundingUTXO1, buyerAddress);
     const transaction2 = buildPSBT(escrowScript2, fundingUTXO2, buyerAddress);
@@ -82,13 +82,13 @@ describe("batching", () => {
       tx.txInputs.forEach((input, i) => {
         tx.updateInput(i, { sighashType: SIGHASH.SINGLE_ANYONECANPAY });
         tx.signInput(i, seller, [SIGHASH.SINGLE_ANYONECANPAY]);
-      }),
+      })
     );
 
     const batchedTransaction = new Psbt({ network: networks.regtest });
     const txs = [transaction1, transaction2, transaction3];
     batchedTransaction.addInputs(
-      txs.map((tx) => ({ ...tx.txInputs[0], ...tx.data.inputs[0] })),
+      txs.map((tx) => ({ ...tx.txInputs[0], ...tx.data.inputs[0] }))
     );
     batchedTransaction.addOutputs(txs.map((tx) => tx.txOutputs[0]));
 
@@ -141,43 +141,43 @@ describe("batching", () => {
     const oldSigner1 = getSignerByIndex(
       oldHotWallet,
       psbt1.index,
-      networks.regtest,
+      networks.regtest
     );
     const signer2 = getSignerByIndex(hotWallet, psbt2.index, networks.regtest);
     const oldSigner2 = getSignerByIndex(
       oldHotWallet,
       psbt2.index,
-      networks.regtest,
+      networks.regtest
     );
     const signer3 = getSignerByIndex(hotWallet, psbt3.index, networks.regtest);
     const oldSigner3 = getSignerByIndex(
       oldHotWallet,
       psbt3.index,
-      networks.regtest,
+      networks.regtest
     );
     const escrowScript1 = getMultisigScript(
       seller.publicKey,
-      signer1.publicKey,
+      signer1.publicKey
     );
     const escrowScript2 = getMultisigScript(
       seller.publicKey,
-      oldSigner2.publicKey,
+      oldSigner2.publicKey
     );
     const escrowScript3 = getMultisigScript(
       seller.publicKey,
-      signer3.publicKey,
+      signer3.publicKey
     );
     const fundingUTXO1 = await regtestUtils.faucet(
       getAddressFromScript(escrowScript1)!,
-      100000,
+      100000
     );
     const fundingUTXO2 = await regtestUtils.faucet(
       getAddressFromScript(escrowScript2)!,
-      200000,
+      200000
     );
     const fundingUTXO3 = await regtestUtils.faucet(
       getAddressFromScript(escrowScript3)!,
-      300000,
+      300000
     );
     const transaction1 = buildPSBT(escrowScript1, fundingUTXO1, buyerAddress);
     const transaction2 = buildPSBT(escrowScript2, fundingUTXO2, buyerAddress);
@@ -187,13 +187,13 @@ describe("batching", () => {
       tx.txInputs.forEach((input, i) => {
         tx.updateInput(i, { sighashType: SIGHASH.SINGLE_ANYONECANPAY });
         tx.signInput(i, seller, [SIGHASH.SINGLE_ANYONECANPAY]);
-      }),
+      })
     );
 
     const batchedTransaction = new Psbt({ network: networks.regtest });
     const txs = [transaction1, transaction2, transaction3];
     batchedTransaction.addInputs(
-      txs.map((tx) => ({ ...tx.txInputs[0], ...tx.data.inputs[0] })),
+      txs.map((tx) => ({ ...tx.txInputs[0], ...tx.data.inputs[0] }))
     );
     batchedTransaction.addOutputs(txs.map((tx) => tx.txOutputs[0]));
 

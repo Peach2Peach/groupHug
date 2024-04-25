@@ -1,8 +1,8 @@
 import { networks, Psbt } from "bitcoinjs-lib";
 import { expect } from "chai";
 import Sinon from "sinon";
+import * as keys from "../../../constants";
 import { NETWORK } from "../../../constants";
-import * as keys from "../../../src/utils/system/decryptConfig";
 import {
   loadHotWallet,
   loadOldHotWallet,
@@ -53,10 +53,27 @@ describe("signBatchedTransaction", () => {
     ]);
     expect(psbt.data.inputs[0].partialSig?.length).to.equal(1);
   });
+  it("does not sign if no extraPSBTData is passed", () => {
+    const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
+      network: networks.regtest,
+    });
+    signBatchedTransaction(psbt, []);
+    expect(psbt.data.inputs[0].partialSig?.length).to.equal(1);
+  });
   it("does not sign if no the signer is not part of the multisig", () => {
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,
     });
+    signBatchedTransaction(psbt, [
+      { index: 123, psbt: "psbt", revocationToken: "revocationToken" },
+    ]);
+    expect(psbt.data.inputs[0].partialSig?.length).to.equal(1);
+  });
+  it("does not sign if no witness script is found", () => {
+    const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
+      network: networks.regtest,
+    });
+    psbt.data.inputs[0].witnessScript = undefined;
     signBatchedTransaction(psbt, [
       { index: 123, psbt: "psbt", revocationToken: "revocationToken" },
     ]);

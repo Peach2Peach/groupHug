@@ -1,6 +1,6 @@
 import { payments } from "bitcoinjs-lib";
 import { NETWORK } from "../../../constants";
-import { feeWallet } from "../../../src/wallets";
+import { feeWallet } from "../../../src/wallets/feeWallet";
 
 export const getFeeAddress = () => {
   const feeCollector = feeWallet.derivePath("0/0");
