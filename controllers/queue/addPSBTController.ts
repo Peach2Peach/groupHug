@@ -2,7 +2,7 @@ import { Psbt } from "bitcoinjs-lib";
 import { NETWORK } from "../../constants";
 import { getTx } from "../../src/utils/electrs";
 import { getTxIdOfInput } from "../../src/utils/psbt";
-import { addPSBTToQueue } from "../../src/utils/queue";
+import { addPSBTToQueue } from "../../src/utils/queue/addPSBTToQueue";
 import { respondWithError } from "../../src/utils/response";
 import { AddPSBTRequest, AddPSBTResponse } from "./types";
 

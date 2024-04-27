@@ -1,4 +1,3 @@
-export { addPSBTToQueue } from "./addPSBTToQueue";
 export { getBucketStatus } from "./getBucketStatus";
 export { getExtraPSBTData } from "./getExtraPSBTData";
 export { getExtraPSBTDataById } from "./getExtraPSBTDataById";

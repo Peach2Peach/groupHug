@@ -2,7 +2,8 @@ import { expect } from "chai";
 import { psbt1 } from "../../../test/data/psbtData";
 import { db } from "../db";
 import { KEYS } from "../db/keys";
-import { addPSBTToQueue, getExtraPSBTDataById } from "../queue";
+import { getExtraPSBTDataById } from "../queue";
+import { addPSBTToQueue } from "../queue/addPSBTToQueue";
 import { addPSBTToBatchWithClient } from "./addPSBTToBatchWithClient";
 
 describe("addPSBTToBatchWithClient", () => {
