@@ -1,6 +1,7 @@
-import { Network, Psbt, PsbtTxInput } from "bitcoinjs-lib";
+import { payments, Psbt, PsbtTxInput } from "bitcoinjs-lib";
 import { NETWORK } from "../../constants";
 import { db } from "../../src/utils/db";
+import { KEYS } from "../../src/utils/db/keys";
 import { getTx } from "../../src/utils/electrs/getTx";
 import { getUTXO } from "../../src/utils/electrs/getUTXO";
 import { ceil, round, sum } from "../../src/utils/math";
@@ -13,7 +14,7 @@ import { PSBTInfo } from "../../src/utils/queue/getExtraPSBTDataById";
 import { PSBTWithFeeRate } from "../../src/utils/queue/getPSBTsFromQueue";
 import { getError, getResult } from "../../src/utils/result";
 import { isDefined } from "../../src/utils/validation";
-import { getUnusedFeeAddress } from "../../src/wallets/getUnusedFeeAddress";
+import { feeWallet } from "../../src/wallets/feeWallet";
 import { logger } from "./batchTransactions";
 import { inputIsUnspent } from "./helpers/inputIsUnspent";
 import { signBatchedTransaction } from "./helpers/signBatchedTransaction";
@@ -72,9 +73,14 @@ async function buildBatchedTransaction(
   extraPSBTData: (PSBTInfo | null)[],
   miningFees: number
 ) {
-  const batchedTransaction = getBatchedTransaction(psbts, NETWORK);
-  const serviceFees = calculateServiceFees(psbts);
+  const batchedTransaction = new Psbt({ network: NETWORK });
+  batchedTransaction.addInputs(
+    psbts.map((psbt) => ({ ...psbt.txInputs[0], ...psbt.data.inputs[0] }))
+  );
+  batchedTransaction.addOutputs(psbts.map((psbt) => psbt.txOutputs[0]));
   batchedTransaction.setMaximumFeeRate(round(averageFeeRate + FEE_RATE_BUFFER));
+
+  const serviceFees = calculateServiceFees(psbts);
   logger.info(["averageFeeRate", averageFeeRate]);
   logger.info(["serviceFees", serviceFees]);
   logger.info(["miningFees", miningFees]);
@@ -97,16 +103,6 @@ function calculateServiceFees(psbts: Psbt[]) {
   return inputValues - outputValues;
 }
 
-function getBatchedTransaction(psbts: Psbt[], network: Network) {
-  const batchedTransaction = new Psbt({ network });
-  batchedTransaction.addInputs(
-    psbts.map((psbt) => ({ ...psbt.txInputs[0], ...psbt.data.inputs[0] }))
-  );
-  batchedTransaction.addOutputs(psbts.map((psbt) => psbt.txOutputs[0]));
-
-  return batchedTransaction;
-}
-
 async function getUTXOForInput(input: PsbtTxInput) {
   const { result: tx } = await getTx(getTxIdOfInput(input));
 
@@ -117,4 +113,14 @@ async function getUTXOForInput(input: PsbtTxInput) {
   const { result: utxo } = await getUTXO(output.scriptpubkey_address);
 
   return utxo?.filter((utx) => utx.txid === getTxIdOfInput(input));
+}
+
+async function getUnusedFeeAddress() {
+  const index = Number((await db.get(KEYS.FEE.INDEX)) || 0);
+  const feeCollector = feeWallet.derivePath(`0/${index}`);
+
+  return payments.p2wpkh({
+    pubkey: feeCollector.publicKey,
+    network: NETWORK,
+  }).address;
 }

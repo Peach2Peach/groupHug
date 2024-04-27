@@ -9,7 +9,6 @@ import * as getFeeEstimates from "../../src/utils/electrs/getFeeEstimates";
 import * as getTx from "../../src/utils/electrs/getTx";
 import * as getUTXO from "../../src/utils/electrs/getUTXO";
 import * as postTx from "../../src/utils/electrs/postTx";
-import { addPSBTToQueueWithClient } from "../../src/utils/queue";
 import * as getExtraPSBTData from "../../src/utils/queue/getExtraPSBTData";
 import { getError, getResult } from "../../src/utils/result";
 import blockExplorerData from "../../test/data/blockExplorerData.json";
@@ -55,7 +54,7 @@ describe("batchTransactions", () => {
     await db.transaction(async (client) => {
       await Promise.all(
         psbts.map(({ psbt, feeRate }) =>
-          addPSBTToQueueWithClient(client, psbt, feeRate)
+          client.zadd(KEYS.PSBT.QUEUE, feeRate, psbt.toBase64())
         )
       );
     });
@@ -105,9 +104,17 @@ describe("batchTransactions", () => {
 
     const pending = await db.smembers(KEYS.TRANSACTION.PENDING);
     expect(pending.sort()).to.deep.equal([
-      "4a8b642e77016c4266168c7d4733faa18be1c3dfb45ccc06adebae9e86738c65",
+      "b9ad9ccdfe6121b689bd08e8dcaf7155a2bc4a90a38fd8491d24de47565c583e",
     ]);
 
     expect(await db.exists(KEYS.BUCKET.EXPIRATION)).to.be.true;
+  });
+  it("increases the fee index after batching", async () => {
+    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
+      getResult(feeEstimates)
+    );
+    expect(await db.exists(KEYS.FEE.INDEX)).to.be.false;
+    expect(await batchTransactions()).to.be.true;
+    expect(await db.get(KEYS.FEE.INDEX)).to.equal("1");
   });
 });

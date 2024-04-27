@@ -63,6 +63,7 @@ async function handleBatch(candidate: PSBTWithFeeRate[]) {
   if (result.isOk()) {
     logger.info(["Transaction succesfully batched"]);
 
+    await db.incr(KEYS.FEE.INDEX);
     const txId = result.getValue();
     const markResult = await markBatchedTransactionAsPending(candidate, txId);
     saveBucketStatus({

@@ -96,9 +96,9 @@ describe("batchBucket", () => {
     expect(finalTransaction.ins.length).to.equal(10);
     expect(finalTransaction.outs.length).to.equal(11);
     expect(finalTransaction.outs[10].script.toString("hex")).to.equal(
-      "0014b05c2fd2e1323e7cf7abb46757afef526c3f7b46"
+      "0014c660079108cfbe1fe5278bc79eb1fee5afa9a201"
     );
-    expect(finalTransaction.outs[10].value).to.equal(34541);
+    expect(finalTransaction.outs[10].value).to.equal(34543);
   });
   it("doesn't add a fee output if the fee is less than the dust limit", async () => {
     await Promise.all(psbts.map(({ psbt }) => removePSBTFromQueue(psbt)));

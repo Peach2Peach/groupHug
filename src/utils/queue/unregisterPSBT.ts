@@ -1,17 +1,17 @@
 import { Psbt } from "bitcoinjs-lib";
 import { sha256 } from "../crypto";
 import { db } from "../db";
+import { KEYS } from "../db/keys";
 import { SubClient } from "../db/SubClient";
-import { unregisterPSBTWithIdWithClient } from "./unregisterPSBTWithId";
 
 export const unregisterPSBTWithClient = async (
   client: SubClient,
-  psbt: Psbt,
+  psbt: Psbt
 ) => {
   const base64 = psbt.toBase64();
   const id = sha256(base64);
 
-  await unregisterPSBTWithIdWithClient(client, id);
+  await client.del(KEYS.PSBT.PREFIX + id);
 };
 
 export const unregisterPSBT = (psbt: Psbt) =>

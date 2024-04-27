@@ -4,7 +4,6 @@ import { getTx } from "../../src/utils/electrs";
 import { getTxIdOfInput } from "../../src/utils/psbt";
 import { addPSBTToQueue } from "../../src/utils/queue";
 import { respondWithError } from "../../src/utils/response";
-import { isDefined } from "../../src/utils/validation";
 import { AddPSBTRequest, AddPSBTResponse } from "./types";
 
 export const addPSBTController = async (
@@ -19,14 +18,12 @@ export const addPSBTController = async (
     psbt.txInputs.map((input) => getTx(getTxIdOfInput(input)))
   );
   const transactions = results.map((result) => result.getValue());
-  if (
-    transactions.every(isDefined) &&
-    transactions.some((tx) => !tx.status.confirmed)
-  ) {
+  if (transactions.some((tx) => !tx || !tx.status.confirmed)) {
     return respondWithError(res, "BAD_REQUEST");
   }
 
   const result = await addPSBTToQueue(psbt, feeRate, index);
+
   if (result.isError()) return respondWithError(res, "INTERNAL_SERVER_ERROR");
 
   const { id, revocationToken } = result.getResult()!;

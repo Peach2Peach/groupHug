@@ -1,16 +1,16 @@
 import { expect } from "chai";
 import { psbt1, psbt2, psbt3 } from "../../../test/data/psbtData";
 import { db } from "../db";
-import { addPSBTToQueueWithClient } from "./addPSBTToQueue";
+import { KEYS } from "../db/keys";
 import { getPSBTsFromQueue } from "./getPSBTsFromQueue";
 
 describe("getPSBTsFromQueue", () => {
   it("get psbts from queue between min gte and max lt", async () => {
     await db.transaction(async (client) => {
       await Promise.all([
-        addPSBTToQueueWithClient(client, psbt1, 2),
-        addPSBTToQueueWithClient(client, psbt2, 4),
-        addPSBTToQueueWithClient(client, psbt3, 3),
+        await client.zadd(KEYS.PSBT.QUEUE, 2, psbt1.toBase64()),
+        await client.zadd(KEYS.PSBT.QUEUE, 4, psbt2.toBase64()),
+        await client.zadd(KEYS.PSBT.QUEUE, 3, psbt3.toBase64()),
       ]);
     });
 
@@ -25,9 +25,9 @@ describe("getPSBTsFromQueue", () => {
   it("get all psbts from queue", async () => {
     await db.transaction(async (client) => {
       await Promise.all([
-        addPSBTToQueueWithClient(client, psbt1, 2),
-        addPSBTToQueueWithClient(client, psbt2, 4),
-        addPSBTToQueueWithClient(client, psbt3, 3),
+        await client.zadd(KEYS.PSBT.QUEUE, 2, psbt1.toBase64()),
+        await client.zadd(KEYS.PSBT.QUEUE, 4, psbt2.toBase64()),
+        await client.zadd(KEYS.PSBT.QUEUE, 3, psbt3.toBase64()),
       ]);
     });
     const queue = await getPSBTsFromQueue();

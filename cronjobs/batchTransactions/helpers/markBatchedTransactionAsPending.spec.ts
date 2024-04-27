@@ -1,8 +1,7 @@
-import { Psbt, networks } from "bitcoinjs-lib";
+import { networks, Psbt } from "bitcoinjs-lib";
 import { expect } from "chai";
 import { db } from "../../../src/utils/db";
 import { KEYS } from "../../../src/utils/db/keys";
-import { addPSBTToQueueWithClient } from "../../../src/utils/queue";
 import { batchQueue } from "../../../test/data/psbtData";
 import { markBatchedTransactionAsPending } from "./markBatchedTransactionAsPending";
 
@@ -17,8 +16,8 @@ describe("markBatchedTransactionAsPending", () => {
     await db.transaction(async (client) => {
       await Promise.all(
         psbts.map(({ feeRate, psbt }) =>
-          addPSBTToQueueWithClient(client, psbt, feeRate),
-        ),
+          client.zadd(KEYS.PSBT.QUEUE, feeRate, psbt.toBase64())
+        )
       );
     });
   });
@@ -28,7 +27,7 @@ describe("markBatchedTransactionAsPending", () => {
     expect(await db.zcard(KEYS.PSBT.QUEUE)).to.equal(0);
     expect(await db.zcard(KEYS.BATCH + txId)).to.equal(3);
     expect(await db.zrange(KEYS.BATCH + txId)).to.deep.equal(
-      batchQueue.slice(0, 3).map(({ psbt }) => psbt),
+      batchQueue.slice(0, 3).map(({ psbt }) => psbt)
     );
   });
   it("adds tx id to pending queue", async () => {

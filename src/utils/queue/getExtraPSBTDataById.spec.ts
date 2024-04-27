@@ -1,13 +1,16 @@
 import { expect } from "chai";
 import { psbt1 } from "../../../test/data/psbtData";
+import { db } from "../db";
 import { getExtraPSBTDataById } from "./getExtraPSBTDataById";
-import { registerPSBT } from "./registerPSBT";
+import { registerPSBTWithClient } from "./registerPSBTWithClient";
 
 describe("getExtraPSBTDataById", () => {
   it("gets extra psbt data", async () => {
-    const result = await registerPSBT(psbt1, 2);
+    const result = await db.transaction((client) =>
+      registerPSBTWithClient(client, psbt1, 2)
+    );
     const { psbt, revocationToken, index, txId } = (await getExtraPSBTDataById(
-      result.getResult()!.id,
+      result.getResult()!.id
     ))!;
     expect(psbt).to.equal(psbt1.toBase64());
     expect(revocationToken).to.have.length(32);

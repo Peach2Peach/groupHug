@@ -1,9 +1,9 @@
-import { removePSBTFromQueueWithId } from "../../src/utils/queue";
+import { removePSBTFromQueueWithId } from "../../src/utils/queue/removePSBTFromQueueWithId";
 import { RevokePSBTRequest, RevokePSBTResponse } from "./types";
 
 export const revokePSBTController = async (
   req: RevokePSBTRequest,
-  res: RevokePSBTResponse,
+  res: RevokePSBTResponse
 ) => {
   const { id } = req.body;
 

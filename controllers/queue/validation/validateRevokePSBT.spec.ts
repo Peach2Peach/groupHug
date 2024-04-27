@@ -4,7 +4,11 @@ import { Request, Response } from "express";
 import { describe, it } from "mocha";
 import Sinon from "sinon";
 import sinonChai from "sinon-chai";
-import { registerPSBT, unregisterPSBT } from "../../../src/utils/queue";
+import { db } from "../../../src/utils/db";
+import {
+  registerPSBTWithClient,
+  unregisterPSBT,
+} from "../../../src/utils/queue";
 import { psbt1 } from "../../../test/data/psbtData";
 import {
   requestMock,
@@ -18,7 +22,9 @@ describe("validateRevokePSBT", () => {
   let id: string;
   let revocationToken: string;
   beforeEach(async () => {
-    const result = await registerPSBT(psbt1);
+    const result = await db.transaction((client) =>
+      registerPSBTWithClient(client, psbt1)
+    );
     id = result.getResult()!.id;
     revocationToken = result.getResult()!.revocationToken;
   });

@@ -3,10 +3,11 @@ import chai, { expect } from "chai";
 import { Response } from "express";
 import { describe, it } from "mocha";
 import sinonChai from "sinon-chai";
+import { db } from "../../src/utils/db";
 import {
   getExtraPSBTDataById,
   getPSBTsFromQueue,
-  registerPSBT,
+  registerPSBTWithClient,
 } from "../../src/utils/queue";
 import { psbt1 } from "../../test/data/psbtData";
 import {
@@ -22,7 +23,9 @@ describe("revokePSBTController", () => {
   let id: string;
   let revocationToken: string;
   beforeEach(async () => {
-    const result = await registerPSBT(psbt1);
+    const result = await db.transaction((client) =>
+      registerPSBTWithClient(client, psbt1)
+    );
     id = result.getResult()!.id;
     revocationToken = result.getResult()!.revocationToken;
   });
@@ -31,7 +34,7 @@ describe("revokePSBTController", () => {
     const response = responseMock();
     await revokePSBTController(
       request as RevokePSBTRequest,
-      response as Response,
+      response as Response
     );
 
     expect(response.json).to.be.calledWith({ success: true });

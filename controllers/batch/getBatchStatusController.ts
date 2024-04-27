@@ -1,12 +1,13 @@
 import { NETWORK } from "../../constants";
 import { getPSBTsFromBatch } from "../../src/utils/batch";
-import { getBucketStatus, getExtraPSBTDataById } from "../../src/utils/queue";
+import { getExtraPSBTDataById } from "../../src/utils/queue";
 import { respondWithError } from "../../src/utils/response";
+import { getBatchStatusOverviewController } from "./getBatchStatusOverviewController";
 import { GetBatchStatusRequest, GetBatchStatusResponse } from "./types";
 
 export const getBatchStatusController = async (
   req: GetBatchStatusRequest,
-  res: GetBatchStatusResponse,
+  res: GetBatchStatusResponse
 ) => {
   const { id } = req.query;
 
@@ -25,7 +26,5 @@ export const getBatchStatusController = async (
     }
   }
 
-  const bucketStatus = await getBucketStatus();
-
-  return res.json(bucketStatus);
+  return getBatchStatusOverviewController(req, res);
 };
