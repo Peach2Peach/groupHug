@@ -3,10 +3,11 @@ import Sinon from "sinon";
 import sinonChai from "sinon-chai";
 import { BLOCKEXPLORERURL } from "../../constants";
 import {
-  addPendingTransaction,
   getConfirmedTransactions,
   getPendingTransactions,
 } from "../../src/utils/batch";
+import { db } from "../../src/utils/db";
+import { KEYS } from "../../src/utils/db/keys";
 import blockExplorerData from "../../test/data/blockExplorerData.json";
 import { getFetchResponse } from "../../test/unit/helpers/getFetchResponse";
 import { mockGetTx } from "../../test/unit/helpers/mockGetTx";
@@ -46,7 +47,11 @@ describe("checkTransactionStatus", () => {
   });
   it("should mark tx as confirmed that have at least 6 confirmations", async () => {
     const txIds = ["txId1", "txId2", "txId3", "txId4"];
-    await Promise.all(txIds.map(addPendingTransaction));
+    await Promise.all(
+      txIds.map((txId) =>
+        db.transaction((client) => client.sadd(KEYS.TRANSACTION.PENDING, txId))
+      )
+    );
 
     mockGetTx(txIds[0], blockExplorerData.tx);
     mockGetTx(txIds[1], {

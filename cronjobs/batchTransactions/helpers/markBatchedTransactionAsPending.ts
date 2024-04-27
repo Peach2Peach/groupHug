@@ -1,8 +1,6 @@
-import {
-  addPendingTransactionWithClient,
-  addPSBTToBatchWithClient,
-} from "../../../src/utils/batch";
+import { addPSBTToBatchWithClient } from "../../../src/utils/batch/addPSBTToBatchWithClient";
 import { db } from "../../../src/utils/db";
+import { KEYS } from "../../../src/utils/db/keys";
 import { removePSBTFromQueueWithClient } from "../../../src/utils/queue";
 import { PSBTWithFeeRate } from "../../../src/utils/queue/getPSBTsFromQueue";
 
@@ -19,5 +17,5 @@ export const markBatchedTransactionAsPending = (
     await Promise.all(
       candidate.map(({ psbt }) => removePSBTFromQueueWithClient(client, psbt))
     );
-    await Promise.all([addPendingTransactionWithClient(client, txId)]);
+    await client.sadd(KEYS.TRANSACTION.PENDING, txId);
   });

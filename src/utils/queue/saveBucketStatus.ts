@@ -11,5 +11,5 @@ export const saveBucketStatus = ({ participants, maxParticipants }: Props) =>
     client.hset(KEYS.BUCKET.STATUS, {
       participants,
       maxParticipants,
-    }),
+    })
   );

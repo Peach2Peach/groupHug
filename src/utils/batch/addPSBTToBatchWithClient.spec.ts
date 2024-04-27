@@ -3,13 +3,15 @@ import { psbt1 } from "../../../test/data/psbtData";
 import { db } from "../db";
 import { KEYS } from "../db/keys";
 import { addPSBTToQueue, getExtraPSBTDataById } from "../queue";
-import { addPSBTToBatch } from "./addPSBTToBatch";
+import { addPSBTToBatchWithClient } from "./addPSBTToBatchWithClient";
 
-describe("addPSBTToBatch", () => {
+describe("addPSBTToBatchWithClient", () => {
   it("stores psbt with fee rate to batch in database", async () => {
     const txId = "txId";
     const result = await addPSBTToQueue(psbt1, 2);
-    await addPSBTToBatch(txId, psbt1, 2);
+    await db.transaction((client) =>
+      addPSBTToBatchWithClient(client, txId, psbt1, 2)
+    );
     expect(await db.zrangewithscores(KEYS.BATCH + txId)).to.deep.equal([
       { score: 2, value: psbt1.toBase64() },
     ]);

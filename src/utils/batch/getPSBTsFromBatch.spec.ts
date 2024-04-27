@@ -1,9 +1,9 @@
+import { networks } from "bitcoinjs-lib";
 import { expect } from "chai";
 import { psbt1, psbt2, psbt3 } from "../../../test/data/psbtData";
 import { db } from "../db";
-import { addPSBTToBatchWithClient } from "./addPSBTToBatch";
+import { addPSBTToBatchWithClient } from "./addPSBTToBatchWithClient";
 import { getPSBTsFromBatch } from "./getPSBTsFromBatch";
-import { networks } from "bitcoinjs-lib";
 
 describe("getPSBTsFromBatch", () => {
   const txId = "txId";

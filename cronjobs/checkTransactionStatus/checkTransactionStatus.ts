@@ -1,7 +1,5 @@
-import {
-  addConfirmedTransaction,
-  getPendingTransactions,
-} from "../../src/utils/batch";
+import { getPendingTransactions } from "../../src/utils/batch";
+import { addConfirmedTransaction } from "../../src/utils/batch/addConfirmedTransaction";
 import { getTipHeight } from "../../src/utils/electrs";
 import { getConfirmations } from "./getConfirmations";
 import { logger } from "./logger";
@@ -27,10 +25,10 @@ export const checkTransactionStatus = async () => {
   ]);
 
   const txWithConfirmationInfo = await Promise.all(
-    pending.map(getConfirmations(blockHeight!)),
+    pending.map(getConfirmations(blockHeight!))
   );
   const confirmed = txWithConfirmationInfo.filter(
-    ({ confirmations }) => confirmations >= MINIMUM_CONFIRMATIONS,
+    ({ confirmations }) => confirmations >= MINIMUM_CONFIRMATIONS
   );
   await Promise.all(confirmed.map(({ txId }) => addConfirmedTransaction(txId)));
   return true;

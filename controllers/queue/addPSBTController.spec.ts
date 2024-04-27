@@ -1,15 +1,15 @@
-import { Psbt, networks } from "bitcoinjs-lib";
+import { networks, Psbt } from "bitcoinjs-lib";
 import chai, { expect } from "chai";
 import { Response } from "express";
 import { describe, it } from "mocha";
 import Sinon, { SinonStub } from "sinon";
 import sinonChai from "sinon-chai";
 import { db } from "../../src/utils/db";
-import { TransactionResult } from "../../src/utils/db/TransactionResult";
 import { KEYS } from "../../src/utils/db/keys";
+import { TransactionResult } from "../../src/utils/db/TransactionResult";
 import { getTxIdOfInput } from "../../src/utils/psbt";
-import { getPSBTsFromQueue } from "../../src/utils/queue";
 import * as addPSBTToQueue from "../../src/utils/queue/addPSBTToQueue";
+import { getPSBTsFromQueue } from "../../src/utils/queue/getPSBTsFromQueue";
 import blockExplorerData from "../../test/data/blockExplorerData.json";
 import { batchQueue } from "../../test/data/psbtData";
 import {
@@ -112,7 +112,7 @@ describe("addPSBTController", () => {
   it("returns INTERNAL_SERVER_ERROR if psbt could not be added to queue", async () => {
     Sinon.stub(addPSBTToQueue, "addPSBTToQueue").resolves(
       // @ts-ignore
-      new TransactionResult(false, undefined, "error"),
+      new TransactionResult(false, undefined, "error")
     );
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,

@@ -6,9 +6,9 @@ import sinonChai from "sinon-chai";
 import { db } from "../../src/utils/db";
 import {
   getExtraPSBTDataById,
-  getPSBTsFromQueue,
   registerPSBTWithClient,
 } from "../../src/utils/queue";
+import { getPSBTsFromQueue } from "../../src/utils/queue/getPSBTsFromQueue";
 import { psbt1 } from "../../test/data/psbtData";
 import {
   requestMock,

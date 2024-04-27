@@ -1,11 +1,14 @@
 import { expect } from "chai";
-import { addPendingTransaction } from "./addPendingTransaction";
+import { db } from "../db";
+import { KEYS } from "../db/keys";
 import { getPendingTransactions } from "./getPendingTransactions";
 
 describe("getPendingTransactions", () => {
   const txId = "txId";
   it("adds pending transaction from set", async () => {
-    await addPendingTransaction(txId);
+    await db.transaction((client) =>
+      client.sadd(KEYS.TRANSACTION.PENDING, txId)
+    );
     expect(await getPendingTransactions()).to.deep.equal([txId]);
   });
 });
