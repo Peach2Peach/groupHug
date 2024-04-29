@@ -1,4 +1,3 @@
-import { Psbt } from "bitcoinjs-lib";
 import { randomUUID } from "crypto";
 import { sha256 } from "../crypto";
 import { KEYS } from "../db/keys";
@@ -6,10 +5,9 @@ import { SubClient } from "../db/SubClient";
 
 export const registerPSBTWithClient = async (
   client: SubClient,
-  psbt: Psbt,
+  base64: string,
   index?: number
 ) => {
-  const base64 = psbt.toBase64();
   const id = sha256(base64);
   const revocationToken = randomUUID().replace(/-/gu, "");
 

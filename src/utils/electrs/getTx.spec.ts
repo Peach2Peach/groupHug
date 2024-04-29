@@ -16,21 +16,21 @@ describe("getTx", () => {
   });
   it("fetches tx details", async () => {
     mockGetTx(txId, blockExplorerData.tx);
-    const result = await getTx(txId);
-    expect(result.getValue()).to.deep.equal(blockExplorerData.tx);
+    const { result } = await getTx(txId);
+    expect(result).to.deep.equal(blockExplorerData.tx);
   });
   it("handles response errors", async () => {
     mockGetTx(txId, "Transaction not found", 404);
-    const result = await getTx(txId);
-    expect(result.getError()).to.deep.equal({ error: "INTERNAL_SERVER_ERROR" });
+    const error = await getTx(txId);
+    expect(error).to.deep.equal({ error: "INTERNAL_SERVER_ERROR" });
   });
   it("handles unexpected errors", async () => {
-    const error = new Error("error");
-    fetchStub.withArgs(`${BLOCKEXPLORERURL}/tx/${txId}`).rejects(error);
-    const result = await getTx(txId);
-    expect(result.getError()).to.deep.equal({
+    const err = new Error("error");
+    fetchStub.withArgs(`${BLOCKEXPLORERURL}/tx/${txId}`).rejects(err);
+    const error = await getTx(txId);
+    expect(error).to.deep.equal({
       error: "INTERNAL_SERVER_ERROR",
-      message: error,
+      message: err,
     });
   });
 });

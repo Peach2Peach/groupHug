@@ -4,7 +4,6 @@ export { getExtraPSBTDataById } from "./getExtraPSBTDataById";
 export { getFeeRanges } from "./getFeeRanges";
 export { getFeeRate } from "./getFeeRate";
 export { getSteps } from "./getSteps";
-export { registerPSBTWithClient } from "./registerPSBTWithClient";
 export {
   removePSBTFromQueue,
   removePSBTFromQueueWithClient,

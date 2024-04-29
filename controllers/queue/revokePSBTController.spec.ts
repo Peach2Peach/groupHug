@@ -4,12 +4,10 @@ import { Response } from "express";
 import { describe, it } from "mocha";
 import sinonChai from "sinon-chai";
 import { db } from "../../src/utils/db";
-import {
-  getExtraPSBTDataById,
-  registerPSBTWithClient,
-} from "../../src/utils/queue";
+import { getExtraPSBTDataById } from "../../src/utils/queue";
 import { getPSBTsFromQueue } from "../../src/utils/queue/getPSBTsFromQueue";
-import { psbt1 } from "../../test/data/psbtData";
+import { registerPSBTWithClient } from "../../src/utils/queue/registerPSBTWithClient";
+import { psbt1, psbtBase64_1 } from "../../test/data/psbtData";
 import {
   requestMock,
   responseMock,
@@ -24,7 +22,7 @@ describe("revokePSBTController", () => {
   let revocationToken: string;
   beforeEach(async () => {
     const result = await db.transaction((client) =>
-      registerPSBTWithClient(client, psbt1)
+      registerPSBTWithClient(client, psbtBase64_1)
     );
     id = result.getResult()!.id;
     revocationToken = result.getResult()!.revocationToken;

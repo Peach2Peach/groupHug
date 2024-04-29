@@ -33,7 +33,7 @@ describe("batchTransactions", () => {
       Promise.resolve(getResult(Transaction.fromHex(hex).getId()))
     );
     Sinon.stub(getTx, "getTx").callsFake((txid) =>
-      Promise.resolve(getResult({ ...blockExplorerData.tx, txid }))
+      Promise.resolve({ result: { ...blockExplorerData.tx, txid } })
     );
     Sinon.stub(getUTXO, "getUTXO").callsFake(() =>
       Promise.resolve(

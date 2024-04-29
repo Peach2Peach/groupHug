@@ -1,6 +1,6 @@
 import { Psbt } from "bitcoinjs-lib";
 import { NETWORK } from "../../constants";
-import { getTx } from "../../src/utils/electrs";
+import { getTx } from "../../src/utils/electrs/getTx";
 import { getTxIdOfInput } from "../../src/utils/psbt";
 import { addPSBTToQueue } from "../../src/utils/queue/addPSBTToQueue";
 import { respondWithError } from "../../src/utils/response";
@@ -14,10 +14,11 @@ export const addPSBTController = async (
 
   const psbt = Psbt.fromBase64(base64, { network: NETWORK });
 
-  const results = await Promise.all(
-    psbt.txInputs.map((input) => getTx(getTxIdOfInput(input)))
+  const transactions = await Promise.all(
+    psbt.txInputs.map(
+      async (input) => (await getTx(getTxIdOfInput(input))).result
+    )
   );
-  const transactions = results.map((result) => result.getValue());
   if (transactions.some((tx) => !tx || !tx.status.confirmed)) {
     return respondWithError(res, "BAD_REQUEST");
   }

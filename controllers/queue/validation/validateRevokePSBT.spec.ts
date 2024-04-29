@@ -5,11 +5,9 @@ import { describe, it } from "mocha";
 import Sinon from "sinon";
 import sinonChai from "sinon-chai";
 import { db } from "../../../src/utils/db";
-import {
-  registerPSBTWithClient,
-  unregisterPSBT,
-} from "../../../src/utils/queue";
-import { psbt1 } from "../../../test/data/psbtData";
+import { unregisterPSBT } from "../../../src/utils/queue";
+import { registerPSBTWithClient } from "../../../src/utils/queue/registerPSBTWithClient";
+import { psbt1, psbtBase64_1 } from "../../../test/data/psbtData";
 import {
   requestMock,
   responseMock,
@@ -23,7 +21,7 @@ describe("validateRevokePSBT", () => {
   let revocationToken: string;
   beforeEach(async () => {
     const result = await db.transaction((client) =>
-      registerPSBTWithClient(client, psbt1)
+      registerPSBTWithClient(client, psbtBase64_1)
     );
     id = result.getResult()!.id;
     revocationToken = result.getResult()!.revocationToken;

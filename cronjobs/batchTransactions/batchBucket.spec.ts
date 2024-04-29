@@ -31,7 +31,7 @@ describe("batchBucket", () => {
       )
     );
     getTxStub = Sinon.stub(getTx, "getTx").callsFake((txid) =>
-      Promise.resolve(getResult({ ...blockExplorerData.tx, txid }))
+      Promise.resolve({ result: { ...blockExplorerData.tx, txid } })
     );
     getUTXOStub = Sinon.stub(getUTXO, "getUTXO").callsFake(() =>
       Promise.resolve(
