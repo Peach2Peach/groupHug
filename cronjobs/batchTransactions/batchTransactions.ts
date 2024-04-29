@@ -3,11 +3,11 @@ import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { getFeeEstimates, postTx } from "../../src/utils/electrs";
 import getLogger from "../../src/utils/logger";
-import { resetBucketExpiration } from "../../src/utils/queue";
 import {
   getPSBTsFromQueue,
   PSBTWithFeeRate,
 } from "../../src/utils/queue/getPSBTsFromQueue";
+import { resetBucketExpiration } from "../../src/utils/queue/resetBucketExpiration";
 import { saveBucketStatus } from "../../src/utils/queue/saveBucketStatus";
 import { batchBucket } from "./batchBucket";
 import { markBatchedTransactionAsPending } from "./helpers/markBatchedTransactionAsPending";

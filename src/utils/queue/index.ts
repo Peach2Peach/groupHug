@@ -1,4 +1,3 @@
-export { getBucketStatus } from "./getBucketStatus";
 export { getExtraPSBTData } from "./getExtraPSBTData";
 export { getExtraPSBTDataById } from "./getExtraPSBTDataById";
 export { getFeeRanges } from "./getFeeRanges";
@@ -8,6 +7,5 @@ export {
   removePSBTFromQueue,
   removePSBTFromQueueWithClient,
 } from "./removePSBTFromQueue";
-export { resetBucketExpiration } from "./resetBucketExpiration";
 export { saveBucketStatus } from "./saveBucketStatus";
 export { unregisterPSBT, unregisterPSBTWithClient } from "./unregisterPSBT";

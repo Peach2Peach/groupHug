@@ -1,4 +1,5 @@
-import { getBucketStatus } from "../../src/utils/queue";
+import { db } from "../../src/utils/db";
+import { KEYS } from "../../src/utils/db/keys";
 import {
   GetBatchStatusOverviewRequest,
   GetBatchStatusOverviewResponse,
@@ -6,8 +7,19 @@ import {
 
 export const getBatchStatusOverviewController = async (
   _req: GetBatchStatusOverviewRequest,
-  res: GetBatchStatusOverviewResponse,
+  res: GetBatchStatusOverviewResponse
 ) => {
-  const status = await getBucketStatus();
-  return res.json(status);
+  const [rawParticipants, rawMaxParticipants] = await db.hmget(
+    KEYS.BUCKET.STATUS,
+    ["participants", "maxParticipants"]
+  );
+
+  const ttl = await db.client.ttl(KEYS.BUCKET.EXPIRATION);
+
+  return res.json({
+    participants: Number(rawParticipants),
+    maxParticipants: Number(rawMaxParticipants),
+    timeRemaining: ttl,
+    completed: false,
+  });
 };
