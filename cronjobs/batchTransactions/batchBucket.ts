@@ -18,16 +18,16 @@ import { sumPSBTOutputValues } from "./helpers/sumPSBTOutputValues";
 
 const SIGNATURE_SIZE_DIFF = 2;
 export const batchBucket = async (base64PSBTs: string[], feeRate: number) => {
-  const bucket = base64PSBTs.map((base64) =>
+  const allPSBTs = base64PSBTs.map((base64) =>
     Psbt.fromBase64(base64, { network: NETWORK })
   );
-  const allTxInputs = bucket.map((psbt) => psbt.txInputs[0]);
+  const allTxInputs = allPSBTs.map((psbt) => psbt.txInputs[0]);
   const utxos = (await Promise.all(allTxInputs.map(getUTXOForInput))).filter(
     isDefined
   );
   const unspent = utxos.map((utxo, i) => inputIsUnspent(allTxInputs[i], utxo));
 
-  const toDelete = bucket.filter((_psbt, i) => !unspent[i]);
+  const toDelete = allPSBTs.filter((_psbt, i) => !unspent[i]);
 
   await db.transaction(async (client) => {
     await Promise.all(
@@ -35,16 +35,16 @@ export const batchBucket = async (base64PSBTs: string[], feeRate: number) => {
     );
   });
 
-  const psbts = bucket.filter((_psbt, i) => unspent[i]);
+  const unspentPSBTs = allPSBTs.filter((_psbt, i) => unspent[i]);
 
-  if (psbts.length === 0) return getError("No psbts left to spend");
+  if (unspentPSBTs.length === 0) return getError("No psbts left to spend");
 
-  const stagedTx = await buildBatchedTransaction(psbts, feeRate, 0);
+  const stagedTx = await buildBatchedTransaction(unspentPSBTs, feeRate, 0);
   const miningFees = ceil(
     (stagedTx.virtualSize() + SIGNATURE_SIZE_DIFF) * feeRate
   );
   const finalTransaction = await buildBatchedTransaction(
-    psbts,
+    unspentPSBTs,
     feeRate,
     miningFees
   );
@@ -94,7 +94,8 @@ function calculateServiceFees(psbts: Psbt[]) {
 }
 
 async function getUTXOForInput(input: PsbtTxInput) {
-  const { result: tx } = await getTx(getTxIdOfInput(input));
+  const inputTxId = getTxIdOfInput(input);
+  const { result: tx } = await getTx(inputTxId);
 
   if (!tx) return undefined;
 
@@ -102,7 +103,7 @@ async function getUTXOForInput(input: PsbtTxInput) {
   if (!output.scriptpubkey_address) return undefined;
   const { result: utxo } = await getUTXO(output.scriptpubkey_address);
 
-  return utxo?.filter((utx) => utx.txid === getTxIdOfInput(input));
+  return utxo?.filter((utx) => utx.txid === inputTxId);
 }
 
 async function getUnusedFeeAddress() {
