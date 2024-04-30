@@ -1,11 +1,9 @@
-import { Psbt } from "bitcoinjs-lib";
 import { BATCH_SIZE_THRESHOLD } from "../../constants";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { postTx } from "../../src/utils/electrs";
 import { getFeeEstimates } from "../../src/utils/electrs/getFeeEstimates";
 import getLogger from "../../src/utils/logger";
-import { getPSBTsFromQueue } from "../../src/utils/queue/getPSBTsFromQueue";
 import { resetBucketExpiration } from "../../src/utils/queue/resetBucketExpiration";
 import { saveBucketStatus } from "../../src/utils/queue/saveBucketStatus";
 import { batchBucket } from "./batchBucket";
@@ -21,22 +19,22 @@ export const batchTransactions = async () => {
     return false;
   }
 
-  const bucket = await getPSBTsFromQueue();
+  const base64PSBTs = await db.smembers(KEYS.PSBT.QUEUE);
   saveBucketStatus({
-    participants: bucket.length,
+    participants: base64PSBTs.length,
     maxParticipants: BATCH_SIZE_THRESHOLD,
   });
 
   const timeThresholdReached = !(await db.exists(KEYS.BUCKET.EXPIRATION));
 
   const result = await (async () => {
-    if (!timeThresholdReached && bucket.length < BATCH_SIZE_THRESHOLD) {
+    if (!timeThresholdReached && base64PSBTs.length < BATCH_SIZE_THRESHOLD) {
       logger.info(["Bucket not ready to be batched"]);
       return true;
     }
-    logger.info(["Batching bucket with size:", bucket.length]);
+    logger.info(["Batching bucket with size:", base64PSBTs.length]);
     const batchBucketResult = await batchBucket(
-      bucket,
+      base64PSBTs,
       feeEstimatesResult.result.halfHourFee
     );
 
@@ -45,7 +43,7 @@ export const batchTransactions = async () => {
         "Could not batch transaction",
         batchBucketResult.getError(),
       ]);
-      logBatchError(bucket);
+      logger.error([JSON.stringify(base64PSBTs)]);
       return false;
     }
     const batchedTransaction = batchBucketResult.getValue();
@@ -56,7 +54,10 @@ export const batchTransactions = async () => {
 
       await db.incr(KEYS.FEE.INDEX);
       const txId = postTxResult.getValue();
-      const markResult = await markBatchedTransactionAsPending(bucket, txId);
+      const markResult = await markBatchedTransactionAsPending(
+        base64PSBTs,
+        txId
+      );
       saveBucketStatus({
         participants: 0,
         maxParticipants: BATCH_SIZE_THRESHOLD,
@@ -70,7 +71,7 @@ export const batchTransactions = async () => {
       JSON.stringify(postTxResult.getError()),
       batchedTransaction.toHex(),
     ]);
-    logBatchError(bucket);
+    logger.error([JSON.stringify(base64PSBTs)]);
     return false;
   })();
 
@@ -78,7 +79,3 @@ export const batchTransactions = async () => {
 
   return result;
 };
-
-function logBatchError(candidate: Psbt[]) {
-  logger.error([JSON.stringify(candidate.map((psbt) => psbt.toBase64()))]);
-}

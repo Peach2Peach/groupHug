@@ -17,7 +17,10 @@ import { sumPSBTInputValues } from "./helpers/sumPSBTInputValues";
 import { sumPSBTOutputValues } from "./helpers/sumPSBTOutputValues";
 
 const SIGNATURE_SIZE_DIFF = 2;
-export const batchBucket = async (bucket: Psbt[], feeRate: number) => {
+export const batchBucket = async (base64PSBTs: string[], feeRate: number) => {
+  const bucket = base64PSBTs.map((base64) =>
+    Psbt.fromBase64(base64, { network: NETWORK })
+  );
   const allTxInputs = bucket.map((psbt) => psbt.txInputs[0]);
   const utxos = (await Promise.all(allTxInputs.map(getUTXOForInput))).filter(
     isDefined

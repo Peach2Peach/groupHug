@@ -9,7 +9,7 @@ describe("addPSBTToBatchWithClient", () => {
   it("stores psbt in database", async () => {
     const txId = "txId";
     await db.transaction((client) =>
-      addPSBTToBatchWithClient(client, txId, psbt1)
+      addPSBTToBatchWithClient(client, txId, psbt1.toBase64())
     );
     expect(await db.smembers(KEYS.BATCH + txId)).to.deep.equal([
       psbt1.toBase64(),

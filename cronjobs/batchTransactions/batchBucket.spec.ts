@@ -14,11 +14,7 @@ import * as inputIsUnspent from "./helpers/inputIsUnspent";
 chai.use(sinonChai);
 
 describe("batchBucket", () => {
-  const psbts = batchQueue.map(({ psbt }) =>
-    Psbt.fromBase64(psbt, { network: networks.regtest })
-  );
-
-  const bucket = psbts.slice(0, 10);
+  const bucket = batchQueue.slice(0, 10).map(({ psbt }) => psbt);
   let getTxStub: Sinon.SinonStub;
   let getUTXOStub: Sinon.SinonStub;
   beforeEach(async () => {

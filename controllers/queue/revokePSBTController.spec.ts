@@ -5,9 +5,8 @@ import { describe, it } from "mocha";
 import sinonChai from "sinon-chai";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
-import { getPSBTsFromQueue } from "../../src/utils/queue/getPSBTsFromQueue";
 import { registerPSBTWithClient } from "../../src/utils/queue/registerPSBTWithClient";
-import { psbt1, psbtBase64_1 } from "../../test/data/psbtData";
+import { psbtBase64_1 } from "../../test/data/psbtData";
 import {
   requestMock,
   responseMock,
@@ -37,7 +36,7 @@ describe("revokePSBTController", () => {
 
     expect(response.json).to.be.calledWith({ success: true });
     expect(await db.client.hGet(KEYS.PSBT.PREFIX + id, "psbt")).to.be.null;
-    expect(await getPSBTsFromQueue()).not.to.include(psbt1.toBase64());
+    expect(await db.smembers(KEYS.PSBT.QUEUE)).not.to.include(psbtBase64_1);
   });
   it("returns error if PSBT not found", async () => {
     const request = requestMock({ body: { id: "invalid", revocationToken } });

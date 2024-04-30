@@ -22,7 +22,7 @@ describe("markBatchedTransactionAsPending", () => {
   it("moves psbts from pending queue to batch", async () => {
     expect(await db.scard(KEYS.PSBT.QUEUE)).to.equal(3);
     await markBatchedTransactionAsPending(
-      psbts.map(({ psbt }) => psbt),
+      psbts.map(({ psbt }) => psbt.toBase64()),
       txId
     );
     expect(await db.scard(KEYS.PSBT.QUEUE)).to.equal(0);
@@ -33,7 +33,7 @@ describe("markBatchedTransactionAsPending", () => {
   });
   it("adds tx id to pending queue", async () => {
     await markBatchedTransactionAsPending(
-      psbts.map(({ psbt }) => psbt),
+      psbts.map(({ psbt }) => psbt.toBase64()),
       txId
     );
     expect(await db.sismember(KEYS.TRANSACTION.PENDING, txId)).to.be.true;

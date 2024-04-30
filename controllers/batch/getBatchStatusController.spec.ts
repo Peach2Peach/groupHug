@@ -69,7 +69,7 @@ describe("getBatchStatusController", () => {
   it("returns batch status of an completed batch for given psbt id", async () => {
     const txId = "txId";
     const result = await addPSBTToQueue(psbt1, 1);
-    await markBatchedTransactionAsPending([psbt1], txId);
+    await markBatchedTransactionAsPending([psbt1.toBase64()], txId);
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
       result: feeEstimates,
     });

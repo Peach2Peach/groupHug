@@ -10,7 +10,6 @@ import * as getFeeEstimates from "../../src/utils/electrs/getFeeEstimates";
 import * as getTx from "../../src/utils/electrs/getTx";
 import * as getUTXO from "../../src/utils/electrs/getUTXO";
 import * as postTx from "../../src/utils/electrs/postTx";
-import { getPSBTsFromQueue } from "../../src/utils/queue/getPSBTsFromQueue";
 import { getError, getResult } from "../../src/utils/result";
 import blockExplorerData from "../../test/data/blockExplorerData.json";
 import { feeEstimates } from "../../test/data/electrsData";
@@ -101,7 +100,7 @@ describe("batchTransactions", () => {
       result: { ...feeEstimates, halfHourFee: 1 },
     });
     expect(await db.exists(KEYS.BUCKET.EXPIRATION)).to.be.false;
-    const queuedTransactions = await getPSBTsFromQueue();
+    const queuedTransactions = await db.smembers(KEYS.PSBT.QUEUE);
     expect(await batchTransactions()).to.be.true;
     expect(batchBucketStub).to.have.been.calledWithMatch(queuedTransactions, 1);
 

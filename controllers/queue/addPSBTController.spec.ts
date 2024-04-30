@@ -9,7 +9,6 @@ import { KEYS } from "../../src/utils/db/keys";
 import { TransactionResult } from "../../src/utils/db/TransactionResult";
 import { getTxIdOfInput } from "../../src/utils/psbt";
 import * as addPSBTToQueue from "../../src/utils/queue/addPSBTToQueue";
-import { getPSBTsFromQueue } from "../../src/utils/queue/getPSBTsFromQueue";
 import blockExplorerData from "../../test/data/blockExplorerData.json";
 import { batchQueue } from "../../test/data/psbtData";
 import {
@@ -44,7 +43,7 @@ describe("addPSBTController", () => {
 
     await addPSBTController(request as AddPSBTRequest, response as Response);
 
-    expect(await getPSBTsFromQueue()).to.deep.include(psbt);
+    expect(await db.smembers(KEYS.PSBT.QUEUE)).to.deep.include(psbt.toBase64());
     expect(response.json).to.be.calledWith({
       id: Sinon.match.string,
       revocationToken: Sinon.match.string,
@@ -70,7 +69,7 @@ describe("addPSBTController", () => {
 
     await addPSBTController(request as AddPSBTRequest, response as Response);
 
-    expect(await getPSBTsFromQueue()).to.deep.include(psbt);
+    expect(await db.smembers(KEYS.PSBT.QUEUE)).to.deep.include(psbt.toBase64());
     expect(response.json).to.be.calledWith({
       id: Sinon.match.string,
       revocationToken: Sinon.match.string,
