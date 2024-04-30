@@ -1,7 +1,7 @@
 import { Psbt } from "bitcoinjs-lib";
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { NETWORK } from "../../../constants";
+import { MINIMUM_FEE_RATE, NETWORK } from "../../../constants";
 import {
   finalize,
   isSignedWithSighash,
@@ -9,25 +9,17 @@ import {
   validatePSBTSignatures,
 } from "../../../src/utils/psbt";
 import { respondWithError } from "../../../src/utils/response/respondWithError";
-import { FeeRateSchema } from "../../../src/utils/validation/schemas";
 import { getSignerByIndex } from "../../../src/wallets/getSignerByIndex";
 import { hotWallet, oldHotWallet } from "../../../src/wallets/hotWallet";
-
-const BYTES_DISCOUNT = 40;
 
 export const validatePSBT = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const {
-    psbt: base64Unparsed,
-    feeRate: feeRateUnparsed,
-    index: indexUnparsed,
-  } = req.body;
+  const { psbt: base64Unparsed, index: indexUnparsed } = req.body;
 
   try {
-    const feeRate = FeeRateSchema.parse(feeRateUnparsed);
     const base64 = z.string().nonempty().parse(base64Unparsed);
     const index = indexUnparsed
       ? z.number().gte(0).parse(indexUnparsed)
@@ -57,14 +49,13 @@ export const validatePSBT = (
       );
     }
 
-    const tx = finalize(psbt);
-    const finalFeeRate = psbt.getFee() / (tx.virtualSize() - BYTES_DISCOUNT);
-
-    if (feeRate >= finalFeeRate) {
+    finalize(psbt);
+    const feeRate = psbt.getFeeRate();
+    if (feeRate < MINIMUM_FEE_RATE) {
       return respondWithError(res, "BAD_REQUEST", {
         details: "INVALID_FEE_RATE",
         feeRate,
-        finalFeeRate,
+        finalFeeRate: feeRate,
       });
     }
     return next();

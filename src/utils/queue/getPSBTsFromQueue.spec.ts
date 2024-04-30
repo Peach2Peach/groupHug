@@ -7,15 +7,15 @@ import { getPSBTsFromQueue } from "./getPSBTsFromQueue";
 describe("getPSBTsFromQueue", () => {
   it("get all psbts from queue", async () => {
     await db.transaction(async (client) => {
-      await Promise.all([
-        await client.zadd(KEYS.PSBT.QUEUE, 2, psbt1.toBase64()),
-        await client.zadd(KEYS.PSBT.QUEUE, 4, psbt2.toBase64()),
-        await client.zadd(KEYS.PSBT.QUEUE, 3, psbt3.toBase64()),
+      await client.sadd(KEYS.PSBT.QUEUE, [
+        psbt1.toBase64(),
+        psbt2.toBase64(),
+        psbt3.toBase64(),
       ]);
     });
     const queue = await getPSBTsFromQueue();
-    expect(queue).to.deep.include({ feeRate: 2, psbt: psbt1 });
-    expect(queue).to.deep.include({ feeRate: 4, psbt: psbt2 });
-    expect(queue).to.deep.include({ feeRate: 3, psbt: psbt3 });
+    expect(queue).to.deep.include(psbt1);
+    expect(queue).to.deep.include(psbt2);
+    expect(queue).to.deep.include(psbt3);
   });
 });

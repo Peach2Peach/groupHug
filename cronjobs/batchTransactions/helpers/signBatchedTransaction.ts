@@ -1,18 +1,16 @@
 import { BIP32Interface } from "bip32";
 import { Psbt } from "bitcoinjs-lib";
 import { NETWORK, SIGHASH } from "../../../constants";
-import { PSBTInfo } from "../../../src/utils/queue/getExtraPSBTDataById";
 import { getSignerByIndex } from "../../../src/wallets/getSignerByIndex";
 import { hotWallet, oldHotWallet } from "../../../src/wallets/hotWallet";
 import { logger } from "../batchTransactions";
 
 export const signBatchedTransaction = (
   batchedTransaction: Psbt,
-  extraPSBTData: (PSBTInfo | null)[]
+  indexes: (string | undefined)[]
 ) => {
   batchedTransaction.txInputs.forEach((_input, i) => {
-    logger.debug(["signing psbt", i, JSON.stringify(extraPSBTData[i])]);
-    const index = extraPSBTData[i]?.index;
+    const index = indexes[i];
     if (!index) return;
 
     const signer = getSignerByIndex(hotWallet, index, NETWORK);

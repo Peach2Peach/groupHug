@@ -18,6 +18,7 @@ const DEFAULTS = {
 
 export const PASSWORDPROTECTION = process.env.PASSWORDPROTECTION !== "false";
 
+export const MINIMUM_FEE_RATE = 1;
 export const MAXREQUESTRATE = process.env.MAXREQUESTRATE
   ? Number(process.env.MAXREQUESTRATE)
   : DEFAULTS.MAXREQUESTRATE;
@@ -28,8 +29,8 @@ export let NETWORK =
   NETWORKID === "testnet"
     ? networks.testnet
     : NETWORKID === "regtest"
-      ? networks.regtest
-      : networks.bitcoin;
+    ? networks.regtest
+    : networks.bitcoin;
 export const setNetwork = (network: Network) => (NETWORK = network);
 
 export const {
@@ -50,10 +51,10 @@ export const { DB_AUTH, PRIVKEY, OLD_PRIVKEY, FEE_COLLECTOR_PUBKEY } =
   process.env;
 
 export const BATCH_SIZE_THRESHOLD = Number(
-  process.env.BATCH_SIZE_THRESHOLD || DEFAULTS.BATCH_SIZE_THRESHOLD,
+  process.env.BATCH_SIZE_THRESHOLD || DEFAULTS.BATCH_SIZE_THRESHOLD
 );
 export const BATCH_TIME_THRESHOLD = Number(
-  process.env.BATCH_TIME_THRESHOLD || DEFAULTS.BATCH_TIME_THRESHOLD,
+  process.env.BATCH_TIME_THRESHOLD || DEFAULTS.BATCH_TIME_THRESHOLD
 );
 
 export const SIGHASH = {

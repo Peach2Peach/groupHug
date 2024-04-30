@@ -16,8 +16,8 @@ describe("getFeeEstimates", () => {
       .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
       .resolves(getFetchResponse(rawFeeEstimates));
 
-    const result = await getFeeEstimates();
-    expect(result.getValue()).to.deep.equal(feeEstimates);
+    const { result } = await getFeeEstimates();
+    expect(result).to.deep.equal(feeEstimates);
   });
 
   it("should handle errors", async () => {
@@ -27,8 +27,8 @@ describe("getFeeEstimates", () => {
       .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
       .rejects(errorMessage);
 
-    const result = await getFeeEstimates();
-    expect(result.getError()).to.deep.equals({
+    const error = await getFeeEstimates();
+    expect(error).to.deep.equals({
       error: "INTERNAL_SERVER_ERROR",
       message: errorMessage,
     });

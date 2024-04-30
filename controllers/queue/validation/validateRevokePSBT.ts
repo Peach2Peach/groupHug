@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { getExtraPSBTDataById } from "../../../src/utils/queue";
+import { db } from "../../../src/utils/db";
+import { KEYS } from "../../../src/utils/db/keys";
 import { respondWithError } from "../../../src/utils/response/respondWithError";
 import {
   RevocationTokenSchema,
@@ -9,19 +10,22 @@ import {
 export const validateRevokePSBT = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const { id: idUnparsed, revocationToken: revocationTokenUnparsed } = req.body;
 
   try {
     const id = SHA256Schema.parse(idUnparsed);
     const revocationToken = RevocationTokenSchema.parse(
-      revocationTokenUnparsed,
+      revocationTokenUnparsed
     );
 
-    const extraPSBTData = await getExtraPSBTDataById(id);
-    if (!extraPSBTData) return respondWithError(res, "BAD_REQUEST");
-    if (extraPSBTData.revocationToken !== revocationToken)
+    const revocationTokenFromDB = await db.client.hGet(
+      KEYS.PSBT.PREFIX + id,
+      "revocationToken"
+    );
+    if (!revocationTokenFromDB) return respondWithError(res, "BAD_REQUEST");
+    if (revocationTokenFromDB !== revocationToken)
       return respondWithError(res, "BAD_REQUEST");
 
     return next();

@@ -1,7 +1,7 @@
 import { NETWORK } from "../../constants";
-import { getPSBTsFromBatch } from "../../src/utils/batch";
-import { getExtraPSBTDataById } from "../../src/utils/queue";
-import { respondWithError } from "../../src/utils/response";
+import { getPSBTsFromBatch } from "../../src/utils/batch/getPSBTsFromBatch";
+import { db } from "../../src/utils/db";
+import { KEYS } from "../../src/utils/db/keys";
 import { getBatchStatusOverviewController } from "./getBatchStatusOverviewController";
 import { GetBatchStatusRequest, GetBatchStatusResponse } from "./types";
 
@@ -12,16 +12,15 @@ export const getBatchStatusController = async (
   const { id } = req.query;
 
   if (id) {
-    const psbtInfo = await getExtraPSBTDataById(id);
-    if (!psbtInfo) return respondWithError(res, "NOT_FOUND");
-    if (psbtInfo.txId) {
-      const participants = await getPSBTsFromBatch(psbtInfo.txId, NETWORK);
+    const txId = await db.client.hGet(KEYS.PSBT.PREFIX + id, "txId");
+    if (txId) {
+      const participants = await getPSBTsFromBatch(txId, NETWORK);
       return res.json({
         participants: participants.length,
         maxParticipants: participants.length,
         timeRemaining: 0,
         completed: true,
-        txId: psbtInfo.txId,
+        txId,
       });
     }
   }

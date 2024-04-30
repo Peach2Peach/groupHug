@@ -1,12 +1,11 @@
+import { Psbt } from "bitcoinjs-lib";
 import { BATCH_SIZE_THRESHOLD } from "../../constants";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
-import { getFeeEstimates, postTx } from "../../src/utils/electrs";
+import { postTx } from "../../src/utils/electrs";
+import { getFeeEstimates } from "../../src/utils/electrs/getFeeEstimates";
 import getLogger from "../../src/utils/logger";
-import {
-  getPSBTsFromQueue,
-  PSBTWithFeeRate,
-} from "../../src/utils/queue/getPSBTsFromQueue";
+import { getPSBTsFromQueue } from "../../src/utils/queue/getPSBTsFromQueue";
 import { resetBucketExpiration } from "../../src/utils/queue/resetBucketExpiration";
 import { saveBucketStatus } from "../../src/utils/queue/saveBucketStatus";
 import { batchBucket } from "./batchBucket";
@@ -17,11 +16,8 @@ export const logger = getLogger("job", "batchTransactions");
 export const batchTransactions = async () => {
   const feeEstimatesResult = await getFeeEstimates();
 
-  if (feeEstimatesResult.isError()) {
-    logger.error([
-      "Could not get fee estimates",
-      feeEstimatesResult.getError(),
-    ]);
+  if (feeEstimatesResult.error) {
+    logger.error(["Could not get fee estimates", feeEstimatesResult.error]);
     return false;
   }
 
@@ -39,8 +35,10 @@ export const batchTransactions = async () => {
       return true;
     }
     logger.info(["Batching bucket with size:", bucket.length]);
-
-    const batchBucketResult = await batchBucket(bucket);
+    const batchBucketResult = await batchBucket(
+      bucket,
+      feeEstimatesResult.result.halfHourFee
+    );
 
     if (!batchBucketResult.isOk()) {
       logger.error([
@@ -81,10 +79,6 @@ export const batchTransactions = async () => {
   return result;
 };
 
-function logBatchError(candidate: PSBTWithFeeRate[]) {
-  logger.error([
-    JSON.stringify(
-      candidate.map(({ feeRate, psbt }) => ({ feeRate, psbt: psbt.toBase64() }))
-    ),
-  ]);
+function logBatchError(candidate: Psbt[]) {
+  logger.error([JSON.stringify(candidate.map((psbt) => psbt.toBase64()))]);
 }

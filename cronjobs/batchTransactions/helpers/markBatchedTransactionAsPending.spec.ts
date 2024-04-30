@@ -15,23 +15,27 @@ describe("markBatchedTransactionAsPending", () => {
   beforeEach(async () => {
     await db.transaction(async (client) => {
       await Promise.all(
-        psbts.map(({ feeRate, psbt }) =>
-          client.zadd(KEYS.PSBT.QUEUE, feeRate, psbt.toBase64())
-        )
+        psbts.map(({ psbt }) => client.sadd(KEYS.PSBT.QUEUE, psbt.toBase64()))
       );
     });
   });
   it("moves psbts from pending queue to batch", async () => {
-    expect(await db.zcard(KEYS.PSBT.QUEUE)).to.equal(3);
-    await markBatchedTransactionAsPending(psbts, txId);
-    expect(await db.zcard(KEYS.PSBT.QUEUE)).to.equal(0);
-    expect(await db.zcard(KEYS.BATCH + txId)).to.equal(3);
-    expect(await db.zrange(KEYS.BATCH + txId)).to.deep.equal(
+    expect(await db.scard(KEYS.PSBT.QUEUE)).to.equal(3);
+    await markBatchedTransactionAsPending(
+      psbts.map(({ psbt }) => psbt),
+      txId
+    );
+    expect(await db.scard(KEYS.PSBT.QUEUE)).to.equal(0);
+    expect(await db.scard(KEYS.BATCH + txId)).to.equal(3);
+    expect(await db.smembers(KEYS.BATCH + txId)).to.have.members(
       batchQueue.slice(0, 3).map(({ psbt }) => psbt)
     );
   });
   it("adds tx id to pending queue", async () => {
-    await markBatchedTransactionAsPending(psbts, txId);
+    await markBatchedTransactionAsPending(
+      psbts.map(({ psbt }) => psbt),
+      txId
+    );
     expect(await db.sismember(KEYS.TRANSACTION.PENDING, txId)).to.be.true;
   });
 });

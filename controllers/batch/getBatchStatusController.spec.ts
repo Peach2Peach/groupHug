@@ -7,7 +7,6 @@ import { markBatchedTransactionAsPending } from "../../cronjobs/batchTransaction
 import * as getFeeEstimates from "../../src/utils/electrs/getFeeEstimates";
 import { saveBucketStatus } from "../../src/utils/queue";
 import { addPSBTToQueue } from "../../src/utils/queue/addPSBTToQueue";
-import { getResult } from "../../src/utils/result";
 import { feeEstimates } from "../../test/data/electrsData";
 import { psbt1 } from "../../test/data/psbtData";
 import {
@@ -31,9 +30,9 @@ describe("getBatchStatusController", () => {
   });
 
   it("returns batch status of an ongoing batch for given feeRate", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getResult(feeEstimates)
-    );
+    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
+      result: feeEstimates,
+    });
     const request = requestMock({ query: { feeRate: "1" } });
     const response = responseMock();
     await getBatchStatusController(
@@ -50,9 +49,9 @@ describe("getBatchStatusController", () => {
   });
   it("returns batch status of an ongoing batch for given psbt id", async () => {
     const result = await addPSBTToQueue(psbt1, 1);
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getResult(feeEstimates)
-    );
+    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
+      result: feeEstimates,
+    });
     const request = requestMock({ query: { id: result.getResult()!.id } });
     const response = responseMock();
     await getBatchStatusController(
@@ -70,10 +69,10 @@ describe("getBatchStatusController", () => {
   it("returns batch status of an completed batch for given psbt id", async () => {
     const txId = "txId";
     const result = await addPSBTToQueue(psbt1, 1);
-    await markBatchedTransactionAsPending([{ psbt: psbt1, feeRate: 1 }], txId);
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getResult(feeEstimates)
-    );
+    await markBatchedTransactionAsPending([psbt1], txId);
+    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
+      result: feeEstimates,
+    });
     const request = requestMock({ query: { id: result.getResult()!.id } });
     const response = responseMock();
     await getBatchStatusController(
@@ -88,19 +87,5 @@ describe("getBatchStatusController", () => {
       completed: true,
       txId,
     });
-  });
-  it("returns not found if psbt could not be found for given id", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getResult(feeEstimates)
-    );
-    const request = requestMock({ query: { id: "unknown" } });
-    const response = responseMock();
-    await getBatchStatusController(
-      request as GetBatchStatusRequest,
-      response as Response
-    );
-
-    expect(response.status).to.be.calledWith(404);
-    expect(response.json).to.be.calledWith({ error: "NOT_FOUND" });
   });
 });

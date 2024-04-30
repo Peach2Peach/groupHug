@@ -44,10 +44,7 @@ describe("addPSBTController", () => {
 
     await addPSBTController(request as AddPSBTRequest, response as Response);
 
-    expect(await getPSBTsFromQueue()).to.deep.include({
-      psbt,
-      feeRate: batchQueue[0].feeRate,
-    });
+    expect(await getPSBTsFromQueue()).to.deep.include(psbt);
     expect(response.json).to.be.calledWith({
       id: Sinon.match.string,
       revocationToken: Sinon.match.string,
@@ -73,10 +70,7 @@ describe("addPSBTController", () => {
 
     await addPSBTController(request as AddPSBTRequest, response as Response);
 
-    expect(await getPSBTsFromQueue()).to.deep.include({
-      psbt,
-      feeRate: batchQueue[0].feeRate,
-    });
+    expect(await getPSBTsFromQueue()).to.deep.include(psbt);
     expect(response.json).to.be.calledWith({
       id: Sinon.match.string,
       revocationToken: Sinon.match.string,

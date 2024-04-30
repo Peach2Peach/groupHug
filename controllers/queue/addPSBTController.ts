@@ -10,7 +10,7 @@ export const addPSBTController = async (
   req: AddPSBTRequest,
   res: AddPSBTResponse
 ) => {
-  const { psbt: base64, feeRate, index } = req.body;
+  const { psbt: base64, index } = req.body;
 
   const psbt = Psbt.fromBase64(base64, { network: NETWORK });
 
@@ -23,7 +23,7 @@ export const addPSBTController = async (
     return respondWithError(res, "BAD_REQUEST");
   }
 
-  const result = await addPSBTToQueue(psbt, feeRate, index);
+  const result = await addPSBTToQueue(psbt, index);
 
   if (result.isError()) return respondWithError(res, "INTERNAL_SERVER_ERROR");
 

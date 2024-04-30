@@ -10,9 +10,9 @@ describe("getPSBTsFromBatch", () => {
   it("get psbts from batch", async () => {
     await db.transaction(async (client) => {
       await Promise.all([
-        addPSBTToBatchWithClient(client, txId, psbt1, 2),
-        addPSBTToBatchWithClient(client, txId, psbt2, 4),
-        addPSBTToBatchWithClient(client, txId, psbt3, 3),
+        addPSBTToBatchWithClient(client, txId, psbt1),
+        addPSBTToBatchWithClient(client, txId, psbt2),
+        addPSBTToBatchWithClient(client, txId, psbt3),
       ]);
     });
 

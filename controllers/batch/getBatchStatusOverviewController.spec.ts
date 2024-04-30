@@ -5,7 +5,6 @@ import Sinon from "sinon";
 import sinonChai from "sinon-chai";
 import * as getFeeEstimates from "../../src/utils/electrs/getFeeEstimates";
 import { saveBucketStatus } from "../../src/utils/queue";
-import { getResult } from "../../src/utils/result";
 import { feeEstimates } from "../../test/data/electrsData";
 import {
   requestMock,
@@ -25,14 +24,14 @@ describe("getBatchStatusOverviewController", () => {
   });
 
   it("returns batch status of an ongoing batches", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves(
-      getResult(feeEstimates),
-    );
+    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
+      result: feeEstimates,
+    });
     const request = requestMock();
     const response = responseMock();
     await getBatchStatusOverviewController(
       request as GetBatchStatusRequest,
-      response as Response,
+      response as Response
     );
 
     expect(response.json).to.be.calledWith({

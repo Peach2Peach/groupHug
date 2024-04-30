@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { describe, it } from "mocha";
 import Sinon from "sinon";
 import sinonChai from "sinon-chai";
+import * as constants from "../../../constants";
 import * as signAllInputs from "../../../src/utils/psbt";
 import {
   batchQueue,
@@ -172,43 +173,11 @@ describe("validatePSBT", () => {
       error: "BAD_REQUEST",
     });
   });
-  it("returns error if fee rate less than 1", () => {
+  it("returns error if fee rate less than the minimum fee rate", () => {
+    Sinon.stub(constants, "MINIMUM_FEE_RATE").get(() => 27);
     const request = requestMock({
-      body: { psbt: validEntryPSBTBase64, feeRate: 0, index: 0 },
+      body: batchQueue[0],
     });
-    const response = responseMock();
-    const next = Sinon.stub();
-
-    validatePSBT(request as Request, response as Response, next);
-
-    expect(next).not.to.have.been.called;
-    expect(response.status).to.have.been.calledWith(400);
-    expect(response.json).to.have.been.calledWith({
-      details: "",
-      error: "BAD_REQUEST",
-    });
-  });
-  it("returns error if fee rate is invalid", () => {
-    const request = requestMock({
-      body: { psbt: validEntryPSBTBase64, feeRate: "a", index: 0 },
-    });
-    const response = responseMock();
-    const next = Sinon.stub();
-
-    validatePSBT(request as Request, response as Response, next);
-
-    expect(next).not.to.have.been.called;
-    expect(response.status).to.have.been.calledWith(400);
-    expect(response.json).to.have.been.calledWith({
-      details: "",
-      error: "BAD_REQUEST",
-    });
-  });
-  it("returns error if desired user fee rate is bigger than max possible fee rate for PSBT", () => {
-    const request = requestMock({
-      body: { ...highFeePsbt, feeRate: 39 },
-    });
-
     const response = responseMock();
     const next = Sinon.stub();
 
@@ -218,8 +187,8 @@ describe("validatePSBT", () => {
     expect(response.status).to.have.been.calledWith(400);
     expect(response.json).to.have.been.calledWith({
       details: "INVALID_FEE_RATE",
-      feeRate: 39,
-      finalFeeRate: 38.24742268041237,
+      feeRate: 26,
+      finalFeeRate: 26,
       error: "BAD_REQUEST",
     });
   });

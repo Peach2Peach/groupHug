@@ -1,6 +1,7 @@
-import { getPendingTransactions } from "../../src/utils/batch";
 import { addConfirmedTransaction } from "../../src/utils/batch/addConfirmedTransaction";
-import { getTipHeight } from "../../src/utils/electrs";
+import { db } from "../../src/utils/db";
+import { KEYS } from "../../src/utils/db/keys";
+import { getTipHeight } from "../../src/utils/electrs/getTipHeight";
 import { getConfirmations } from "./getConfirmations";
 import { logger } from "./logger";
 
@@ -13,19 +14,19 @@ export const checkTransactionStatus = async () => {
     return false;
   }
 
-  const pending = await getPendingTransactions();
+  const pendingTxs = await db.smembers(KEYS.TRANSACTION.PENDING);
 
-  if (pending.length === 0) {
+  if (pendingTxs.length === 0) {
     logger.info(["No transactions to check, skipping..."]);
     return true;
   }
 
   logger.info([
-    `Checking pending ${pending.length} transactions at block height ${blockHeight}`,
+    `Checking pending ${pendingTxs.length} transactions at block height ${blockHeight}`,
   ]);
 
   const txWithConfirmationInfo = await Promise.all(
-    pending.map(getConfirmations(blockHeight!))
+    pendingTxs.map(getConfirmations(blockHeight))
   );
   const confirmed = txWithConfirmationInfo.filter(
     ({ confirmations }) => confirmations >= MINIMUM_CONFIRMATIONS

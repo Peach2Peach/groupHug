@@ -2,10 +2,7 @@ import chai, { expect } from "chai";
 import Sinon from "sinon";
 import sinonChai from "sinon-chai";
 import { BLOCKEXPLORERURL } from "../../constants";
-import {
-  getConfirmedTransactions,
-  getPendingTransactions,
-} from "../../src/utils/batch";
+import { getConfirmedTransactions } from "../../src/utils/batch";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import blockExplorerData from "../../test/data/blockExplorerData.json";
@@ -63,7 +60,7 @@ describe("checkTransactionStatus", () => {
 
     expect(await checkTransactionStatus()).to.be.true;
     const [pending, confirmed] = await Promise.all([
-      await getPendingTransactions(),
+      await db.smembers(KEYS.TRANSACTION.PENDING),
       await getConfirmedTransactions(),
     ]);
     expect(pending).to.include("txId2");

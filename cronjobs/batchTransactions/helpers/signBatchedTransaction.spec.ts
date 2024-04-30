@@ -16,13 +16,10 @@ describe("signBatchedTransaction", () => {
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,
     });
-    signBatchedTransaction(psbt, [
-      {
-        index: batchQueue[0].index,
-        psbt: "psbt",
-        revocationToken: "revocationToken",
-      },
-    ]);
+    signBatchedTransaction(
+      psbt,
+      batchQueue.map((b) => b.index.toString())
+    );
     expect(psbt.data.inputs[0].partialSig?.length).to.equal(2);
   });
   it("signs the batched transaction with old signer", () => {
@@ -33,27 +30,15 @@ describe("signBatchedTransaction", () => {
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,
     });
-    signBatchedTransaction(psbt, [
-      {
-        index: batchQueue[0].index,
-        psbt: "psbt",
-        revocationToken: "revocationToken",
-      },
-    ]);
+    signBatchedTransaction(
+      psbt,
+      batchQueue.map((b) => b.index.toString())
+    );
     expect(psbt.data.inputs[0].partialSig?.length).to.equal(2);
     loadHotWallet(keys.PRIVKEY!, NETWORK);
     loadOldHotWallet(keys.OLD_PRIVKEY!, NETWORK);
   });
-  it("does not sign if no index is passed", () => {
-    const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
-      network: networks.regtest,
-    });
-    signBatchedTransaction(psbt, [
-      { psbt: "psbt", revocationToken: "revocationToken" },
-    ]);
-    expect(psbt.data.inputs[0].partialSig?.length).to.equal(1);
-  });
-  it("does not sign if no extraPSBTData is passed", () => {
+  it("does not sign if index is not found", () => {
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,
     });
@@ -64,9 +49,7 @@ describe("signBatchedTransaction", () => {
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,
     });
-    signBatchedTransaction(psbt, [
-      { index: 123, psbt: "psbt", revocationToken: "revocationToken" },
-    ]);
+    signBatchedTransaction(psbt, ["123", "456"]);
     expect(psbt.data.inputs[0].partialSig?.length).to.equal(1);
   });
   it("does not sign if no witness script is found", () => {
@@ -74,9 +57,10 @@ describe("signBatchedTransaction", () => {
       network: networks.regtest,
     });
     psbt.data.inputs[0].witnessScript = undefined;
-    signBatchedTransaction(psbt, [
-      { index: 123, psbt: "psbt", revocationToken: "revocationToken" },
-    ]);
+    signBatchedTransaction(
+      psbt,
+      batchQueue.map((b) => b.index.toString())
+    );
     expect(psbt.data.inputs[0].partialSig?.length).to.equal(1);
   });
 });

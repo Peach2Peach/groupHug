@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { getTipHeight } from ".";
 import { BLOCKEXPLORERURL } from "../../../constants";
 import { fetchStub } from "../../../test/unit/hooks";
+import { getTipHeight } from "./getTipHeight";
 
 describe("blockExplorer API", () => {
   it("getTipHeight", async () => {
@@ -10,8 +10,8 @@ describe("blockExplorer API", () => {
       text: () => new Promise((resolve) => resolve("263")),
       status: 200,
     } as Response);
-    const result = await getTipHeight();
-    expect(result.getValue()).to.deep.equal(263);
+    const { result } = await getTipHeight();
+    expect(result).to.deep.equal(263);
   });
   it("should handle errors", async () => {
     const errorMessage = new Error("error message");
@@ -19,8 +19,8 @@ describe("blockExplorer API", () => {
       .withArgs(`${BLOCKEXPLORERURL}/blocks/tip/height`)
       .rejects(errorMessage);
 
-    const result = await getTipHeight();
-    expect(result.getError()).to.deep.equals({
+    const error = await getTipHeight();
+    expect(error).to.deep.equals({
       error: "INTERNAL_SERVER_ERROR",
       message: errorMessage,
     });

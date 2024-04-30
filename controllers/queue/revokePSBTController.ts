@@ -1,6 +1,6 @@
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
-import { getExtraPSBTDataById } from "../../src/utils/queue/getExtraPSBTDataById";
+import { respondWithError } from "../../src/utils/response";
 import { RevokePSBTRequest, RevokePSBTResponse } from "./types";
 
 export const revokePSBTController = async (
@@ -10,9 +10,9 @@ export const revokePSBTController = async (
   const { id } = req.body;
 
   const result = await db.transaction(async (client) => {
-    const extraData = await getExtraPSBTDataById(id);
-    if (!extraData) throw new Error("PSBT not found");
-    await client.zrem(KEYS.PSBT.QUEUE, extraData.psbt);
+    const psbt = await client.client.hGet(KEYS.PSBT.PREFIX + id, "psbt");
+    if (!psbt) return respondWithError(res, "NOT_FOUND");
+    await client.srem(KEYS.PSBT.QUEUE, psbt);
     await client.del(KEYS.PSBT.PREFIX + id);
   });
 
