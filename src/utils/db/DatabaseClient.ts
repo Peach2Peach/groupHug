@@ -170,8 +170,11 @@ export class DatabaseClient {
         if (transactionResult === false) {
           multi.discard();
           return resolve(
-            // @ts-ignore
-            new TransactionResult(false, undefined, "transaction aborted")
+            new TransactionResult(
+              false,
+              undefined,
+              "transaction aborted"
+            ) as TransactionResult<Awaited<ReturnType<F>>>
           );
         }
 
