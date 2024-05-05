@@ -77,7 +77,7 @@ export const batchTransactions = async () => {
         await client.srem(KEYS.PSBT.QUEUE, base64PSBTs);
       });
 
-      return transactionResult.isOk();
+      return transactionResult.ok;
     }
 
     logger.error([

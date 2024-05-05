@@ -18,13 +18,9 @@ describe("transaction", () => {
     strictEqual(value1, "test-val");
     strictEqual(value2, "test-val-2");
   });
-  it("should discard transaction if returned false", async () => {
-    await db.transaction(async (client) => {
-      await Promise.all([
-        client.set("test-key", "test-val"),
-        client.set("test-key-2", "test-val-2"),
-      ]);
-      return false;
+  it("should discard transaction throws an error", async () => {
+    await db.transaction(() => {
+      throw new Error("error");
     });
 
     const [value1, value2] = await Promise.all([

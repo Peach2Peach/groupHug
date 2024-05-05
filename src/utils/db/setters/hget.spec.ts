@@ -11,6 +11,6 @@ describe("hget", () => {
       const value = await client.hget("test-hm-key", "a");
       return value === "1";
     });
-    expect(result.isOk()).to.be.true;
+    expect(result.ok).to.be.true;
   });
 });

@@ -20,8 +20,8 @@ chai.use(sinonChai);
 
 describe("getBatchStatusController", () => {
   it("returns batch status of an ongoing batch for given psbt id", async () => {
-    const result = await addPSBTToQueue(psbt1, 1);
-    const request = requestMock({ query: { id: result.getResult()!.id } });
+    const { result } = await addPSBTToQueue(psbt1, 1);
+    const request = requestMock({ query: { id: result!.id } });
     const response = responseMock();
     // @ts-ignore
     await getBatchStatusController(request, response as Response);
@@ -38,7 +38,7 @@ describe("getBatchStatusController", () => {
   });
   it("returns batch status of a completed batch for given psbt id", async () => {
     const txId = "txId";
-    const result = await addPSBTToQueue(psbt1, 1);
+    const { result } = await addPSBTToQueue(psbt1, 1);
     await db.transaction(async (client) => {
       await addPSBTToBatchWithClient(client, txId, psbt1.toBase64());
       await client.srem(KEYS.PSBT.QUEUE, psbt1.toBase64());
@@ -46,7 +46,7 @@ describe("getBatchStatusController", () => {
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
       result: feeEstimates,
     });
-    const request = requestMock({ query: { id: result.getResult()!.id } });
+    const request = requestMock({ query: { id: result!.id } });
     const response = responseMock();
     // @ts-ignore
     await getBatchStatusController(request, response as Response);

@@ -21,11 +21,11 @@ describe("validateRevokePSBT", () => {
   let id: string;
   let revocationToken: string;
   beforeEach(async () => {
-    const result = await db.transaction((client) =>
+    const { result } = await db.transaction((client) =>
       registerPSBTWithClient(client, psbtBase64_1)
     );
-    id = result.getResult()!.id;
-    revocationToken = result.getResult()!.revocationToken;
+    id = result!.id;
+    revocationToken = result!.revocationToken;
   });
 
   it("validates revocation request successfully", async () => {

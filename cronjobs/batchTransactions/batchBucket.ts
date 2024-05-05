@@ -35,7 +35,7 @@ export const batchBucket = async (
 
   const toDelete = base64PSBTs.filter((_psbt, i) => !unspent[i]);
   if (toDelete.length > 0) {
-    await db.transaction((client) => client.srem(KEYS.PSBT.QUEUE, toDelete));
+    await db.client.sRem(KEYS.PSBT.QUEUE, toDelete);
   }
   const unspentPSBTs = allPSBTs.filter((_psbt, i) => unspent[i]);
 

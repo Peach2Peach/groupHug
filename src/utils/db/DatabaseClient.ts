@@ -1,12 +1,9 @@
 import { createClient, RedisClientOptions } from "redis";
 import { getDefaultOptions } from ".";
 import { isDefined } from "../validation";
-import { dbLogger } from "./dbLogger";
 import { errorListener } from "./errorListener";
 import { SubClient } from "./SubClient";
-import { TransactionResult } from "./TransactionResult";
 
-type TransactionFunction<T> = (client: SubClient) => T;
 export class DatabaseClient {
   client: ReturnType<typeof createClient>;
 
@@ -145,51 +142,28 @@ export class DatabaseClient {
     return this.client.zScore(key, element);
   }
 
-  /**
-   * @description Method to wrap transactional database operations to execute them either all or none
-   * @example
-   * await db.transaction(async (client) => {
-   *   await client.set('test-key', 'test-val')
-   * })
-   */
-  transaction<F extends TransactionFunction<ReturnType<F>>>(
-    func: F
-  ): Promise<TransactionResult<Awaited<ReturnType<F>>>> {
-    return new Promise((resolve, reject) =>
-      this.client.executeIsolated(async (isolatedClient) => {
-        const multi = isolatedClient.multi();
-        let transactionResult;
-        try {
-          transactionResult = await func(new SubClient(isolatedClient, multi));
-        } catch (e) {
-          multi.discard();
-          reject(e);
-          return;
-        }
-
-        if (transactionResult === false) {
-          multi.discard();
-          return resolve(
-            new TransactionResult(
-              false,
-              undefined,
-              "transaction aborted"
-            ) as TransactionResult<Awaited<ReturnType<F>>>
-          );
-        }
-
-        const results = await multi.exec();
-        if (!results) {
-          dbLogger.error("Optimistic locking failure");
-          return resolve(await this.transaction(func));
-        }
-        return resolve(
-          new TransactionResult(
-            true,
-            transactionResult as Awaited<ReturnType<F>>
-          )
+  transaction<T>(func: (client: SubClient) => Promise<T>) {
+    return this.client.executeIsolated(async (isolatedClient) => {
+      const multi = isolatedClient.multi();
+      try {
+        const transactionResult = await func(
+          new SubClient(isolatedClient, multi)
         );
-      })
-    );
+        await multi.exec();
+
+        return {
+          ok: true as const,
+          result: transactionResult,
+          error: undefined,
+        };
+      } catch (e) {
+        multi.discard();
+        return {
+          ok: false as const,
+          result: undefined,
+          error: "transaction aborted",
+        };
+      }
+    });
   }
 }

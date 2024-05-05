@@ -6,20 +6,20 @@ import { registerPSBTWithClient } from "./registerPSBTWithClient";
 
 describe("registerPSBTWithClient", () => {
   it("stores psbt data", async () => {
-    const result = await db.transaction((client) =>
+    const { result } = await db.transaction((client) =>
       registerPSBTWithClient(client, psbtBase64_1)
     );
-    const { id, revocationToken } = result.getResult()!;
+    const { id, revocationToken } = result!;
     expect(await db.hgetall(KEYS.PSBT.PREFIX + id)).to.deep.equal({
       psbt: psbt1.toBase64(),
       revocationToken,
     });
   });
   it("stores psbt data with index for signing", async () => {
-    const result = await db.transaction((client) =>
+    const { result } = await db.transaction((client) =>
       registerPSBTWithClient(client, psbtBase64_1, 1)
     );
-    const { id, revocationToken } = result.getResult()!;
+    const { id, revocationToken } = result!;
     expect(await db.hgetall(KEYS.PSBT.PREFIX + id)).to.deep.equal({
       psbt: psbt1.toBase64(),
       revocationToken,

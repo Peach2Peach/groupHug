@@ -23,11 +23,11 @@ export const addPSBTController = async (
     return respondWithError(res, "BAD_REQUEST");
   }
 
-  const result = await addPSBTToQueue(psbt, index);
+  const { ok, result } = await addPSBTToQueue(psbt, index);
 
-  if (result.isError()) return respondWithError(res, "INTERNAL_SERVER_ERROR");
+  if (!ok) return respondWithError(res, "INTERNAL_SERVER_ERROR");
 
-  const { id, revocationToken } = result.getResult()!;
+  const { id, revocationToken } = result;
   return res.json({
     id,
     revocationToken,

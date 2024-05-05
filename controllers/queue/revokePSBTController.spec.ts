@@ -20,11 +20,11 @@ describe("revokePSBTController", () => {
   let id: string;
   let revocationToken: string;
   beforeEach(async () => {
-    const result = await db.transaction((client) =>
+    const { result } = await db.transaction((client) =>
       registerPSBTWithClient(client, psbtBase64_1)
     );
-    id = result.getResult()!.id;
-    revocationToken = result.getResult()!.revocationToken;
+    id = result!.id;
+    revocationToken = result!.revocationToken;
   });
   it("removes PSBT from queue", async () => {
     const request = requestMock({ body: { id, revocationToken } });
@@ -38,7 +38,7 @@ describe("revokePSBTController", () => {
     expect(await db.client.hGet(KEYS.PSBT.PREFIX + id, "psbt")).to.be.null;
     expect(await db.smembers(KEYS.PSBT.QUEUE)).not.to.include(psbtBase64_1);
   });
-  it("returns error if PSBT not found", async () => {
+  it("returns false if PSBT not found", async () => {
     const request = requestMock({ body: { id: "invalid", revocationToken } });
     const response = responseMock();
     await revokePSBTController(
@@ -46,6 +46,6 @@ describe("revokePSBTController", () => {
       response as Response
     );
 
-    expect(response.json).to.be.calledWith({ error: "NOT_FOUND" });
+    expect(response.json).to.be.calledWith({ success: false });
   });
 });
