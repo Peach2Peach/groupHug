@@ -14,7 +14,7 @@ export class DatabaseClient {
     this.client = createClient({ ...getDefaultOptions(), ...clientOptions });
     this.client.on("error", errorListener);
 
-    this.client.connect();
+    void this.client.connect();
   }
 
   async quit(): Promise<void> {
@@ -72,7 +72,7 @@ export class DatabaseClient {
     byScore = true,
     rev: boolean = false,
     offset: number | undefined = undefined,
-    count: number | undefined = undefined,
+    count: number | undefined = undefined
   ) {
     return this.client.zRange(
       key,
@@ -82,7 +82,7 @@ export class DatabaseClient {
         BY: byScore ? "SCORE" : undefined,
         LIMIT: count && isDefined(offset) ? { offset, count } : undefined,
         REV: rev ? true : undefined,
-      },
+      }
     );
   }
 
@@ -92,7 +92,7 @@ export class DatabaseClient {
     start: number | "-inf" = "-inf",
     stop: number | "+inf" = "+inf",
     byScore = true,
-    rev = false,
+    rev = false
   ) {
     return this.client.zRangeWithScores(
       key,
@@ -101,7 +101,7 @@ export class DatabaseClient {
       {
         BY: byScore ? "SCORE" : undefined,
         REV: rev ? true : undefined,
-      },
+      }
     );
   }
   zinter(keys: string[]) {
@@ -111,7 +111,7 @@ export class DatabaseClient {
   zcount(
     key: string,
     start: number | "-inf" = "-inf",
-    stop: number | "+inf" = "+inf",
+    stop: number | "+inf" = "+inf"
   ) {
     return this.client.zCount(key, String(start), String(stop));
   }
@@ -153,7 +153,7 @@ export class DatabaseClient {
    * })
    */
   transaction<F extends TransactionFunction<ReturnType<F>>>(
-    func: F,
+    func: F
   ): Promise<TransactionResult<Awaited<ReturnType<F>>>> {
     return new Promise((resolve, reject) =>
       this.client.executeIsolated(async (isolatedClient) => {
@@ -171,7 +171,7 @@ export class DatabaseClient {
           multi.discard();
           return resolve(
             // @ts-ignore
-            new TransactionResult(false, undefined, "transaction aborted"),
+            new TransactionResult(false, undefined, "transaction aborted")
           );
         }
 
@@ -183,10 +183,10 @@ export class DatabaseClient {
         return resolve(
           new TransactionResult(
             true,
-            transactionResult as Awaited<ReturnType<F>>,
-          ),
+            transactionResult as Awaited<ReturnType<F>>
+          )
         );
-      }),
+      })
     );
   }
 }

@@ -38,7 +38,8 @@ The following are used to connect to the database
 - `DB_PORT`: port to database (default: `6379`)
 
 - `BATCH_SIZE_THRESHOLD`: number of entries in bucket that trigger batch when reached (default `100`)
-- `BATCH_TIME_THRESHOLD`: maximum time in seconds a batch is open for entry before batching (default `43200`)
+- `BATCH_TIME_THRESHOLD`: minimum time in seconds before a batch is attempted (default `86400`)
+- `BATCH_EXPIRATION_TIME`: maximum time in seconds before a batch will be completed (default `604800`)
 - `FEE`: the fees we take for our service (default `2`)
 
 Multisig related variables

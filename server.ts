@@ -26,11 +26,11 @@ process.on("uncaughtException", (err) =>
     err.name,
     err.message,
     err.stack,
-  ]),
+  ])
 );
 serverLogger.info(["Environment:", NODE_ENV]);
 serverLogger.info(["Network:", NETWORK.bech32]);
-(async () => {
+void (async () => {
   if (!PASSWORDPROTECTION) {
     await startServer("");
   }
@@ -62,7 +62,7 @@ Queue(app);
 Batch(app);
 
 app.use((req: Request, res: Response<any>) =>
-  res.status(RESPONSE_CODES.NOT_FOUND).json({ error: "NOT_FOUND" }),
+  res.status(RESPONSE_CODES.NOT_FOUND).json({ error: "NOT_FOUND" })
 );
 
 server.listen({
@@ -73,5 +73,5 @@ server.listen({
 serverLogger.info(
   !PASSWORDPROTECTION
     ? "Server initialised!"
-    : "Server started, awaiting password input...",
+    : "Server started, awaiting password input..."
 );

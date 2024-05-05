@@ -1,23 +1,29 @@
 import { payments, Psbt, PsbtTxInput } from "bitcoinjs-lib";
-import { NETWORK } from "../../constants";
+import { DUST_LIMIT, FEE, NETWORK } from "../../constants";
 import { sha256 } from "../../src/utils/crypto";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { getTx } from "../../src/utils/electrs/getTx";
 import { getUTXO } from "../../src/utils/electrs/getUTXO";
-import { ceil, round, sum } from "../../src/utils/math";
-import { finalize, getTxIdOfInput } from "../../src/utils/psbt";
+import { finalize, getTxIdOfInput, signAllInputs } from "../../src/utils/psbt";
 import { getError, getResult } from "../../src/utils/result";
 import { isDefined } from "../../src/utils/validation";
 import { feeWallet } from "../../src/wallets/feeWallet";
-import { logger } from "./batchTransactions";
+import { getSignerByIndex } from "../../src/wallets/getSignerByIndex";
+import { hotWallet, oldHotWallet } from "../../src/wallets/hotWallet";
+import { getServiceFees } from "./getServiceFees";
 import { inputIsUnspent } from "./helpers/inputIsUnspent";
 import { signBatchedTransaction } from "./helpers/signBatchedTransaction";
 import { sumPSBTInputValues } from "./helpers/sumPSBTInputValues";
 import { sumPSBTOutputValues } from "./helpers/sumPSBTOutputValues";
 
-const SIGNATURE_SIZE_DIFF = 2;
-export const batchBucket = async (base64PSBTs: string[], feeRate: number) => {
+const BYTES_PER_INPUT = 41;
+const MAX_ACCEPTABLE_LOSS = 0.02;
+export const batchBucket = async (
+  base64PSBTs: string[],
+  feeRateThreshold: number,
+  overrideMinServiceFees: boolean
+) => {
   const allPSBTs = base64PSBTs.map((base64) =>
     Psbt.fromBase64(base64, { network: NETWORK })
   );
@@ -27,70 +33,102 @@ export const batchBucket = async (base64PSBTs: string[], feeRate: number) => {
   );
   const unspent = utxos.map((utxo, i) => inputIsUnspent(allTxInputs[i], utxo));
 
-  const toDelete = allPSBTs.filter((_psbt, i) => !unspent[i]);
-
-  await db.transaction(async (client) => {
-    await Promise.all(
-      toDelete.map((psbt) => client.srem(KEYS.PSBT.QUEUE, psbt.toBase64()))
-    );
-  });
-
+  const toDelete = base64PSBTs.filter((_psbt, i) => !unspent[i]);
+  if (toDelete.length > 0) {
+    await db.transaction((client) => client.srem(KEYS.PSBT.QUEUE, toDelete));
+  }
   const unspentPSBTs = allPSBTs.filter((_psbt, i) => unspent[i]);
 
   if (unspentPSBTs.length === 0) return getError("No psbts left to spend");
+  const psbtsMappedToDensity = await Promise.all(
+    unspentPSBTs.map(mapPSBTToDensity)
+  );
+  const sortedPsbts = psbtsMappedToDensity.sort(
+    (a, b) => b.density - a.density
+  );
+  const bucket: Psbt[] = [];
+  for (const { psbt } of sortedPsbts) {
+    // eslint-disable-next-line no-await-in-loop -- we need to wait for the result of the function
+    await attemptPushToBucket(psbt, bucket, feeRateThreshold);
+  }
+  if (bucket.length === 0) return getError("No PSBTs could be batched");
 
-  const stagedTx = await buildBatchedTransaction(unspentPSBTs, feeRate, 0);
-  const miningFees = ceil(
-    (stagedTx.virtualSize() + SIGNATURE_SIZE_DIFF) * feeRate
-  );
-  const finalTransaction = await buildBatchedTransaction(
-    unspentPSBTs,
-    feeRate,
-    miningFees
-  );
+  const serviceFees = getServiceFees(bucket);
+  const minServiceFees =
+    feeRateThreshold * BYTES_PER_INPUT * (1 / MAX_ACCEPTABLE_LOSS);
+  if (serviceFees < minServiceFees && !overrideMinServiceFees) {
+    return getError("Service fees too low");
+  }
+
+  const { finalTransaction } = await finalizeBatch(bucket, serviceFees);
   return getResult(finalTransaction);
 };
 
-const FEE_RATE_BUFFER = 4;
-const DUST_LIMIT = 546;
-async function buildBatchedTransaction(
-  psbts: Psbt[],
-  feeRate: number,
-  miningFees: number
-) {
-  const batchedTransaction = new Psbt({ network: NETWORK });
-  batchedTransaction.addInputs(
-    psbts.map((psbt) => ({ ...psbt.txInputs[0], ...psbt.data.inputs[0] }))
+async function mapPSBTToDensity(psbt: Psbt) {
+  const psbtCopy = Psbt.fromBase64(psbt.toBase64(), { network: NETWORK });
+  const inputValues = sumPSBTInputValues(psbtCopy);
+  const index = await db.client.hGet(
+    KEYS.PSBT.PREFIX + sha256(psbtCopy.toBase64()),
+    "index"
   );
-  batchedTransaction.addOutputs(psbts.map((psbt) => psbt.txOutputs[0]));
-  batchedTransaction.setMaximumFeeRate(round(feeRate + FEE_RATE_BUFFER));
 
-  const serviceFees = calculateServiceFees(psbts);
-  logger.info(["feeRate", feeRate]);
-  logger.info(["serviceFees", serviceFees]);
-  logger.info(["miningFees", miningFees]);
+  if (isDefined(index)) {
+    signAllInputs(
+      psbtCopy,
+      getSignerByIndex(hotWallet, index, NETWORK),
+      getSignerByIndex(oldHotWallet, index, NETWORK)
+    );
+  }
+  const tx = finalize(psbtCopy);
+  const serviceFees = Math.round(inputValues * (FEE / 100));
+  const miningFees = psbtCopy.getFee() - serviceFees;
+  const feeRate = miningFees / tx.virtualSize();
+  return {
+    psbt,
+    density: serviceFees / (1 / feeRate),
+  };
+}
 
-  const finalServiceFee = serviceFees - miningFees;
-  if (finalServiceFee > DUST_LIMIT) {
-    batchedTransaction.addOutput({
-      address: (await getUnusedFeeAddress())!,
-      value: finalServiceFee,
+async function attemptPushToBucket(
+  psbt: Psbt,
+  bucket: Psbt[],
+  feeRateThreshold: number
+) {
+  const bucketWithPSBT = [...bucket, psbt];
+  const serviceFees = getServiceFees(bucketWithPSBT);
+
+  const { stagedTx } = await finalizeBatch(bucketWithPSBT, serviceFees);
+  const finalFeeRate = stagedTx.getFeeRate();
+  if (finalFeeRate >= feeRateThreshold) {
+    bucket.push(psbt);
+  }
+}
+
+async function finalizeBatch(bucket: Psbt[], serviceFees: number) {
+  const stagedTx = new Psbt({ network: NETWORK });
+  stagedTx.addInputs(
+    bucket.map((e) => ({ ...e.txInputs[0], ...e.data.inputs[0] }))
+  );
+  stagedTx.addOutputs(bucket.map((e) => e.txOutputs[0]));
+  const feeCollectorAddress = await getUnusedFeeAddress();
+  if (!feeCollectorAddress) throw new Error("No fee collector address found");
+  const inputSum = sumPSBTInputValues(stagedTx);
+  const outputSum = sumPSBTOutputValues(stagedTx);
+  if (serviceFees > DUST_LIMIT && inputSum - outputSum >= serviceFees) {
+    stagedTx.addOutput({
+      address: feeCollectorAddress,
+      value: serviceFees,
     });
   }
   const indexes = await Promise.all(
-    psbts.map((psbt) =>
-      db.client.hGet(KEYS.PSBT.PREFIX + sha256(psbt.toBase64()), "index")
-    )
+    bucket.map((e) => {
+      const id = sha256(e.toBase64());
+      return db.client.hGet(KEYS.PSBT.PREFIX + id, "index");
+    })
   );
-  signBatchedTransaction(batchedTransaction, indexes);
-  const finalTransaction = finalize(batchedTransaction);
-  return finalTransaction;
-}
-
-function calculateServiceFees(psbts: Psbt[]) {
-  const inputValues = psbts.map(sumPSBTInputValues).reduce(sum, 0);
-  const outputValues = psbts.map(sumPSBTOutputValues).reduce(sum, 0);
-  return inputValues - outputValues;
+  signBatchedTransaction(stagedTx, indexes);
+  const finalTransaction = finalize(stagedTx);
+  return { stagedTx, finalTransaction };
 }
 
 async function getUTXOForInput(input: PsbtTxInput) {

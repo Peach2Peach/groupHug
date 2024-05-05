@@ -5,13 +5,9 @@ export const KEYS = {
   },
   BUCKET: {
     EXPIRATION: "bucket-expiration",
-    STATUS: "bucket-status",
+    TIME_THRESHOLD: "bucket-time-threshold",
   },
   BATCH: "psbt-batch-",
-  TRANSACTION: {
-    PENDING: "transaction-pending",
-    CONFIRMED: "transaction-confirmed",
-  },
   FEE: {
     INDEX: "fee-address-index",
   },

@@ -10,9 +10,15 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 12,
     sourceType: "module",
+    project: "./tsconfig.json",
   },
   plugins: ["@typescript-eslint", "prettier"],
-  ignorePatterns: ["regtest-server/**/*.js", "dist/**/*"],
+  ignorePatterns: [
+    "regtest-server/**/*.js",
+    "dist/**/*",
+    "nyc.config.js",
+    "coverage/**/*",
+  ],
   rules: {
     "accessor-pairs": "error",
     "array-bracket-newline": "off",
@@ -53,7 +59,6 @@ module.exports = {
     "max-depth": "error",
     "max-nested-callbacks": "error",
     "max-params": ["error", 4],
-    "max-statements": ["error", 21],
     "multiline-comment-style": "off",
     "multiline-ternary": "off",
     "no-alert": "error",
@@ -140,6 +145,7 @@ module.exports = {
       },
     ],
     "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/ban-ts-comment": "warn",
     "no-use-before-define": ["error", { functions: false }],
     "no-useless-backreference": "error",
@@ -150,7 +156,7 @@ module.exports = {
     "no-useless-rename": "error",
     "no-useless-return": "error",
     "no-var": "error",
-    "no-void": "error",
+    "no-void": ["error", { allowAsStatement: true }],
     "no-warning-comments": [
       "error",
       { terms: ["todo", "fixme"], location: "anywhere" },

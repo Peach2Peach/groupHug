@@ -1,6 +1,6 @@
 import { BLOCKEXPLORERURL } from "../../../constants";
 import fetch from "../../../middleware/fetch";
-import { round } from "../math";
+import { round } from "../math/round";
 
 const getFeeRecommendation = (
   targets: ConfirmationTargets

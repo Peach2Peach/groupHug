@@ -4,8 +4,9 @@ import { Request, Response } from "express";
 import { describe, it } from "mocha";
 import Sinon from "sinon";
 import sinonChai from "sinon-chai";
+import { sha256 } from "../../../src/utils/crypto";
 import { db } from "../../../src/utils/db";
-import { unregisterPSBT } from "../../../src/utils/queue";
+import { KEYS } from "../../../src/utils/db/keys";
 import { registerPSBTWithClient } from "../../../src/utils/queue/registerPSBTWithClient";
 import { psbt1, psbtBase64_1 } from "../../../test/data/psbtData";
 import {
@@ -66,7 +67,7 @@ describe("validateRevokePSBT", () => {
     expect(response.json).to.have.been.calledWith({ error: "BAD_REQUEST" });
   });
   it("returns error if id does not exist", async () => {
-    await unregisterPSBT(psbt1);
+    await db.client.del(KEYS.PSBT.PREFIX + sha256(psbt1.toBase64()));
     const request = requestMock({ body: { id, revocationToken } });
 
     const response = responseMock();

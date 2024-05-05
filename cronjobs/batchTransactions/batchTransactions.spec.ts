@@ -104,11 +104,6 @@ describe("batchTransactions", () => {
     expect(await batchTransactions()).to.be.true;
     expect(batchBucketStub).to.have.been.calledWithMatch(queuedTransactions, 1);
 
-    const pending = await db.smembers(KEYS.TRANSACTION.PENDING);
-    expect(pending).to.deep.equal([
-      "353fe373cbb1c1a73e00468c7591fbbb21d7fae684c30a06aeb31d4e5a412588",
-    ]);
-
     expect(await db.exists(KEYS.BUCKET.EXPIRATION)).to.be.true;
   });
   it("increases the fee index after batching", async () => {

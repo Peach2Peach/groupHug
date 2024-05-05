@@ -2,6 +2,7 @@ import { networks, Psbt } from "bitcoinjs-lib";
 import chai, { expect } from "chai";
 import Sinon from "sinon";
 import sinonChai from "sinon-chai";
+import * as constants from "../../constants";
 import * as getTx from "../../src/utils/electrs/getTx";
 import * as getUTXO from "../../src/utils/electrs/getUTXO";
 import { addPSBTToQueue } from "../../src/utils/queue/addPSBTToQueue";
@@ -49,7 +50,7 @@ describe("batchBucket", () => {
   it("returns error if all psbts have been spent", async () => {
     getUTXOStub.resolves(getResult([]));
     const mediumFee = 21;
-    const result = await batchBucket(bucket, mediumFee);
+    const result = await batchBucket(bucket, mediumFee, false);
 
     expect(result.isError()).to.be.true;
     expect(result.getError()).to.equal("No psbts left to spend");
@@ -57,7 +58,7 @@ describe("batchBucket", () => {
   it("returns an error if no transactions are found", async () => {
     getTxStub.resolves(getResult(null));
     const mediumFee = 21;
-    const result = await batchBucket(bucket, mediumFee);
+    const result = await batchBucket(bucket, mediumFee, false);
 
     expect(result.isError()).to.be.true;
     expect(result.getError()).to.equal("No psbts left to spend");
@@ -73,7 +74,7 @@ describe("batchBucket", () => {
       })
     );
     const mediumFee = 21;
-    const result = await batchBucket(bucket, mediumFee);
+    const result = await batchBucket(bucket, mediumFee, false);
 
     expect(result.isError()).to.be.true;
     expect(result.getError()).to.equal("No psbts left to spend");
@@ -81,7 +82,7 @@ describe("batchBucket", () => {
   it("returns an error if no utxos are found", async () => {
     getUTXOStub.resolves(getResult(null));
     const mediumFee = 21;
-    const result = await batchBucket(bucket, mediumFee);
+    const result = await batchBucket(bucket, mediumFee, false);
 
     expect(result.isError()).to.be.true;
     expect(result.getError()).to.equal("No psbts left to spend");
@@ -89,8 +90,8 @@ describe("batchBucket", () => {
 
   it("creates a batched transaction with all psbts and correct fee output", async () => {
     Sinon.stub(inputIsUnspent, "inputIsUnspent").callsFake(() => true);
-    const mediumFee = 21;
-    const result = await batchBucket(bucket, mediumFee);
+    const mediumFee = 1;
+    const result = await batchBucket(bucket, mediumFee, false);
 
     if (!result.isOk()) {
       throw Error("batchBucket failed - " + result.getError());
@@ -103,19 +104,20 @@ describe("batchBucket", () => {
       "0014c660079108cfbe1fe5278bc79eb1fee5afa9a201"
     );
 
-    expect(finalTransaction.outs[10].value).to.equal(9569);
+    expect(finalTransaction.outs[10].value).to.equal(20000);
   });
   it("doesn't add a fee output if the fee is less than the dust limit", async () => {
     Sinon.stub(inputIsUnspent, "inputIsUnspent").callsFake(() => true);
-    const highFee = 100;
-    const result = await batchBucket(bucket, highFee);
+    Sinon.stub(constants, "DUST_LIMIT").value(20000);
+    const highFee = 1;
+    const result = await batchBucket(bucket.slice(0, 1), highFee, true);
 
     if (!result.isOk()) {
-      throw Error("batchBucket failed" + result.getError());
+      throw Error("batchBucket failed - " + result.getError());
     }
     const finalTransaction = result.getValue();
 
-    expect(finalTransaction.ins.length).to.equal(10);
-    expect(finalTransaction.outs.length).to.equal(10);
+    expect(finalTransaction.ins.length).to.equal(1);
+    expect(finalTransaction.outs.length).to.equal(1);
   });
 });

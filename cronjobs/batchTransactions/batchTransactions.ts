@@ -1,13 +1,15 @@
-import { BATCH_SIZE_THRESHOLD } from "../../constants";
+import {
+  BATCH_EXPIRATION_TIME,
+  BATCH_TIME_THRESHOLD,
+  MSINS,
+} from "../../constants";
+import { addPSBTToBatchWithClient } from "../../src/utils/batch/addPSBTToBatchWithClient";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { postTx } from "../../src/utils/electrs";
 import { getFeeEstimates } from "../../src/utils/electrs/getFeeEstimates";
 import getLogger from "../../src/utils/logger";
-import { resetBucketExpiration } from "../../src/utils/queue/resetBucketExpiration";
-import { saveBucketStatus } from "../../src/utils/queue/saveBucketStatus";
 import { batchBucket } from "./batchBucket";
-import { markBatchedTransactionAsPending } from "./helpers/markBatchedTransactionAsPending";
 
 export const logger = getLogger("job", "batchTransactions");
 
@@ -20,22 +22,24 @@ export const batchTransactions = async () => {
   }
 
   const base64PSBTs = await db.smembers(KEYS.PSBT.QUEUE);
-  saveBucketStatus({
-    participants: base64PSBTs.length,
-    maxParticipants: BATCH_SIZE_THRESHOLD,
-  });
-
-  const timeThresholdReached = !(await db.exists(KEYS.BUCKET.EXPIRATION));
+  const bucketIsExpired = !(await db.exists(KEYS.BUCKET.EXPIRATION));
+  const timeThresholdReached = await db.exists(KEYS.BUCKET.TIME_THRESHOLD);
 
   const result = await (async () => {
-    if (!timeThresholdReached && base64PSBTs.length < BATCH_SIZE_THRESHOLD) {
+    if (
+      (!timeThresholdReached && !bucketIsExpired) ||
+      base64PSBTs.length === 0
+    ) {
       logger.info(["Bucket not ready to be batched"]);
       return true;
     }
-    logger.info(["Batching bucket with size:", base64PSBTs.length]);
+    logger.info([
+      "Attempting batch with " + base64PSBTs.length + " PSBTs in queue",
+    ]);
     const batchBucketResult = await batchBucket(
       base64PSBTs,
-      feeEstimatesResult.result.halfHourFee
+      feeEstimatesResult.result.halfHourFee,
+      bucketIsExpired
     );
 
     if (!batchBucketResult.isOk()) {
@@ -50,20 +54,30 @@ export const batchTransactions = async () => {
     const postTxResult = await postTx(batchedTransaction.toHex());
 
     if (postTxResult.isOk()) {
-      logger.info(["Transaction succesfully batched"]);
+      logger.info(["Batch transaction succesfully broadcasted"]);
 
-      await db.incr(KEYS.FEE.INDEX);
       const txId = postTxResult.getValue();
-      const markResult = await markBatchedTransactionAsPending(
-        base64PSBTs,
-        txId
-      );
-      saveBucketStatus({
-        participants: 0,
-        maxParticipants: BATCH_SIZE_THRESHOLD,
+      const transactionResult = await db.transaction(async (client) => {
+        await client.incr(KEYS.FEE.INDEX);
+        await client.set(
+          KEYS.BUCKET.TIME_THRESHOLD,
+          "true",
+          BATCH_TIME_THRESHOLD * MSINS
+        );
+        await client.set(
+          KEYS.BUCKET.EXPIRATION,
+          "true",
+          BATCH_EXPIRATION_TIME * MSINS
+        );
+        await Promise.all(
+          base64PSBTs.map((psbt) =>
+            addPSBTToBatchWithClient(client, txId, psbt)
+          )
+        );
+        await client.srem(KEYS.PSBT.QUEUE, base64PSBTs);
       });
 
-      return markResult.isOk();
+      return transactionResult.isOk();
     }
 
     logger.error([
@@ -75,7 +89,15 @@ export const batchTransactions = async () => {
     return false;
   })();
 
-  if (timeThresholdReached) await resetBucketExpiration();
+  if (bucketIsExpired) {
+    await db.transaction(async (client) => {
+      await client.set(
+        KEYS.BUCKET.EXPIRATION,
+        "true",
+        BATCH_EXPIRATION_TIME * MSINS
+      );
+    });
+  }
 
   return result;
 };

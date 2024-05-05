@@ -1,7 +1,6 @@
-/* eslint-disable max-statements */
 import { strictEqual } from "assert";
 import { describe, it } from "mocha";
-import { round } from ".";
+import { round } from "./round";
 
 describe("round", () => {
   it("rounds values to desired digits after the comma", () => {

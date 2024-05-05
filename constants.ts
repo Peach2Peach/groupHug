@@ -13,12 +13,15 @@ const DEFAULTS = {
   DB_PORT: 6379,
   MAXREQUESTRATE: 10,
   BATCH_SIZE_THRESHOLD: 100,
-  BATCH_TIME_THRESHOLD: 43200,
+  BATCH_TIME_THRESHOLD: 86400,
+  BATCH_EXPIRATION_TIME: 604800,
+  FEE: 2,
 };
 
 export const PASSWORDPROTECTION = process.env.PASSWORDPROTECTION !== "false";
 
 export const MINIMUM_FEE_RATE = 1;
+export const DUST_LIMIT = 546;
 export const MAXREQUESTRATE = process.env.MAXREQUESTRATE
   ? Number(process.env.MAXREQUESTRATE)
   : DEFAULTS.MAXREQUESTRATE;
@@ -46,6 +49,7 @@ export const {
   LOGLEVEL_INFO,
   LOGLEVEL_DEBUG,
 } = process.env;
+export const FEE = Number(process.env.FEE || DEFAULTS.FEE);
 
 export const { DB_AUTH, PRIVKEY, OLD_PRIVKEY, FEE_COLLECTOR_PUBKEY } =
   process.env;
@@ -55,6 +59,9 @@ export const BATCH_SIZE_THRESHOLD = Number(
 );
 export const BATCH_TIME_THRESHOLD = Number(
   process.env.BATCH_TIME_THRESHOLD || DEFAULTS.BATCH_TIME_THRESHOLD
+);
+export const BATCH_EXPIRATION_TIME = Number(
+  process.env.BATCH_EXPIRATION_TIME || DEFAULTS.BATCH_EXPIRATION_TIME
 );
 
 export const SIGHASH = {

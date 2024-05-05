@@ -30,6 +30,7 @@
     "devUtils/dataMigration",
     "devUtils/utilScripts",
     "test",
-    "server.ts"
+    "server.ts",
+    ".eslintrc.cjs"
   ]
 }

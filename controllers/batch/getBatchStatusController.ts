@@ -1,29 +1,33 @@
-import { NETWORK } from "../../constants";
-import { getPSBTsFromBatch } from "../../src/utils/batch/getPSBTsFromBatch";
+import { Request, Response } from "express";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { getBatchStatusOverviewController } from "./getBatchStatusOverviewController";
-import { GetBatchStatusRequest, GetBatchStatusResponse } from "./types";
 
-export const getBatchStatusController = async (
-  req: GetBatchStatusRequest,
-  res: GetBatchStatusResponse
-) => {
+type Req = Request<{}, any, {}, { id: string }>;
+type Res = Response<
+  | {
+      participants: number;
+      /** @deprecated Will be removed in the next release */
+      maxParticipants: number;
+      timeRemaining: number;
+      completed: boolean;
+      txId?: string;
+    }
+  | APIError<null>
+>;
+
+export const getBatchStatusController = async (req: Req, res: Res) => {
   const { id } = req.query;
 
-  if (id) {
-    const txId = await db.client.hGet(KEYS.PSBT.PREFIX + id, "txId");
-    if (txId) {
-      const participants = await getPSBTsFromBatch(txId, NETWORK);
-      return res.json({
-        participants: participants.length,
-        maxParticipants: participants.length,
-        timeRemaining: 0,
-        completed: true,
-        txId,
-      });
-    }
-  }
+  const txId = await db.client.hGet(KEYS.PSBT.PREFIX + id, "txId");
+  if (!txId) return getBatchStatusOverviewController(req, res);
 
-  return getBatchStatusOverviewController(req, res);
+  const participants = await db.scard(KEYS.BATCH + txId);
+  return res.json({
+    maxParticipants: participants,
+    participants,
+    timeRemaining: 0,
+    completed: true,
+    txId,
+  });
 };

@@ -1,11 +1,11 @@
 import chai, { expect } from "chai";
 import { describe, it } from "mocha";
-import sinonChai from "sinon-chai";
-import fetch from "./fetch";
-import Sinon, { SinonStub } from "sinon";
 import * as nodeFetch from "node-fetch";
-import { fetchLogger } from "./fetchLogger";
+import Sinon, { SinonStub } from "sinon";
+import sinonChai from "sinon-chai";
 import { fetchStub } from "../test/unit/hooks";
+import fetch from "./fetch";
+import { fetchLogger } from "./fetchLogger";
 
 chai.use(sinonChai);
 
@@ -26,7 +26,7 @@ describe("fetch", () => {
     Sinon.restore();
   });
   it("calls fetch with passed options", () => {
-    fetch(url, options);
+    void fetch(url, options);
     expect(nodeFetchStub).to.be.calledWith(url, options);
   });
   it("logs response and resolves result", async () => {

@@ -2,6 +2,7 @@ import { Psbt } from "bitcoinjs-lib";
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import { MINIMUM_FEE_RATE, NETWORK } from "../../../constants";
+import { getServiceFees } from "../../../cronjobs/batchTransactions/getServiceFees";
 import {
   finalize,
   isSignedWithSighash,
@@ -56,6 +57,14 @@ export const validatePSBT = (
         details: "INVALID_FEE_RATE",
         feeRate,
         finalFeeRate: feeRate,
+      });
+    }
+    const serviceFees = getServiceFees([psbt]);
+    const miningFees = psbt.getFee() - serviceFees;
+    if (miningFees <= 0) {
+      return respondWithError(res, "BAD_REQUEST", {
+        details: "INVALID_SERVICE_FEES",
+        miningFees,
       });
     }
     return next();

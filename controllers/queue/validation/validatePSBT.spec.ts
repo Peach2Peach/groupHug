@@ -38,7 +38,7 @@ describe("validatePSBT", () => {
   });
   it("doesn't sign all inputs if index is not provided", () => {
     const request = requestMock({
-      body: { psbt: validEntryPSBTBase64, feeRate: 10 },
+      body: { psbt: validEntryPSBTBase64 },
     });
     const response = responseMock();
     const next = Sinon.stub();
@@ -52,7 +52,7 @@ describe("validatePSBT", () => {
 
   it("returns error if psbt is not of type string", () => {
     const request = requestMock({
-      body: { psbt: 0, feeRate: 10, index: 0 },
+      body: { psbt: 0, index: 0 },
     });
 
     const response = responseMock();
@@ -69,7 +69,7 @@ describe("validatePSBT", () => {
   });
   it("returns error if psbt has no signature", () => {
     const request = requestMock({
-      body: { psbt: missingSignature, feeRate: 10, index: 0 },
+      body: { psbt: missingSignature, index: 0 },
     });
 
     const response = responseMock();
@@ -90,7 +90,7 @@ describe("validatePSBT", () => {
     });
     wrongSig.data.inputs[0].finalScriptSig = Buffer.from("0");
     const request = requestMock({
-      body: { psbt: wrongSig.toBase64(), feeRate: 10, index: 0 },
+      body: { psbt: wrongSig.toBase64(), index: 0 },
     });
 
     const response = responseMock();
@@ -107,7 +107,7 @@ describe("validatePSBT", () => {
   });
   it("returns error if psbt has wrong sighash", () => {
     const request = requestMock({
-      body: { psbt: wrongSighash, feeRate: 10, index: 0 },
+      body: { psbt: wrongSighash, index: 0 },
     });
 
     const response = responseMock();
@@ -124,7 +124,7 @@ describe("validatePSBT", () => {
   });
   it("returns error if psbt is invalid", () => {
     const request = requestMock({
-      body: { psbt: "invalid base64", feeRate: 10, index: 0 },
+      body: { psbt: "invalid base64", index: 0 },
     });
 
     const response = responseMock();
@@ -141,7 +141,7 @@ describe("validatePSBT", () => {
   });
   it("returns error if psbt has more than 2 inputs", () => {
     const request = requestMock({
-      body: { psbt: psbtWith2ndInput, feeRate: 10, index: 0 },
+      body: { psbt: psbtWith2ndInput, index: 0 },
     });
 
     const response = responseMock();
@@ -158,7 +158,7 @@ describe("validatePSBT", () => {
   });
   it("returns error if psbt has more than 2 outputs", () => {
     const request = requestMock({
-      body: { psbt: psbtWith2ndOutput, feeRate: 10, index: 0 },
+      body: { psbt: psbtWith2ndOutput, index: 0 },
     });
 
     const response = responseMock();
@@ -194,7 +194,7 @@ describe("validatePSBT", () => {
   });
   it("validates psbt successfully if desired fee rate is below actual fee rate (donation)", () => {
     const request = requestMock({
-      body: { ...highFeePsbt, feeRate: 37 },
+      body: highFeePsbt,
     });
     const response = responseMock();
     const next = Sinon.stub();
