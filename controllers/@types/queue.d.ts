@@ -1,6 +1,6 @@
 type AddPSBTRequestParams = {};
 type AddPSBTRequestQuery = {};
-type AddPSBTRequestBody = { psbt: string; feeRate: number; index?: number };
+type AddPSBTRequestBody = { psbt: string; index: number };
 type AddPSBTResponseBody = { id: string; revocationToken: string };
 type AddPSBTErrorResponseBody = APIError<null>;
 
