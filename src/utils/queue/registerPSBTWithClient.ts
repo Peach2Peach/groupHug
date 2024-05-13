@@ -1,12 +1,12 @@
 import { randomUUID } from "crypto";
-import { sha256 } from "../crypto";
+import { sha256 } from "../crypto/sha256";
 import { KEYS } from "../db/keys";
 import { SubClient } from "../db/SubClient";
 
 export const registerPSBTWithClient = async (
   client: SubClient,
   base64: string,
-  index?: number
+  index?: number,
 ) => {
   const id = sha256(base64);
   const revocationToken = randomUUID().replace(/-/gu, "");

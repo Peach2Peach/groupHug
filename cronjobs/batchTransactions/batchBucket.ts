@@ -1,6 +1,6 @@
 import { payments, Psbt, PsbtTxInput } from "bitcoinjs-lib";
 import { DUST_LIMIT, FEE, NETWORK } from "../../constants";
-import { sha256 } from "../../src/utils/crypto";
+import { sha256 } from "../../src/utils/crypto/sha256";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { getTx } from "../../src/utils/electrs/getTx";

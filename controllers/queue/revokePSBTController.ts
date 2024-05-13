@@ -4,12 +4,12 @@ import { RevokePSBTRequest, RevokePSBTResponse } from "./types";
 
 export const revokePSBTController = async (
   req: RevokePSBTRequest,
-  res: RevokePSBTResponse
+  res: RevokePSBTResponse,
 ) => {
   const { id } = req.body;
 
   const result = await db.transaction(async (client) => {
-    const psbt = await client.client.hGet(KEYS.PSBT.PREFIX + id, "psbt");
+    const psbt = await client.hget(KEYS.PSBT.PREFIX + id, "psbt");
     if (!psbt) throw new Error("NOT_FOUND");
     await client.srem(KEYS.PSBT.QUEUE, psbt);
     await client.del(KEYS.PSBT.PREFIX + id);

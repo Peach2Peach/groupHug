@@ -3,7 +3,7 @@ import chai, { expect } from "chai";
 import Sinon, { SinonStub } from "sinon";
 import sinonChai from "sinon-chai";
 import * as constants from "../../constants";
-import { sha256 } from "../../src/utils/crypto";
+import { sha256 } from "../../src/utils/crypto/sha256";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import * as getFeeEstimates from "../../src/utils/electrs/getFeeEstimates";

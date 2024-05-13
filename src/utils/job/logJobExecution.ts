@@ -1,11 +1,14 @@
-import { serializeJobEvent } from ".";
 import { MSINS } from "../../../constants";
 import { db } from "../db";
 import { KEYS } from "../db/keys";
 import getLogger from "../logger";
-import { MAX_ENTRIES } from "./constants";
 
 type JobExecution = () => boolean | Promise<boolean>;
+
+const MAX_ENTRIES = 100;
+
+const serializeJobEvent = (event: JobEvent) =>
+  `${event.date.getTime()}::${event.status}::${event.runningTime}`;
 
 export const logJobExecution = async (name: string, job: JobExecution) => {
   const logger = getLogger("job", name, "info");

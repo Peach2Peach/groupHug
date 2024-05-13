@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { describe, it } from "mocha";
 import Sinon from "sinon";
 import sinonChai from "sinon-chai";
-import { sha256 } from "../../../src/utils/crypto";
+import { sha256 } from "../../../src/utils/crypto/sha256";
 import { db } from "../../../src/utils/db";
 import { KEYS } from "../../../src/utils/db/keys";
 import { registerPSBTWithClient } from "../../../src/utils/queue/registerPSBTWithClient";

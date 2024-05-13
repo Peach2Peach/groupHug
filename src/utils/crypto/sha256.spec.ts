@@ -1,6 +1,6 @@
 import { equal } from "assert";
 import { describe, it } from "mocha";
-import { sha256 } from ".";
+import { sha256 } from "./sha256";
 
 describe("sha256", () => {
   it("should produce the expected hash", () => {

@@ -1,11 +1,10 @@
 import { Psbt } from "bitcoinjs-lib";
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { MINIMUM_FEE_RATE, NETWORK } from "../../../constants";
+import { MINIMUM_FEE_RATE, NETWORK, SIGHASH } from "../../../constants";
 import { getServiceFees } from "../../../cronjobs/batchTransactions/getServiceFees";
 import {
   finalize,
-  isSignedWithSighash,
   signAllInputs,
   validatePSBTSignatures,
 } from "../../../src/utils/psbt";
@@ -16,7 +15,7 @@ import { hotWallet, oldHotWallet } from "../../../src/wallets/hotWallet";
 export const validatePSBT = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { psbt: base64Unparsed, index: indexUnparsed } = req.body;
 
@@ -38,7 +37,11 @@ export const validatePSBT = (
       return respondWithError(res, "BAD_REQUEST", {
         details: "SIGNATURE_INVALID",
       });
-    if (!isSignedWithSighash(psbt, "SINGLE_ANYONECANPAY")) {
+    if (
+      psbt.data.inputs.some(
+        (input) => input.sighashType !== SIGHASH.SINGLE_ANYONECANPAY,
+      )
+    ) {
       return respondWithError(res, "BAD_REQUEST", { details: "WRONG_SIGHASH" });
     }
 
@@ -46,7 +49,7 @@ export const validatePSBT = (
       signAllInputs(
         psbt,
         getSignerByIndex(hotWallet, index, NETWORK),
-        getSignerByIndex(oldHotWallet, index, NETWORK)
+        getSignerByIndex(oldHotWallet, index, NETWORK),
       );
     }
 

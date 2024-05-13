@@ -1,10 +1,25 @@
 /* eslint-disable no-await-in-loop */
 import { ok, strictEqual } from "assert";
 import { describe, it } from "mocha";
-import Sinon from "sinon";
-import { getJobHistory, logJobExecution } from ".";
 import { sleep } from "../../../test/unit/helpers/sleep";
-import * as constants from "./constants";
+import { db } from "../db";
+import { KEYS } from "../db/keys";
+import { logJobExecution } from "./logJobExecution";
+
+const getJobHistory = async (jobId: string): Promise<JobEvent[]> => {
+  const jobHistory = await db.zrange(KEYS.JOB.PREFIX + jobId);
+
+  return jobHistory
+    .map((job) => {
+      const [date, status, runningTime] = job.split("::");
+      return {
+        date: new Date(Number(date)),
+        status: status as JobEvent["status"],
+        runningTime: runningTime ? Number(runningTime) : undefined,
+      };
+    })
+    .reverse();
+};
 
 describe("logJobExecution", () => {
   it("logs the execution of a successful job run", async () => {
@@ -60,8 +75,7 @@ describe("logJobExecution", () => {
     ok(history[0].runningTime < 750);
   });
   it("drops history items above max entries", async () => {
-    const MAX_ENTRIES = 10;
-    Sinon.stub(constants, "MAX_ENTRIES").get(() => MAX_ENTRIES);
+    const MAX_ENTRIES = 100;
 
     for (let i = MAX_ENTRIES + 2; i > 0; i--) {
       await logJobExecution("job1", () => false);
