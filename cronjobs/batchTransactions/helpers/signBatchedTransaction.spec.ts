@@ -18,25 +18,26 @@ describe("signBatchedTransaction", () => {
     });
     signBatchedTransaction(
       psbt,
-      batchQueue.map((b) => b.index.toString())
+      batchQueue.map((b) => b.index.toString()),
     );
     expect(psbt.data.inputs[0].partialSig?.length).to.equal(2);
   });
   it("signs the batched transaction with old signer", () => {
     Sinon.stub(keys, "PRIVKEY").get(() => unencrypted.PRIVKEY);
     Sinon.stub(keys, "OLD_PRIVKEY").get(() => unencrypted.OLD_PRIVKEY);
-    loadHotWallet(keys.OLD_PRIVKEY!, NETWORK);
-    loadOldHotWallet(keys.PRIVKEY!, NETWORK);
+    if (!keys.OLD_PRIVKEY || !keys.PRIVKEY) throw new Error("Keys not found");
+    loadHotWallet(keys.OLD_PRIVKEY, NETWORK);
+    loadOldHotWallet(keys.PRIVKEY, NETWORK);
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
       network: networks.regtest,
     });
     signBatchedTransaction(
       psbt,
-      batchQueue.map((b) => b.index.toString())
+      batchQueue.map((b) => b.index.toString()),
     );
     expect(psbt.data.inputs[0].partialSig?.length).to.equal(2);
-    loadHotWallet(keys.PRIVKEY!, NETWORK);
-    loadOldHotWallet(keys.OLD_PRIVKEY!, NETWORK);
+    loadHotWallet(keys.PRIVKEY, NETWORK);
+    loadOldHotWallet(keys.OLD_PRIVKEY, NETWORK);
   });
   it("does not sign if index is not found", () => {
     const psbt = Psbt.fromBase64(batchQueue[0].psbt, {
@@ -59,7 +60,7 @@ describe("signBatchedTransaction", () => {
     psbt.data.inputs[0].witnessScript = undefined;
     signBatchedTransaction(
       psbt,
-      batchQueue.map((b) => b.index.toString())
+      batchQueue.map((b) => b.index.toString()),
     );
     expect(psbt.data.inputs[0].partialSig?.length).to.equal(1);
   });

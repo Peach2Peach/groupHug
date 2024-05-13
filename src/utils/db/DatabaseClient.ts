@@ -69,7 +69,7 @@ export class DatabaseClient {
     byScore = true,
     rev: boolean = false,
     offset: number | undefined = undefined,
-    count: number | undefined = undefined
+    count: number | undefined = undefined,
   ) {
     return this.client.zRange(
       key,
@@ -79,7 +79,7 @@ export class DatabaseClient {
         BY: byScore ? "SCORE" : undefined,
         LIMIT: count && isDefined(offset) ? { offset, count } : undefined,
         REV: rev ? true : undefined,
-      }
+      },
     );
   }
 
@@ -89,7 +89,7 @@ export class DatabaseClient {
     start: number | "-inf" = "-inf",
     stop: number | "+inf" = "+inf",
     byScore = true,
-    rev = false
+    rev = false,
   ) {
     return this.client.zRangeWithScores(
       key,
@@ -98,7 +98,7 @@ export class DatabaseClient {
       {
         BY: byScore ? "SCORE" : undefined,
         REV: rev ? true : undefined,
-      }
+      },
     );
   }
   zinter(keys: string[]) {
@@ -108,7 +108,7 @@ export class DatabaseClient {
   zcount(
     key: string,
     start: number | "-inf" = "-inf",
-    stop: number | "+inf" = "+inf"
+    stop: number | "+inf" = "+inf",
   ) {
     return this.client.zCount(key, String(start), String(stop));
   }
@@ -147,7 +147,7 @@ export class DatabaseClient {
       const multi = isolatedClient.multi();
       try {
         const transactionResult = await func(
-          new SubClient(isolatedClient, multi)
+          new SubClient(isolatedClient, multi),
         );
         await multi.exec();
 

@@ -4,7 +4,7 @@ import { BLOCKEXPLORERURL } from "../../../constants";
 import { feeEstimates, rawFeeEstimates } from "../../../test/data/electrsData";
 import { getFetchResponse } from "../../../test/unit/helpers/getFetchResponse";
 import { fetchStub } from "../../../test/unit/hooks";
-import { getFeeEstimates } from "./getFeeEstimates";
+import { getEsploraFeeEstimates } from "./getFeeEstimates";
 
 describe("getFeeEstimates", () => {
   afterEach(() => {
@@ -16,7 +16,7 @@ describe("getFeeEstimates", () => {
       .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
       .resolves(getFetchResponse(rawFeeEstimates));
 
-    const { result } = await getFeeEstimates();
+    const { result } = await getEsploraFeeEstimates();
     expect(result).to.deep.equal(feeEstimates);
   });
 
@@ -27,7 +27,7 @@ describe("getFeeEstimates", () => {
       .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
       .rejects(errorMessage);
 
-    const error = await getFeeEstimates();
+    const error = await getEsploraFeeEstimates();
     expect(error).to.deep.equals({
       error: "INTERNAL_SERVER_ERROR",
       message: errorMessage,

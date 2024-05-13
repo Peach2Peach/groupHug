@@ -32,8 +32,8 @@ export let NETWORK =
   NETWORKID === "testnet"
     ? networks.testnet
     : NETWORKID === "regtest"
-    ? networks.regtest
-    : networks.bitcoin;
+      ? networks.regtest
+      : networks.bitcoin;
 export const setNetwork = (network: Network) => (NETWORK = network);
 
 export const {
@@ -42,6 +42,7 @@ export const {
   DB_HOST = DEFAULTS.DB_HOST,
   DB_PORT = DEFAULTS.DB_PORT,
   BLOCKEXPLORERURL,
+  MEMPOOL_URL,
   TIMEOUTDURATION,
   LOGLEVEL_ERROR,
   LOGLEVEL_WARN,
@@ -55,13 +56,13 @@ export const { DB_AUTH, PRIVKEY, OLD_PRIVKEY, FEE_COLLECTOR_PUBKEY } =
   process.env;
 
 export const BATCH_SIZE_THRESHOLD = Number(
-  process.env.BATCH_SIZE_THRESHOLD || DEFAULTS.BATCH_SIZE_THRESHOLD
+  process.env.BATCH_SIZE_THRESHOLD || DEFAULTS.BATCH_SIZE_THRESHOLD,
 );
 export const BATCH_TIME_THRESHOLD = Number(
-  process.env.BATCH_TIME_THRESHOLD || DEFAULTS.BATCH_TIME_THRESHOLD
+  process.env.BATCH_TIME_THRESHOLD || DEFAULTS.BATCH_TIME_THRESHOLD,
 );
 export const BATCH_EXPIRATION_TIME = Number(
-  process.env.BATCH_EXPIRATION_TIME || DEFAULTS.BATCH_EXPIRATION_TIME
+  process.env.BATCH_EXPIRATION_TIME || DEFAULTS.BATCH_EXPIRATION_TIME,
 );
 
 export const SIGHASH = {

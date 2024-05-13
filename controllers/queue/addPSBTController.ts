@@ -8,18 +8,13 @@ import { AddPSBTRequest, AddPSBTResponse } from "./types";
 
 export const addPSBTController = async (
   req: AddPSBTRequest,
-  res: AddPSBTResponse
+  res: AddPSBTResponse,
 ) => {
   const { psbt: base64, index } = req.body;
 
   const psbt = Psbt.fromBase64(base64, { network: NETWORK });
-
-  const transactions = await Promise.all(
-    psbt.txInputs.map(
-      async (input) => (await getTx(getTxIdOfInput(input))).result
-    )
-  );
-  if (transactions.some((tx) => !tx || !tx.status.confirmed)) {
+  const transaction = (await getTx(getTxIdOfInput(psbt.txInputs[0]))).result;
+  if (!transaction || !transaction.status.confirmed) {
     return respondWithError(res, "BAD_REQUEST");
   }
 

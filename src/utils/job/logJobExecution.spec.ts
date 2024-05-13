@@ -54,9 +54,10 @@ describe("logJobExecution", () => {
     ok(!history[1].runningTime);
     ok(!history[1].runningTime);
 
+    if (!history[0].runningTime) throw new Error("runningTime is not defined");
     // check approximate running time
-    ok(history[0].runningTime! >= 500);
-    ok(history[0].runningTime! < 750);
+    ok(history[0].runningTime >= 500);
+    ok(history[0].runningTime < 750);
   });
   it("drops history items above max entries", async () => {
     const MAX_ENTRIES = 10;

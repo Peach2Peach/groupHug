@@ -6,7 +6,6 @@ import { KEYS } from "../../src/utils/db/keys";
 import { getTx } from "../../src/utils/electrs/getTx";
 import { getUTXO } from "../../src/utils/electrs/getUTXO";
 import { finalize, getTxIdOfInput, signAllInputs } from "../../src/utils/psbt";
-import { getError, getResult } from "../../src/utils/result";
 import { isDefined } from "../../src/utils/validation";
 import { feeWallet } from "../../src/wallets/feeWallet";
 import { getSignerByIndex } from "../../src/wallets/getSignerByIndex";
@@ -22,14 +21,14 @@ const MAX_ACCEPTABLE_LOSS = 0.02;
 export const batchBucket = async (
   base64PSBTs: string[],
   feeRateThreshold: number,
-  overrideMinServiceFees: boolean
+  overrideMinServiceFees: boolean,
 ) => {
   const allPSBTs = base64PSBTs.map((base64) =>
-    Psbt.fromBase64(base64, { network: NETWORK })
+    Psbt.fromBase64(base64, { network: NETWORK }),
   );
   const allTxInputs = allPSBTs.map((psbt) => psbt.txInputs[0]);
   const utxos = (await Promise.all(allTxInputs.map(getUTXOForInput))).filter(
-    isDefined
+    isDefined,
   );
   const unspent = utxos.map((utxo, i) => inputIsUnspent(allTxInputs[i], utxo));
 
@@ -39,29 +38,44 @@ export const batchBucket = async (
   }
   const unspentPSBTs = allPSBTs.filter((_psbt, i) => unspent[i]);
 
-  if (unspentPSBTs.length === 0) return getError("No psbts left to spend");
+  if (unspentPSBTs.length === 0) {
+    return { error: "No psbts left to spend" };
+  }
+
   const psbtsMappedToDensity = await Promise.all(
-    unspentPSBTs.map(mapPSBTToDensity)
+    unspentPSBTs.map(mapPSBTToDensity),
   );
   const sortedPsbts = psbtsMappedToDensity.sort(
-    (a, b) => b.density - a.density
+    (a, b) => b.density - a.density,
   );
   const bucket: Psbt[] = [];
   for (const { psbt } of sortedPsbts) {
     // eslint-disable-next-line no-await-in-loop -- we need to wait for the result of the function
     await attemptPushToBucket(psbt, bucket, feeRateThreshold);
   }
-  if (bucket.length === 0) return getError("No PSBTs could be batched");
-
-  const serviceFees = getServiceFees(bucket);
-  const minServiceFees =
-    feeRateThreshold * BYTES_PER_INPUT * (1 / MAX_ACCEPTABLE_LOSS);
-  if (serviceFees < minServiceFees && !overrideMinServiceFees) {
-    return getError("Service fees too low");
+  if (bucket.length === 0) {
+    return { error: "No PSBTs could be batched" };
   }
 
-  const { finalTransaction } = await finalizeBatch(bucket, serviceFees);
-  return getResult(finalTransaction);
+  const serviceFees = getServiceFees(bucket);
+  const minServiceFees = Math.round(
+    feeRateThreshold * BYTES_PER_INPUT * (1 / MAX_ACCEPTABLE_LOSS),
+  );
+  if (serviceFees < minServiceFees && !overrideMinServiceFees) {
+    return {
+      error: `Service fees too low - ${serviceFees} < ${minServiceFees}`,
+    };
+  }
+
+  const { finalTransaction, stagedTx } = await finalizeBatch(
+    bucket,
+    serviceFees,
+  );
+  const finalFeeRate = stagedTx.getFeeRate();
+  if (finalFeeRate < feeRateThreshold) {
+    return { error: "Sanity check failed - Final fee rate too low" };
+  }
+  return { result: { finalTransaction, bucket } };
 };
 
 async function mapPSBTToDensity(psbt: Psbt) {
@@ -69,14 +83,14 @@ async function mapPSBTToDensity(psbt: Psbt) {
   const inputValues = sumPSBTInputValues(psbtCopy);
   const index = await db.client.hGet(
     KEYS.PSBT.PREFIX + sha256(psbtCopy.toBase64()),
-    "index"
+    "index",
   );
 
   if (isDefined(index)) {
     signAllInputs(
       psbtCopy,
       getSignerByIndex(hotWallet, index, NETWORK),
-      getSignerByIndex(oldHotWallet, index, NETWORK)
+      getSignerByIndex(oldHotWallet, index, NETWORK),
     );
   }
   const tx = finalize(psbtCopy);
@@ -92,7 +106,7 @@ async function mapPSBTToDensity(psbt: Psbt) {
 async function attemptPushToBucket(
   psbt: Psbt,
   bucket: Psbt[],
-  feeRateThreshold: number
+  feeRateThreshold: number,
 ) {
   const bucketWithPSBT = [...bucket, psbt];
   const serviceFees = getServiceFees(bucketWithPSBT);
@@ -107,7 +121,7 @@ async function attemptPushToBucket(
 async function finalizeBatch(bucket: Psbt[], serviceFees: number) {
   const stagedTx = new Psbt({ network: NETWORK });
   stagedTx.addInputs(
-    bucket.map((e) => ({ ...e.txInputs[0], ...e.data.inputs[0] }))
+    bucket.map((e) => ({ ...e.txInputs[0], ...e.data.inputs[0] })),
   );
   stagedTx.addOutputs(bucket.map((e) => e.txOutputs[0]));
   const feeCollectorAddress = await getUnusedFeeAddress();
@@ -124,7 +138,7 @@ async function finalizeBatch(bucket: Psbt[], serviceFees: number) {
     bucket.map((e) => {
       const id = sha256(e.toBase64());
       return db.client.hGet(KEYS.PSBT.PREFIX + id, "index");
-    })
+    }),
   );
   signBatchedTransaction(stagedTx, indexes);
   const finalTransaction = finalize(stagedTx);

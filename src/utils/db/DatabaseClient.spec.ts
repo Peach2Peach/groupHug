@@ -1,8 +1,8 @@
 import chai, { expect } from "chai";
-import { DatabaseClient } from "./DatabaseClient";
 import * as redis from "redis";
 import Sinon from "sinon";
 import sinonChai from "sinon-chai";
+import { DatabaseClient } from "./DatabaseClient";
 import { errorListener } from "./errorListener";
 chai.use(sinonChai);
 
@@ -11,11 +11,10 @@ describe("DatabaseClient", () => {
     on: Sinon.stub(),
     connect: Sinon.stub(),
   };
-  let createClientStub: Sinon.SinonStub;
-  before(() => {
+  const createClientStub = Sinon.stub(redis, "createClient").returns(
     // @ts-ignore
-    createClientStub = Sinon.stub(redis, "createClient").returns(fakeClient);
-  });
+    fakeClient,
+  );
   after(() => {
     Sinon.restore();
   });

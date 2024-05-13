@@ -17,8 +17,10 @@ describe("getBatchStatusOverviewController", () => {
     await addPSBTToQueue(psbt1);
     const request = requestMock();
     const response = responseMock();
-    // @ts-ignore
-    await getBatchStatusOverviewController(request, response as Response);
+    await getBatchStatusOverviewController(
+      request as Parameters<typeof getBatchStatusOverviewController>[0],
+      response as Response,
+    );
 
     expect(response.json).to.be.calledWith({
       participants: 1,

@@ -25,12 +25,12 @@ describe("batchBucket", () => {
         .map(({ psbt, index }) =>
           addPSBTToQueue(
             Psbt.fromBase64(psbt, { network: networks.regtest }),
-            index
-          )
-        )
+            index,
+          ),
+        ),
     );
     getTxStub = Sinon.stub(getTx, "getTx").callsFake((txid) =>
-      Promise.resolve({ result: { ...blockExplorerData.tx, txid } })
+      Promise.resolve({ result: { ...blockExplorerData.tx, txid } }),
     );
     getUTXOStub = Sinon.stub(getUTXO, "getUTXO").callsFake(() =>
       Promise.resolve(
@@ -38,9 +38,9 @@ describe("batchBucket", () => {
           blockExplorerData.utxo.map((utxo) => ({
             ...utxo,
             txid: "379a0e107a8fdfe49f1c3286d8ab2e62506cac4864d5f6ae40a393896f3540da",
-          }))
-        )
-      )
+          })),
+        ),
+      ),
     );
   });
   after(() => {
@@ -52,16 +52,14 @@ describe("batchBucket", () => {
     const mediumFee = 21;
     const result = await batchBucket(bucket, mediumFee, false);
 
-    expect(result.isError()).to.be.true;
-    expect(result.getError()).to.equal("No psbts left to spend");
+    expect(result.error).to.equal("No psbts left to spend");
   });
   it("returns an error if no transactions are found", async () => {
     getTxStub.resolves(getResult(null));
     const mediumFee = 21;
     const result = await batchBucket(bucket, mediumFee, false);
 
-    expect(result.isError()).to.be.true;
-    expect(result.getError()).to.equal("No psbts left to spend");
+    expect(result.error).to.equal("No psbts left to spend");
   });
   it("returns an error if the transaction doesn't have a scriptpubkey_address", async () => {
     getTxStub.resolves(
@@ -71,21 +69,19 @@ describe("batchBucket", () => {
           ...vout,
           scriptpubkey_address: undefined,
         })),
-      })
+      }),
     );
     const mediumFee = 21;
     const result = await batchBucket(bucket, mediumFee, false);
 
-    expect(result.isError()).to.be.true;
-    expect(result.getError()).to.equal("No psbts left to spend");
+    expect(result.error).to.equal("No psbts left to spend");
   });
   it("returns an error if no utxos are found", async () => {
     getUTXOStub.resolves(getResult(null));
     const mediumFee = 21;
     const result = await batchBucket(bucket, mediumFee, false);
 
-    expect(result.isError()).to.be.true;
-    expect(result.getError()).to.equal("No psbts left to spend");
+    expect(result.error).to.equal("No psbts left to spend");
   });
 
   it("creates a batched transaction with all psbts and correct fee output", async () => {
@@ -93,15 +89,15 @@ describe("batchBucket", () => {
     const mediumFee = 1;
     const result = await batchBucket(bucket, mediumFee, false);
 
-    if (!result.isOk()) {
-      throw Error("batchBucket failed - " + result.getError());
+    if (!result.result) {
+      throw Error("batchBucket failed - " + result.error);
     }
-    const finalTransaction = result.getValue();
+    const { finalTransaction } = result.result;
 
     expect(finalTransaction.ins.length).to.equal(10);
     expect(finalTransaction.outs.length).to.equal(11);
     expect(finalTransaction.outs[10].script.toString("hex")).to.equal(
-      "0014c660079108cfbe1fe5278bc79eb1fee5afa9a201"
+      "0014c660079108cfbe1fe5278bc79eb1fee5afa9a201",
     );
 
     expect(finalTransaction.outs[10].value).to.equal(20000);
@@ -112,10 +108,10 @@ describe("batchBucket", () => {
     const highFee = 1;
     const result = await batchBucket(bucket.slice(0, 1), highFee, true);
 
-    if (!result.isOk()) {
-      throw Error("batchBucket failed - " + result.getError());
+    if (!result.result) {
+      throw Error("batchBucket failed - " + result.error);
     }
-    const finalTransaction = result.getValue();
+    const { finalTransaction } = result.result;
 
     expect(finalTransaction.ins.length).to.equal(1);
     expect(finalTransaction.outs.length).to.equal(1);

@@ -30,10 +30,10 @@ describe("batchTransactions", () => {
   beforeEach(async () => {
     batchBucketStub = Sinon.stub(batchBucket, "batchBucket").callThrough();
     postTxStub = Sinon.stub(postTx, "postTx").callsFake((hex) =>
-      Promise.resolve(getResult(Transaction.fromHex(hex).getId()))
+      Promise.resolve(getResult(Transaction.fromHex(hex).getId())),
     );
     Sinon.stub(getTx, "getTx").callsFake((txid) =>
-      Promise.resolve({ result: { ...blockExplorerData.tx, txid } })
+      Promise.resolve({ result: { ...blockExplorerData.tx, txid } }),
     );
     Sinon.stub(getUTXO, "getUTXO").callsFake(() =>
       Promise.resolve(
@@ -41,9 +41,9 @@ describe("batchTransactions", () => {
           blockExplorerData.utxo.map((utxo) => ({
             ...utxo,
             txid: "379a0e107a8fdfe49f1c3286d8ab2e62506cac4864d5f6ae40a393896f3540da",
-          }))
-        )
-      )
+          })),
+        ),
+      ),
     );
     await Promise.all(
       psbts.map(({ psbt }) =>
@@ -52,12 +52,12 @@ describe("batchTransactions", () => {
           revocationToken: "",
           txId: "",
           index: 1,
-        })
-      )
+        }),
+      ),
     );
     await db.transaction(async (client) => {
       await Promise.all(
-        psbts.map(({ psbt }) => client.sadd(KEYS.PSBT.QUEUE, psbt.toBase64()))
+        psbts.map(({ psbt }) => client.sadd(KEYS.PSBT.QUEUE, psbt.toBase64())),
       );
     });
   });
@@ -84,12 +84,13 @@ describe("batchTransactions", () => {
     batchBucketStub.resolves(getError("No psbts left to spend"));
     expect(await batchTransactions()).to.be.false;
   });
-  it("does not batch if the time and size threshold have not been reached", async () => {
+  it("does not batch if the time threshold has not been reached", async () => {
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
       result: feeEstimates,
     });
     await db.transaction(async (client) => {
-      await client.set(KEYS.BUCKET.EXPIRATION, "true", 0);
+      await client.set(KEYS.BUCKET.EXPIRATION, "true", constants.MSINS);
+      await client.set(KEYS.BUCKET.TIME_THRESHOLD, "true", constants.MSINS);
     });
     Sinon.stub(constants, "BATCH_SIZE_THRESHOLD").value(Infinity);
     expect(await batchTransactions()).to.be.true;

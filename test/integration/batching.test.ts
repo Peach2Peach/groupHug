@@ -32,48 +32,45 @@ describe("batching", () => {
   });
 
   it("Can combine psbts", async () => {
+    if (!buyerAddress) throw new Error("Buyer address not set");
     const signer1 = getSignerByIndex(hotWallet, psbt1.index, networks.regtest);
     const oldSigner1 = getSignerByIndex(
       oldHotWallet,
       psbt1.index,
-      networks.regtest
+      networks.regtest,
     );
     const signer2 = getSignerByIndex(hotWallet, psbt2.index, networks.regtest);
     const oldSigner2 = getSignerByIndex(
       oldHotWallet,
       psbt2.index,
-      networks.regtest
+      networks.regtest,
     );
     const signer3 = getSignerByIndex(hotWallet, psbt3.index, networks.regtest);
     const oldSigner3 = getSignerByIndex(
       oldHotWallet,
       psbt3.index,
-      networks.regtest
+      networks.regtest,
     );
     const escrowScript1 = getMultisigScript(
       seller.publicKey,
-      signer1.publicKey
+      signer1.publicKey,
     );
     const escrowScript2 = getMultisigScript(
       seller.publicKey,
-      signer2.publicKey
+      signer2.publicKey,
     );
     const escrowScript3 = getMultisigScript(
       seller.publicKey,
-      signer3.publicKey
+      signer3.publicKey,
     );
-    const fundingUTXO1 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript1)!,
-      100000
-    );
-    const fundingUTXO2 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript2)!,
-      200000
-    );
-    const fundingUTXO3 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript3)!,
-      300000
-    );
+    const address1 = getAddressFromScript(escrowScript1);
+    const address2 = getAddressFromScript(escrowScript2);
+    const address3 = getAddressFromScript(escrowScript3);
+    if (!address1 || !address2 || !address3)
+      throw new Error("Addresses not set");
+    const fundingUTXO1 = await regtestUtils.faucet(address1, 100000);
+    const fundingUTXO2 = await regtestUtils.faucet(address2, 200000);
+    const fundingUTXO3 = await regtestUtils.faucet(address3, 300000);
     const transaction1 = buildPSBT(escrowScript1, fundingUTXO1, buyerAddress);
     const transaction2 = buildPSBT(escrowScript2, fundingUTXO2, buyerAddress);
     const transaction3 = buildPSBT(escrowScript3, fundingUTXO3, buyerAddress);
@@ -82,18 +79,20 @@ describe("batching", () => {
       tx.txInputs.forEach((input, i) => {
         tx.updateInput(i, { sighashType: SIGHASH.SINGLE_ANYONECANPAY });
         tx.signInput(i, seller, [SIGHASH.SINGLE_ANYONECANPAY]);
-      })
+      }),
     );
 
     const batchedTransaction = new Psbt({ network: networks.regtest });
     const txs = [transaction1, transaction2, transaction3];
     batchedTransaction.addInputs(
-      txs.map((tx) => ({ ...tx.txInputs[0], ...tx.data.inputs[0] }))
+      txs.map((tx) => ({ ...tx.txInputs[0], ...tx.data.inputs[0] })),
     );
     batchedTransaction.addOutputs(txs.map((tx) => tx.txOutputs[0]));
+    const feeAddress = getFeeAddress();
+    if (!feeAddress) throw new Error("Fee address not set");
 
     batchedTransaction.addOutput({
-      address: getFeeAddress()!,
+      address: feeAddress,
       value:
         (fundingUTXO1.value + fundingUTXO2.value + fundingUTXO3.value) * 0.02,
     });
@@ -137,48 +136,45 @@ describe("batching", () => {
   });
 
   it("Can combine psbts with different signers", async () => {
+    if (!buyerAddress) throw new Error("Buyer address not set");
     const signer1 = getSignerByIndex(hotWallet, psbt1.index, networks.regtest);
     const oldSigner1 = getSignerByIndex(
       oldHotWallet,
       psbt1.index,
-      networks.regtest
+      networks.regtest,
     );
     const signer2 = getSignerByIndex(hotWallet, psbt2.index, networks.regtest);
     const oldSigner2 = getSignerByIndex(
       oldHotWallet,
       psbt2.index,
-      networks.regtest
+      networks.regtest,
     );
     const signer3 = getSignerByIndex(hotWallet, psbt3.index, networks.regtest);
     const oldSigner3 = getSignerByIndex(
       oldHotWallet,
       psbt3.index,
-      networks.regtest
+      networks.regtest,
     );
     const escrowScript1 = getMultisigScript(
       seller.publicKey,
-      signer1.publicKey
+      signer1.publicKey,
     );
     const escrowScript2 = getMultisigScript(
       seller.publicKey,
-      oldSigner2.publicKey
+      oldSigner2.publicKey,
     );
     const escrowScript3 = getMultisigScript(
       seller.publicKey,
-      signer3.publicKey
+      signer3.publicKey,
     );
-    const fundingUTXO1 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript1)!,
-      100000
-    );
-    const fundingUTXO2 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript2)!,
-      200000
-    );
-    const fundingUTXO3 = await regtestUtils.faucet(
-      getAddressFromScript(escrowScript3)!,
-      300000
-    );
+    const address1 = getAddressFromScript(escrowScript1);
+    const address2 = getAddressFromScript(escrowScript2);
+    const address3 = getAddressFromScript(escrowScript3);
+    if (!address1 || !address2 || !address3)
+      throw new Error("Addresses not set");
+    const fundingUTXO1 = await regtestUtils.faucet(address1, 100000);
+    const fundingUTXO2 = await regtestUtils.faucet(address2, 200000);
+    const fundingUTXO3 = await regtestUtils.faucet(address3, 300000);
     const transaction1 = buildPSBT(escrowScript1, fundingUTXO1, buyerAddress);
     const transaction2 = buildPSBT(escrowScript2, fundingUTXO2, buyerAddress);
     const transaction3 = buildPSBT(escrowScript3, fundingUTXO3, buyerAddress);
@@ -187,18 +183,19 @@ describe("batching", () => {
       tx.txInputs.forEach((input, i) => {
         tx.updateInput(i, { sighashType: SIGHASH.SINGLE_ANYONECANPAY });
         tx.signInput(i, seller, [SIGHASH.SINGLE_ANYONECANPAY]);
-      })
+      }),
     );
 
     const batchedTransaction = new Psbt({ network: networks.regtest });
     const txs = [transaction1, transaction2, transaction3];
     batchedTransaction.addInputs(
-      txs.map((tx) => ({ ...tx.txInputs[0], ...tx.data.inputs[0] }))
+      txs.map((tx) => ({ ...tx.txInputs[0], ...tx.data.inputs[0] })),
     );
     batchedTransaction.addOutputs(txs.map((tx) => tx.txOutputs[0]));
-
+    const feeAddress = getFeeAddress();
+    if (!feeAddress) throw new Error("Fee address not set");
     batchedTransaction.addOutput({
-      address: getFeeAddress()!,
+      address: feeAddress,
       value:
         (fundingUTXO1.value + fundingUTXO2.value + fundingUTXO3.value) * 0.02,
     });

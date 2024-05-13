@@ -15,14 +15,15 @@ export const buildPSBT = (
       network: networks.regtest,
     },
   });
+  if (!p2wsh.redeem?.output) throw new Error("No redeem output");
 
   psbt.addInput({
     hash: fundingTx.txId,
     index: fundingTx.vout,
-    witnessScript: p2wsh.redeem!.output!,
+    witnessScript: p2wsh.redeem.output,
     witnessUtxo: {
       script: Buffer.from(
-        "0020" + crypto.sha256(p2wsh.redeem!.output!).toString("hex"),
+        "0020" + crypto.sha256(p2wsh.redeem.output).toString("hex"),
         "hex",
       ),
       value: fundingTx.value,

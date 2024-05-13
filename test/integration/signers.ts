@@ -11,7 +11,7 @@ export const buyer = ECPair.fromWIF(
 export const buyerAddress = payments.p2wpkh({
   pubkey: buyer.publicKey,
   network: regtest,
-}).address!;
+}).address;
 
 export const seller = ECPair.fromWIF(
   "cMkopUXKWsEzAjfa1zApksGRwjVpJRB3831qM9W4gKZsLwjHXA9x",

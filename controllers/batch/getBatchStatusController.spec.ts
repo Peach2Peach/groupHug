@@ -21,10 +21,13 @@ chai.use(sinonChai);
 describe("getBatchStatusController", () => {
   it("returns batch status of an ongoing batch for given psbt id", async () => {
     const { result } = await addPSBTToQueue(psbt1, 1);
-    const request = requestMock({ query: { id: result!.id } });
+    if (!result) throw new Error("Result should not be null");
+    const request = requestMock({ query: { id: result.id } });
     const response = responseMock();
-    // @ts-ignore
-    await getBatchStatusController(request, response as Response);
+    await getBatchStatusController(
+      request as Parameters<typeof getBatchStatusController>[0],
+      response as Response,
+    );
 
     expect(response.json).to.be.calledWith({
       participants: 1,
@@ -39,6 +42,7 @@ describe("getBatchStatusController", () => {
   it("returns batch status of a completed batch for given psbt id", async () => {
     const txId = "txId";
     const { result } = await addPSBTToQueue(psbt1, 1);
+    if (!result) throw new Error("Result should not be null");
     await db.transaction(async (client) => {
       await addPSBTToBatchWithClient(client, txId, psbt1.toBase64());
       await client.srem(KEYS.PSBT.QUEUE, psbt1.toBase64());
@@ -46,10 +50,12 @@ describe("getBatchStatusController", () => {
     Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
       result: feeEstimates,
     });
-    const request = requestMock({ query: { id: result!.id } });
+    const request = requestMock({ query: { id: result.id } });
     const response = responseMock();
-    // @ts-ignore
-    await getBatchStatusController(request, response as Response);
+    await getBatchStatusController(
+      request as Parameters<typeof getBatchStatusController>[0],
+      response as Response,
+    );
 
     expect(response.json).to.be.calledWith({
       participants: 1,

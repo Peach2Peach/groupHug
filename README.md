@@ -6,9 +6,13 @@ The PSBTs have to be payouts in full (ie no change). Otherwise, the change outpu
 In other words, only PSBTs with 1 input and 1 output are accepted.
 The PSBT inputs have to be signed with SINGLE|ANYONECANPAY sig hash.
 
-The batching server collects all PSBTs and when a threshold is reached, all PSBTs are combined, an extra fee output added and then each input is signed by the server with the default ALL sig hash.
+The batching server collects all PSBTs and attemps a batch after at least 24 hours. Then all PSBTs are combined, an extra fee output is added and each input is signed by the server with the default ALL sig hash.
 
-The batching server will also add one additional output for optional donations to the service. The extra output value is calculated by summing up all inputs and subtracting the mining fees.
+The additional output is the 2% service fee. A batch happens, when this service fee meets a mininmum amount threshold, but at most after 1 week.
+The mining fee used by the batching server is the halfHourFee and is paid using the diff between input and output + service fee.
+PSBTs are sorted by their density `serviceFees / ( 1 / feeRate )` and then are attempted to be batched in this order. If a PSBT would cause the bucket to drop below the minimum mining fee rate, it is skipped.
+
+PSBTs can always be revoked by the user, using the revocation token.
 
 ## Prerequisites
 

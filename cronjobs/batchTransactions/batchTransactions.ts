@@ -21,37 +21,34 @@ export const batchTransactions = async () => {
     return false;
   }
 
-  const base64PSBTs = await db.smembers(KEYS.PSBT.QUEUE);
+  const queuedBase64PSBTs = await db.smembers(KEYS.PSBT.QUEUE);
   const bucketIsExpired = !(await db.exists(KEYS.BUCKET.EXPIRATION));
-  const timeThresholdReached = await db.exists(KEYS.BUCKET.TIME_THRESHOLD);
+  const timeThresholdReached = !(await db.exists(KEYS.BUCKET.TIME_THRESHOLD));
 
   const result = await (async () => {
     if (
       (!timeThresholdReached && !bucketIsExpired) ||
-      base64PSBTs.length === 0
+      queuedBase64PSBTs.length === 0
     ) {
       logger.info(["Bucket not ready to be batched"]);
       return true;
     }
     logger.info([
-      "Attempting batch with " + base64PSBTs.length + " PSBTs in queue",
+      "Attempting batch with " + queuedBase64PSBTs.length + " PSBTs in queue",
     ]);
     const batchBucketResult = await batchBucket(
-      base64PSBTs,
+      queuedBase64PSBTs,
       feeEstimatesResult.result.halfHourFee,
-      bucketIsExpired
+      bucketIsExpired,
     );
 
-    if (!batchBucketResult.isOk()) {
-      logger.error([
-        "Could not batch transaction",
-        batchBucketResult.getError(),
-      ]);
-      logger.error([JSON.stringify(base64PSBTs)]);
+    if (!batchBucketResult.result) {
+      logger.error(["Could not batch transaction - ", batchBucketResult.error]);
+      logger.error([JSON.stringify(queuedBase64PSBTs)]);
       return false;
     }
-    const batchedTransaction = batchBucketResult.getValue();
-    const postTxResult = await postTx(batchedTransaction.toHex());
+    const { finalTransaction, bucket } = batchBucketResult.result;
+    const postTxResult = await postTx(finalTransaction.toHex());
 
     if (postTxResult.isOk()) {
       logger.info(["Batch transaction succesfully broadcasted"]);
@@ -62,19 +59,20 @@ export const batchTransactions = async () => {
         await client.set(
           KEYS.BUCKET.TIME_THRESHOLD,
           "true",
-          BATCH_TIME_THRESHOLD * MSINS
+          BATCH_TIME_THRESHOLD * MSINS,
         );
         await client.set(
           KEYS.BUCKET.EXPIRATION,
           "true",
-          BATCH_EXPIRATION_TIME * MSINS
+          BATCH_EXPIRATION_TIME * MSINS,
         );
+        const base64Bucket = bucket.map((psbt) => psbt.toBase64());
         await Promise.all(
-          base64PSBTs.map((psbt) =>
-            addPSBTToBatchWithClient(client, txId, psbt)
-          )
+          base64Bucket.map((psbt) =>
+            addPSBTToBatchWithClient(client, txId, psbt),
+          ),
         );
-        await client.srem(KEYS.PSBT.QUEUE, base64PSBTs);
+        await client.srem(KEYS.PSBT.QUEUE, base64Bucket);
       });
 
       return transactionResult.ok;
@@ -83,18 +81,23 @@ export const batchTransactions = async () => {
     logger.error([
       "Could not broadcast batched transaction",
       JSON.stringify(postTxResult.getError()),
-      batchedTransaction.toHex(),
+      finalTransaction.toHex(),
     ]);
-    logger.error([JSON.stringify(base64PSBTs)]);
+    logger.error([JSON.stringify(queuedBase64PSBTs)]);
     return false;
   })();
 
-  if (bucketIsExpired) {
+  if (queuedBase64PSBTs.length === 0) {
     await db.transaction(async (client) => {
+      await client.set(
+        KEYS.BUCKET.TIME_THRESHOLD,
+        "true",
+        BATCH_TIME_THRESHOLD * MSINS,
+      );
       await client.set(
         KEYS.BUCKET.EXPIRATION,
         "true",
-        BATCH_EXPIRATION_TIME * MSINS
+        BATCH_EXPIRATION_TIME * MSINS,
       );
     });
   }

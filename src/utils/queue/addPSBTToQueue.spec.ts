@@ -9,7 +9,8 @@ describe("addPSBTToQueue", () => {
   it("stores psbt with fee rate to queue in database", async () => {
     const base64 = psbt1.toBase64();
     const { result } = await addPSBTToQueue(psbt1, index);
-    const { id, revocationToken } = result!;
+    if (!result) throw new Error("Result should not be null");
+    const { id, revocationToken } = result;
     expect(await db.smembers(KEYS.PSBT.QUEUE)).to.deep.equal([base64]);
     expect(await db.hgetall(KEYS.PSBT.PREFIX + id)).to.deep.equal({
       psbt: base64,
