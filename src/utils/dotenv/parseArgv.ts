@@ -1,1 +1,1 @@
-export const parseArgv = require('minimist')
+export const parseArgv = require("minimist");

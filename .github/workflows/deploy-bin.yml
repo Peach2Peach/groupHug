@@ -7,12 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       server:
-        description: 'The server to deploy to'
+        description: "The server to deploy to"
         required: true
         type: string
       bin-folder:
-        description: 'The directory where the current deploy is'
-        default: '~/grouphug'
+        description: "The directory where the current deploy is"
+        default: "~/grouphug"
         required: true
         type: string
 
@@ -23,12 +23,12 @@ jobs:
     env:
       NODE_ENV: development
       NETWORK: regtest
-      FEE: 2
-      LOGLEVEL_ERROR: ''
-      LOGLEVEL_WARN: ''
-      LOGLEVEL_HTTP: ''
-      LOGLEVEL_INFO: ''
-      LOGLEVEL_DEBUG: ''
+      FEE: 0.02
+      LOGLEVEL_ERROR: ""
+      LOGLEVEL_WARN: ""
+      LOGLEVEL_HTTP: ""
+      LOGLEVEL_INFO: ""
+      LOGLEVEL_DEBUG: ""
     runs-on: ubuntu-latest
 
     strategy:
@@ -42,7 +42,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          cache: "npm"
       - name: Start Redis v${{ matrix.redis-version }}
         uses: superchargejs/redis-github-action@1.1.0
         with:
@@ -75,8 +75,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.DEPLOY_REGTEST }}
           port: 22
-          source: '*'
-          target: '~/tmp-grouphug-bins'
+          source: "*"
+          target: "~/tmp-grouphug-bins"
           overwrite: true
       - name: Deploy using ssh
         uses: appleboy/ssh-action@master

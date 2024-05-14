@@ -1,5 +1,5 @@
-declare type JobEvent = {
-  date: Date
-  status: 'RUNNING' | 'OK' | 'ERROR'
-  runningTime?: number
-}
+type JobEvent = {
+  date: Date;
+  status: "RUNNING" | "OK" | "ERROR";
+  runningTime?: number;
+};

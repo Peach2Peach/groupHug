@@ -1,4 +1,4 @@
-import { Psbt } from 'bitcoinjs-lib'
-import { sum } from '../../../src/utils/math'
+import { Psbt } from "bitcoinjs-lib";
 
-export const sumPSBTOutputValues = (psbt: Psbt) => psbt.txOutputs.map((u) => u.value).reduce(sum, 0)
+export const sumPSBTOutputValues = (psbt: Psbt) =>
+  psbt.txOutputs.reduce((sum, u) => sum + u.value, 0);

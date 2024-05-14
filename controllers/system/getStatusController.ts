@@ -1,9 +1,12 @@
-import { GetStatusRequest, GetStatusResponse } from './types'
+import { GetStatusRequest, GetStatusResponse } from "./types";
 
-export const getStatusController = (req: GetStatusRequest, res: GetStatusResponse) => {
+export const getStatusController = (
+  req: GetStatusRequest,
+  res: GetStatusResponse,
+) => {
   res.json({
     error: null,
-    status: 'online',
+    status: "online",
     serverTime: Date.now(),
-  })
-}
+  });
+};

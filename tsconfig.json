@@ -3,13 +3,18 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "target": "es6",
+    "strict": true,
     "noImplicitAny": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "sourceMap": true,
     "skipLibCheck": true,
     "outDir": "dist",
-    "typeRoots": ["./controllers/@types", "./src/@types", "./node_modules/@types"],
+    "typeRoots": [
+      "./controllers/@types",
+      "./src/@types",
+      "./node_modules/@types"
+    ],
     "paths": {
       "*": ["./node_modules/*"]
     }
@@ -25,6 +30,7 @@
     "devUtils/dataMigration",
     "devUtils/utilScripts",
     "test",
-    "server.ts"
+    "server.ts",
+    ".eslintrc.cjs"
   ]
 }

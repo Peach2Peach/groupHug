@@ -1,13 +1,13 @@
-import { RegtestUtils } from 'regtest-client'
+import { RegtestUtils } from "regtest-client";
 
-const APIPASS = 'satoshi'
-const APIURL = 'http://localhost:8082/1'
+const APIPASS = "satoshi";
+const APIURL = "http://localhost:8082/1";
 
 export interface Unspent {
-  value: number
-  txId: string
-  vout: number
-  address?: string
-  height?: number
+  value: number;
+  txId: string;
+  vout: number;
+  address?: string;
+  height?: number;
 }
-export const regtestUtils = new RegtestUtils({ APIPASS, APIURL })
+export const regtestUtils = new RegtestUtils({ APIPASS, APIURL });

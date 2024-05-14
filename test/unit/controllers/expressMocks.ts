@@ -1,8 +1,8 @@
-import { Request, Response } from 'express'
-import sinon from 'sinon'
+import { Request, Response } from "express";
+import sinon from "sinon";
 
 export const requestMock = (options = {}): Partial<Request> => {
-  const ret = {}
+  const ret = {};
   return Object.assign(
     ret,
     {
@@ -19,11 +19,11 @@ export const requestMock = (options = {}): Partial<Request> => {
       query: {},
     },
     options,
-  )
-}
+  );
+};
 
 export const responseMock = (options = {}): Partial<Response> => {
-  const ret = {}
+  const ret = {};
   return Object.assign(
     ret,
     {
@@ -52,5 +52,5 @@ export const responseMock = (options = {}): Partial<Response> => {
       writeHead: sinon.stub().returns(ret),
     },
     options,
-  )
-}
+  );
+};
