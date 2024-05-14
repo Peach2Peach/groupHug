@@ -1,5 +1,5 @@
-import { isProduction } from "../system";
+import { NODE_ENV } from "../../../constants";
 import { LogLevel } from "./logLevels";
 
 export const getDefaultLevel = (): LogLevel =>
-  isProduction() ? "warn" : "info";
+  NODE_ENV === "production" ? "warn" : "info";
