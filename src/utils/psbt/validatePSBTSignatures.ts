@@ -1,5 +1,5 @@
 import { Psbt } from "bitcoinjs-lib";
-import { signatureValidator } from "../bitcoin";
+import { signatureValidator } from "../bitcoin/signatureValidator";
 
 export const validatePSBTSignatures = (psbt: Psbt) => {
   try {

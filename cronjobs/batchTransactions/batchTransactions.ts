@@ -6,6 +6,7 @@ import {
 import { addPSBTToBatchWithClient } from "../../src/utils/batch/addPSBTToBatchWithClient";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
+import { SubClient } from "../../src/utils/db/SubClient";
 import { getFeeEstimates } from "../../src/utils/electrs/getFeeEstimates";
 import { postTx } from "../../src/utils/electrs/postTx";
 import getLogger from "../../src/utils/logger";
@@ -56,16 +57,7 @@ export const batchTransactions = async () => {
       const txId = postTxResult.getValue();
       const transactionResult = await db.transaction(async (client) => {
         await client.incr(KEYS.FEE.INDEX);
-        await client.set(
-          KEYS.BUCKET.TIME_THRESHOLD,
-          "true",
-          BATCH_TIME_THRESHOLD * MSINS,
-        );
-        await client.set(
-          KEYS.BUCKET.EXPIRATION,
-          "true",
-          BATCH_EXPIRATION_TIME * MSINS,
-        );
+        await resetExpiration(client);
         const base64Bucket = bucket.map((psbt) => psbt.toBase64());
         await Promise.all(
           base64Bucket.map((psbt) =>
@@ -88,19 +80,21 @@ export const batchTransactions = async () => {
   })();
 
   if (queuedBase64PSBTs.length === 0) {
-    await db.transaction(async (client) => {
-      await client.set(
-        KEYS.BUCKET.TIME_THRESHOLD,
-        "true",
-        BATCH_TIME_THRESHOLD * MSINS,
-      );
-      await client.set(
-        KEYS.BUCKET.EXPIRATION,
-        "true",
-        BATCH_EXPIRATION_TIME * MSINS,
-      );
-    });
+    await db.transaction((client) => resetExpiration(client));
   }
 
   return result;
 };
+
+async function resetExpiration(client: SubClient) {
+  await client.set(
+    KEYS.BUCKET.TIME_THRESHOLD,
+    "true",
+    BATCH_TIME_THRESHOLD * MSINS,
+  );
+  await client.set(
+    KEYS.BUCKET.EXPIRATION,
+    "true",
+    BATCH_EXPIRATION_TIME * MSINS,
+  );
+}

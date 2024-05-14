@@ -7,7 +7,7 @@ import { logger } from "../batchTransactions";
 
 export const signBatchedTransaction = (
   batchedTransaction: Psbt,
-  indexes: (string | undefined)[]
+  indexes: (string | undefined)[],
 ) => {
   batchedTransaction.txInputs.forEach((_input, i) => {
     const index = indexes[i];
@@ -41,7 +41,7 @@ export const signBatchedTransaction = (
 function updateAndSign(
   batchedTransaction: Psbt,
   i: number,
-  signer: BIP32Interface
+  signer: BIP32Interface,
 ) {
   delete batchedTransaction.data.inputs[i].sighashType;
   batchedTransaction.updateInput(i, { sighashType: SIGHASH.ALL });
