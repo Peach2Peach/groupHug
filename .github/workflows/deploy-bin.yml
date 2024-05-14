@@ -23,7 +23,7 @@ jobs:
     env:
       NODE_ENV: development
       NETWORK: regtest
-      FEE: 2
+      FEE: 0.02
       LOGLEVEL_ERROR: ""
       LOGLEVEL_WARN: ""
       LOGLEVEL_HTTP: ""
