@@ -43,7 +43,7 @@ The following are used to connect to the database
 
 - `BATCH_TIME_THRESHOLD`: minimum time in seconds before a batch is attempted (default `86400`)
 - `BATCH_EXPIRATION_TIME`: maximum time in seconds before a batch will be completed (default `604800`)
-- `FEE`: the fees we take for our service (default `2`)
+- `FEE`: the fees we take for our service (default `0.02`)
 
 Multisig related variables
 
