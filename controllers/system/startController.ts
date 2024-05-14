@@ -1,8 +1,4 @@
-import {
-  BATCH_SIZE_THRESHOLD,
-  BATCH_TIME_THRESHOLD,
-  NETWORK,
-} from "../../constants";
+import { BATCH_TIME_THRESHOLD, NETWORK } from "../../constants";
 import { initJobs } from "../../cronjobs/initJobs";
 import { initDatabase } from "../../src/utils/db";
 import getLogger from "../../src/utils/logger";
@@ -23,14 +19,13 @@ export const startServer = async (password: string) => {
 
     serverLogger.info("GroupHug Server initialised!");
     serverLogger.info(["BATCH_TIME_THRESHOLD", BATCH_TIME_THRESHOLD]);
-    serverLogger.info(["BATCH_SIZE_THRESHOLD", BATCH_SIZE_THRESHOLD]);
   }
   return decrypted;
 };
 
 export const startController = async (
   req: StartRequest,
-  res: StartResponse
+  res: StartResponse,
 ) => {
   if (decrypted) {
     return res.json({ success: true });

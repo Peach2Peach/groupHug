@@ -10,7 +10,7 @@ The batching server collects all PSBTs and attemps a batch after at least 24 hou
 
 The additional output is the 2% service fee. A batch happens, when this service fee meets a mininmum amount threshold, but at most after 1 week.
 The mining fee used by the batching server is the halfHourFee and is paid using the diff between input and output + service fee.
-PSBTs are sorted by their density `serviceFees / ( 1 / feeRate )` and then are attempted to be batched in this order. If a PSBT would cause the bucket to drop below the minimum mining fee rate, it is skipped.
+PSBTs are sorted by their density `serviceFees / ( 1 / feeRate )` and then are attempted to be batched in descending order. If a PSBT would cause the bucket to drop below the minimum mining fee rate, it is skipped.
 
 PSBTs can always be revoked by the user, using the revocation token.
 
@@ -41,7 +41,6 @@ The following are used to connect to the database
 - `DB_HOST`: ip, url to database (default: `localhost`)
 - `DB_PORT`: port to database (default: `6379`)
 
-- `BATCH_SIZE_THRESHOLD`: number of entries in bucket that trigger batch when reached (default `100`)
 - `BATCH_TIME_THRESHOLD`: minimum time in seconds before a batch is attempted (default `86400`)
 - `BATCH_EXPIRATION_TIME`: maximum time in seconds before a batch will be completed (default `604800`)
 - `FEE`: the fees we take for our service (default `2`)
@@ -55,6 +54,7 @@ Multisig related variables
 - `MAXREQUESTRATE`: how many requests per IP address per second (default: `1000`)
 
 - `BLOCKEXPLORERURL`: the blockexplorer used in the background (default: `http://127.0.0.1:3002`)
+- `MEMPOOL_URL`: used for getting fee estimates (default: `https://mempool.space/api`)
 
 The following are used to set the loglevels of various log categories (see code for which categories exist)
 
@@ -63,8 +63,6 @@ The following are used to set the loglevels of various log categories (see code 
 - `LOGLEVEL_HTTP`: comma separated list of http log categories
 - `LOGLEVEL_WARN`: comma separated list of warn log categories
 - `LOGLEVEL_ERROR`: comma separated list of error log categories
-
-- `LATESTAPPVERSION`: used to inform the user about updates (e.g. `0.1.1`)
 
 The following are used for regtest
 

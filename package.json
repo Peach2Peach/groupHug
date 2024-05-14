@@ -11,9 +11,9 @@
     "build:clean": "if [ -d ./dist ]; then find ./dist -regex '.*\\(js\\|map\\)$' -delete; fi",
     "build-bin": "npm run build && pkg -C Brotli . && for i in ./dist/devUtils/dataMigration/*.js; do if [ -e $i ]; then pkg -C Brotli --targets node16-linux-x64 --out-path ./bin $i; fi; done",
     "lint": "eslint './**/*.{js,ts}'",
-    "test": "BATCH_SIZE_THRESHOLD=10 BATCH_TIME_THRESHOLD=600 TS_NODE_TRANSPILE_ONLY=true nyc mocha --parallel --jobs 3 -r ts-node/register --require ./test/unit/hooks.ts \"./{,!(test|node_modules)/**}/*.spec.ts\" --exit",
-    "test:ci": "BATCH_SIZE_THRESHOLD=10 BATCH_TIME_THRESHOLD=600 TS_NODE_TRANSPILE_ONLY=true nyc mocha --parallel --jobs 3 --timeout 5000 -r ts-node/register --require ./test/unit/hooks.ts \"./{,!(test|node_modules)/**}/*.spec.ts\" --exit",
-    "test:single": "BATCH_SIZE_THRESHOLD=10 BATCH_TIME_THRESHOLD=600  TS_NODE_TRANSPILE_ONLY=true nyc mocha -r ts-node/register --require ./test/unit/hooks.ts --exit",
+    "test": "BATCH_TIME_THRESHOLD=600 TS_NODE_TRANSPILE_ONLY=true nyc mocha --parallel --jobs 3 -r ts-node/register --require ./test/unit/hooks.ts \"./{,!(test|node_modules)/**}/*.spec.ts\" --exit",
+    "test:ci": "BATCH_TIME_THRESHOLD=600 TS_NODE_TRANSPILE_ONLY=true nyc mocha --parallel --jobs 3 --timeout 5000 -r ts-node/register --require ./test/unit/hooks.ts \"./{,!(test|node_modules)/**}/*.spec.ts\" --exit",
+    "test:single": "BATCH_TIME_THRESHOLD=600  TS_NODE_TRANSPILE_ONLY=true nyc mocha -r ts-node/register --require ./test/unit/hooks.ts --exit",
     "integration": "mocha --timeout 10000000 -r ts-node/register ./test/integration/**/*.test.ts --exit",
     "tsc": "tsc"
   },

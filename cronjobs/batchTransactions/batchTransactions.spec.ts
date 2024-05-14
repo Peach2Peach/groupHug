@@ -92,7 +92,6 @@ describe("batchTransactions", () => {
       await client.set(KEYS.BUCKET.EXPIRATION, "true", constants.MSINS);
       await client.set(KEYS.BUCKET.TIME_THRESHOLD, "true", constants.MSINS);
     });
-    Sinon.stub(constants, "BATCH_SIZE_THRESHOLD").value(Infinity);
     expect(await batchTransactions()).to.be.true;
     expect(batchBucketStub).to.have.not.been.called;
   });
