@@ -2,24 +2,8 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "mocha";
 import { sleep } from "../../../test/unit/helpers/sleep";
-import { db } from "../db";
-import { KEYS } from "../db/keys";
+import { getJobHistory } from "./getJobHistory";
 import { logJobExecution } from "./logJobExecution";
-
-const getJobHistory = async (jobId: string): Promise<JobEvent[]> => {
-  const jobHistory = await db.zrange(KEYS.JOB.PREFIX + jobId);
-
-  return jobHistory
-    .map((job) => {
-      const [date, status, runningTime] = job.split("::");
-      return {
-        date: new Date(Number(date)),
-        status: status as JobEvent["status"],
-        runningTime: runningTime ? Number(runningTime) : undefined,
-      };
-    })
-    .reverse();
-};
 
 describe("logJobExecution", () => {
   it("logs the execution of a successful job run", async () => {
