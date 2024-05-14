@@ -5,7 +5,7 @@ import { sumPSBTInputValues } from "./helpers/sumPSBTInputValues";
 export function getServiceFees(psbts: Psbt[]) {
   const inputSum = psbts.reduce(
     (sum, psbt) => sum + sumPSBTInputValues(psbt),
-    0
+    0,
   );
-  return Math.round(inputSum * (FEE / 100));
+  return Math.round(inputSum * FEE);
 }

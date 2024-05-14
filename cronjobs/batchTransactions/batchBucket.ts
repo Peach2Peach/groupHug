@@ -94,7 +94,7 @@ async function mapPSBTToDensity(psbt: Psbt) {
     );
   }
   const tx = finalize(psbtCopy);
-  const serviceFees = Math.round(inputValues * (FEE / 100));
+  const serviceFees = Math.round(inputValues * FEE);
   const miningFees = psbtCopy.getFee() - serviceFees;
   const feeRate = miningFees / tx.virtualSize();
   return {
