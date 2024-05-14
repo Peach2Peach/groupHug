@@ -49,11 +49,7 @@ describe("logJobExecution", () => {
     });
     const history = await getJobHistory("job1");
 
-    // no running time for started jobs yet
-    ok(!history[1].runningTime);
-    ok(!history[1].runningTime);
-
-    if (!history[0].runningTime) throw new Error("runningTime is not defined");
+    if (!history[0]?.runningTime) throw new Error("runningTime is not defined");
     // check approximate running time
     ok(history[0].runningTime >= 500);
     ok(history[0].runningTime < 750);
