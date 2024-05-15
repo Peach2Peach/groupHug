@@ -28,7 +28,7 @@ export const getBatchStatusOverviewController = async (_req: Req, res: Res) => {
   return res.json({
     participants: transactionsInQueue,
     maxParticipants: transactionsInQueue,
-    timeRemaining: maximumWaitTime,
+    timeRemaining: minimumWaitTime,
     minimumWaitTime,
     maximumWaitTime,
     transactionsInQueue,
