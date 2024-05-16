@@ -44,7 +44,9 @@ export const batchTransactions = async () => {
     );
 
     if (!batchBucketResult.result) {
-      logger.error(["Could not batch transaction - ", batchBucketResult.error]);
+      logger.error([
+        "Could not batch transaction - " + batchBucketResult.error,
+      ]);
       logger.error([JSON.stringify(queuedBase64PSBTs)]);
       return false;
     }
