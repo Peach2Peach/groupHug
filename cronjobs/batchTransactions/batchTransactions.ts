@@ -82,6 +82,7 @@ export const batchTransactions = async () => {
       const text = `
         Batch transaction succesfully broadcasted with txid: ${txId}
         You can view it [here](https://mempool.space/tx/${txId})
+        Transactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}
         Service fees collected: ${serviceFees}
         Mining fees saved: ${assumedMiningFees - miningFees}
         Savings percentage: ${savingsPercentage}%
