@@ -2,6 +2,7 @@ import {
   BATCH_EXPIRATION_TIME,
   BATCH_TIME_THRESHOLD,
   MSINS,
+  NODE_ENV,
   webhook,
 } from "../../constants";
 import { addPSBTToBatchWithClient } from "../../src/utils/batch/addPSBTToBatchWithClient";
@@ -86,11 +87,12 @@ export const batchTransactions = async () => {
       const text = `Batch transaction succesfully broadcasted!\nYou can view it here: https://mempool.space/tx/${txId}\nTransactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}\nService fees collected: ${serviceFees}\nMining fees saved: ${assumedMiningFees - miningFees}\nSavings percentage: ${savingsPercentage}%`;
 
       logger.info([text]);
-      await webhook.send({
-        text,
-        username: "GroupHug",
-        icon_emoji: ":rocket:",
-      });
+      if (NODE_ENV === "production") {
+        await webhook.send({
+          text,
+          icon_emoji: ":rocket:",
+        });
+      }
 
       return transactionResult.ok;
     }
