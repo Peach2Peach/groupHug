@@ -2,6 +2,8 @@ import {
   BATCH_EXPIRATION_TIME,
   BATCH_TIME_THRESHOLD,
   MSINS,
+  NODE_ENV,
+  webhook,
 } from "../../constants";
 import { addPSBTToBatchWithClient } from "../../src/utils/batch/addPSBTToBatchWithClient";
 import { db } from "../../src/utils/db";
@@ -13,6 +15,10 @@ import getLogger from "../../src/utils/logger";
 import { batchBucket } from "./batchBucket";
 
 export const logger = getLogger("job", "batchTransactions");
+
+const ESTIMATED_BYTES_PER_REGULAR_TX = 170;
+const BASE = 10;
+const CENT = 100;
 
 export const batchTransactions = async () => {
   const feeEstimatesResult = await getFeeEstimates();
@@ -50,13 +56,13 @@ export const batchTransactions = async () => {
       logger.error([JSON.stringify(queuedBase64PSBTs)]);
       return false;
     }
-    const { finalTransaction, bucket } = batchBucketResult.result;
+    const { finalTransaction, bucket, serviceFees, finalFeeRate, miningFees } =
+      batchBucketResult.result;
     const postTxResult = await postTx(finalTransaction.toHex());
 
     if (postTxResult.isOk()) {
-      logger.info(["Batch transaction succesfully broadcasted"]);
-
       const txId = postTxResult.getValue();
+
       const transactionResult = await db.transaction(async (client) => {
         await client.incr(KEYS.FEE.INDEX);
         await resetExpiration(client);
@@ -68,6 +74,25 @@ export const batchTransactions = async () => {
         );
         await client.srem(KEYS.PSBT.QUEUE, base64Bucket);
       });
+
+      const assumedMiningFees =
+        finalFeeRate * bucket.length * ESTIMATED_BYTES_PER_REGULAR_TX;
+      const DIGITS_AFTER_DECIMAL = 3;
+      const savingsPercentage =
+        (Math.round(
+          (1 - miningFees / assumedMiningFees) * BASE ** DIGITS_AFTER_DECIMAL,
+        ) /
+          BASE ** DIGITS_AFTER_DECIMAL) *
+        CENT;
+      const text = `Batch transaction succesfully broadcasted!\nYou can view it here: https://mempool.space/tx/${txId}\nTransactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}\nService fees collected: ${serviceFees}\nMining fees saved: ${assumedMiningFees - miningFees}\nSavings percentage: ${savingsPercentage}%`;
+
+      logger.info([text]);
+      if (NODE_ENV === "production") {
+        await webhook.send({
+          text,
+          icon_emoji: ":rocket:",
+        });
+      }
 
       return transactionResult.ok;
     }

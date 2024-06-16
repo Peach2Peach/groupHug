@@ -10,6 +10,7 @@ import { isDefined } from "../../src/utils/validation";
 import { feeWallet } from "../../src/wallets/feeWallet";
 import { getSignerByIndex } from "../../src/wallets/getSignerByIndex";
 import { hotWallet, oldHotWallet } from "../../src/wallets/hotWallet";
+import { logger } from "./batchTransactions";
 import { getServiceFees } from "./getServiceFees";
 import { inputIsUnspent } from "./helpers/inputIsUnspent";
 import { signBatchedTransaction } from "./helpers/signBatchedTransaction";
@@ -34,6 +35,9 @@ export const batchBucket = async (
 
   const toDelete = base64PSBTs.filter((_psbt, i) => !unspent[i]);
   if (toDelete.length > 0) {
+    logger.info([
+      `Removing ${toDelete.length} PSBTs from queue: ${toDelete.join(", ")}`,
+    ]);
     await db.client.sRem(KEYS.PSBT.QUEUE, toDelete);
   }
   const unspentPSBTs = allPSBTs.filter((_psbt, i) => unspent[i]);
@@ -72,10 +76,13 @@ export const batchBucket = async (
     serviceFees,
   );
   const finalFeeRate = stagedTx.getFeeRate();
+  const miningFees = stagedTx.getFee();
   if (finalFeeRate < feeRateThreshold) {
     return { error: "Sanity check failed - Final fee rate too low" };
   }
-  return { result: { finalTransaction, bucket } };
+  return {
+    result: { finalTransaction, bucket, serviceFees, finalFeeRate, miningFees },
+  };
 };
 
 async function mapPSBTToDensity(psbt: Psbt) {
@@ -115,6 +122,10 @@ async function attemptPushToBucket(
   const finalFeeRate = stagedTx.getFeeRate();
   if (finalFeeRate >= feeRateThreshold) {
     bucket.push(psbt);
+  } else {
+    logger.info([
+      `Skipping PSBT ${sha256(psbt.toBase64())} - Fee threshold is ${feeRateThreshold} but final fee rate is ${finalFeeRate}`,
+    ]);
   }
 }
 
