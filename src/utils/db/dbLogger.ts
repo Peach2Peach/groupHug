@@ -1,3 +1,3 @@
-import getLogger from '../logger'
+import getLogger from "../logger";
 
-export const dbLogger = getLogger('utils', 'db')
+export const dbLogger = getLogger("utils", "db");

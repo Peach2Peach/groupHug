@@ -1,3 +1,3 @@
-import getLogger from '../src/utils/logger'
+import getLogger from "../src/utils/logger";
 
-export const fetchLogger = getLogger('fetch', 'log')
+export const fetchLogger = getLogger("fetch", "log");

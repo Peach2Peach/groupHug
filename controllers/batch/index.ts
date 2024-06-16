@@ -1,28 +1,28 @@
-import { Express } from 'express'
-import { addResponseHeaders } from '../../middleware/addResponseHeaders'
-import getLogger from '../../src/utils/logger'
-import { getBatchStatusController } from './getBatchStatusController'
-import { getBatchStatusOverviewController } from './getBatchStatusOverviewController'
-import { validateGetBatchStatus } from './validation'
+import { Express } from "express";
+import { addResponseHeaders } from "../../middleware/addResponseHeaders";
+import getLogger from "../../src/utils/logger";
+import { getBatchStatusController } from "./getBatchStatusController";
+import { getBatchStatusOverviewController } from "./getBatchStatusOverviewController";
+import { validateGetBatchStatus } from "./validation/validateGetBatchStatus";
 
-const serverLogger = getLogger('server', 'log')
+const serverLogger = getLogger("server", "log");
 
 export const Batch = (app: Express): void => {
   app.get(
-    '/v1/batch',
+    "/v1/batch",
     addResponseHeaders({
-      'Cache-control': 'public, max-age=60',
+      "Cache-control": "public, max-age=60",
     }),
     validateGetBatchStatus,
-    getBatchStatusController,
-  )
+    getBatchStatusController
+  );
   app.get(
-    '/v1/batch/overview',
+    "/v1/batch/overview",
     addResponseHeaders({
-      'Cache-control': 'public, max-age=60',
+      "Cache-control": "public, max-age=60",
     }),
-    getBatchStatusOverviewController,
-  )
+    getBatchStatusOverviewController
+  );
 
-  serverLogger.info('Installed batch endpoints')
-}
+  serverLogger.info("Installed batch endpoints");
+};

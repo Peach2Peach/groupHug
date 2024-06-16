@@ -1,21 +1,17 @@
 export const KEYS = {
   PSBT: {
-    PREFIX: 'psbt-',
-    QUEUE: 'psbt-queue',
+    PREFIX: "psbt-",
+    QUEUE: "psbt-queue",
   },
   BUCKET: {
-    EXPIRATION: 'bucket-expiration',
-    STATUS: 'bucket-status-',
+    EXPIRATION: "bucket-expiration",
+    TIME_THRESHOLD: "bucket-time-threshold",
   },
-  BATCH: 'psbt-batch-',
-  TRANSACTION: {
-    PENDING: 'transaction-pending',
-    CONFIRMED: 'transaction-confirmed',
-  },
+  BATCH: "psbt-batch-",
   FEE: {
-    INDEX: 'fee-address-index',
+    INDEX: "fee-address-index",
   },
   JOB: {
-    PREFIX: 'jobHistory-',
+    PREFIX: "jobHistory-",
   },
-}
+};

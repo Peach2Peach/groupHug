@@ -1,36 +1,36 @@
-import { expect } from 'chai'
-import Sinon from 'sinon'
-import { BLOCKEXPLORERURL } from '../../../constants'
-import { feeEstimates, rawFeeEstimates } from '../../../test/data/electrsData'
-import { getFetchResponse } from '../../../test/unit/helpers/getFetchResponse'
-import { fetchStub } from '../../../test/unit/hooks'
-import { getFeeEstimates } from './getFeeEstimates'
+import { expect } from "chai";
+import Sinon from "sinon";
+import { BLOCKEXPLORERURL } from "../../../constants";
+import { feeEstimates, rawFeeEstimates } from "../../../test/data/electrsData";
+import { getFetchResponse } from "../../../test/unit/helpers/getFetchResponse";
+import { fetchStub } from "../../../test/unit/hooks";
+import { getEsploraFeeEstimates } from "./getFeeEstimates";
 
-describe('getFeeEstimates', () => {
+describe("getFeeEstimates", () => {
   afterEach(() => {
-    Sinon.restore()
-  })
+    Sinon.restore();
+  });
 
-  it('should call fetch with url and return fee recommendation rounded', async () => {
+  it("should call fetch with url and return fee recommendation rounded", async () => {
     fetchStub
       .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
-      .resolves(getFetchResponse(rawFeeEstimates))
+      .resolves(getFetchResponse(rawFeeEstimates));
 
-    const result = await getFeeEstimates()
-    expect(result.getValue()).to.deep.equal(feeEstimates)
-  })
+    const { result } = await getEsploraFeeEstimates();
+    expect(result).to.deep.equal(feeEstimates);
+  });
 
-  it('should handle errors', async () => {
-    const errorMessage = new Error('error message')
+  it("should handle errors", async () => {
+    const errorMessage = new Error("error message");
 
     fetchStub
       .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
-      .rejects(errorMessage)
+      .rejects(errorMessage);
 
-    const result = await getFeeEstimates()
-    expect(result.getError()).to.deep.equals({
-      error: 'INTERNAL_SERVER_ERROR',
+    const error = await getEsploraFeeEstimates();
+    expect(error).to.deep.equals({
+      error: "INTERNAL_SERVER_ERROR",
       message: errorMessage,
-    })
-  })
-})
+    });
+  });
+});

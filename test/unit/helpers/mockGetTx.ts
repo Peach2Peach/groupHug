@@ -1,6 +1,6 @@
-import { BLOCKEXPLORERURL } from '../../../constants'
-import { fetchStub } from '../hooks'
-import { getFetchResponse } from './getFetchResponse'
+import { BLOCKEXPLORERURL } from "../../../constants";
+import { fetchStub } from "../hooks";
+import { getFetchResponse } from "./getFetchResponse";
 
 export const mockGetTx = (
   txId: string,
@@ -9,5 +9,5 @@ export const mockGetTx = (
 ) => {
   fetchStub
     .withArgs(`${BLOCKEXPLORERURL}/tx/${txId}`)
-    .resolves(getFetchResponse(result, status))
-}
+    .resolves(getFetchResponse(result, status));
+};

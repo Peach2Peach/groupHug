@@ -1,3 +1,3 @@
-import { CustomLogger } from './CustomLogger'
+import { CustomLogger } from "./CustomLogger";
 
-export default CustomLogger
+export default CustomLogger;

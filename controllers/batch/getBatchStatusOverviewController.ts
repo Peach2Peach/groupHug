@@ -1,13 +1,37 @@
-import { BUCKETS } from '../../constants'
-import { getBucketStatus } from '../../src/utils/queue'
-import { isDefined } from '../../src/utils/validation'
-import { GetBatchStatusOverviewRequest, GetBatchStatusOverviewResponse } from './types'
+import { Request, Response } from "express";
+import { db } from "../../src/utils/db";
+import { KEYS } from "../../src/utils/db/keys";
 
-export const getBatchStatusOverviewController = async (
-  req: GetBatchStatusOverviewRequest,
-  res: GetBatchStatusOverviewResponse,
-) => {
-  const indexes = Array(BUCKETS).fill(null)
-  const statuses = await Promise.all(indexes.map((v, i) => getBucketStatus(i)))
-  return res.json(statuses.filter(isDefined))
-}
+type Req = Request<{}, any, {}, {}>;
+
+type Res = Response<
+  | {
+      /** @deprecated Will be removed in the next release */
+      participants: number;
+      /** @deprecated Will be removed in the next release */
+      maxParticipants: number;
+      /** @deprecated Will be removed in the next release */
+      timeRemaining: number;
+      minimumWaitTime: number;
+      maximumWaitTime: number;
+      transactionsInQueue: number;
+      completed: false;
+    }
+  | APIError<null>
+>;
+
+export const getBatchStatusOverviewController = async (_req: Req, res: Res) => {
+  const minimumWaitTime = await db.client.ttl(KEYS.BUCKET.TIME_THRESHOLD);
+  const maximumWaitTime = await db.client.ttl(KEYS.BUCKET.EXPIRATION);
+  const transactionsInQueue = await db.scard(KEYS.PSBT.QUEUE);
+
+  return res.json({
+    participants: transactionsInQueue,
+    maxParticipants: transactionsInQueue,
+    timeRemaining: minimumWaitTime,
+    minimumWaitTime,
+    maximumWaitTime,
+    transactionsInQueue,
+    completed: false,
+  });
+};

@@ -1,39 +1,33 @@
-import { NETWORK } from '../../constants'
-import { getPSBTsFromBatch } from '../../src/utils/batch'
-import { getBucketStatus, getExtraPSBTDataById, getFeeRate } from '../../src/utils/queue'
-import { getBucketIndexByFeeRate } from '../../src/utils/queue/getBucketIndexByFeeRate'
-import { PSBTInfo } from '../../src/utils/queue/getExtraPSBTDataById'
-import { respondWithError } from '../../src/utils/response'
-import { GetBatchStatusRequest, GetBatchStatusResponse } from './types'
+import { Request, Response } from "express";
+import { db } from "../../src/utils/db";
+import { KEYS } from "../../src/utils/db/keys";
+import { getBatchStatusOverviewController } from "./getBatchStatusOverviewController";
 
-const getCompletedBatchStatus = async (psbtInfo: PSBTInfo) => {
-  const participants = await getPSBTsFromBatch(psbtInfo.txId, NETWORK)
-  return {
-    participants: participants.length,
-    maxParticipants: participants.length,
+type Req = Request<{}, any, {}, { id: string }>;
+type Res = Response<
+  | {
+      participants: number;
+      /** @deprecated Will be removed in the next release */
+      maxParticipants: number;
+      timeRemaining: number;
+      completed: boolean;
+      txId?: string;
+    }
+  | APIError<null>
+>;
+
+export const getBatchStatusController = async (req: Req, res: Res) => {
+  const { id } = req.query;
+
+  const txId = await db.client.hGet(KEYS.PSBT.PREFIX + id, "txId");
+  if (!txId) return getBatchStatusOverviewController(req, res);
+
+  const participants = await db.scard(KEYS.BATCH + txId);
+  return res.json({
+    maxParticipants: participants,
+    participants,
     timeRemaining: 0,
     completed: true,
-    txId: psbtInfo.txId,
-  }
-}
-
-export const getBatchStatusController = async (req: GetBatchStatusRequest, res: GetBatchStatusResponse) => {
-  const { feeRate: feeRateString, id } = req.query
-  let feeRate = Number(feeRateString || 0)
-
-  if (id) {
-    const psbtInfo = await getExtraPSBTDataById(id)
-    if (!psbtInfo) return respondWithError(res, 'NOT_FOUND')
-    if (psbtInfo.txId) return res.json(await getCompletedBatchStatus(psbtInfo))
-
-    feeRate = await getFeeRate(psbtInfo.psbt)
-  }
-
-  const index = await getBucketIndexByFeeRate(Number(feeRate))
-  if (index === undefined) return respondWithError(res, 'INTERNAL_SERVER_ERROR')
-
-  const bucketStatus = await getBucketStatus(index)
-  if (!bucketStatus) return respondWithError(res, 'NOT_FOUND')
-
-  return res.json(bucketStatus)
-}
+    txId,
+  });
+};

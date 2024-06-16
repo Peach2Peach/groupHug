@@ -1,1 +1,1 @@
-export { respondWithError } from './respondWithError'
+export { respondWithError } from "./respondWithError";
