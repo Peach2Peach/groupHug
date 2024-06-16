@@ -17,6 +17,7 @@ export const logger = getLogger("job", "batchTransactions");
 
 const ESTIMATED_BYTES_PER_REGULAR_TX = 170;
 const BASE = 10;
+const CENT = 100;
 
 export const batchTransactions = async () => {
   const feeEstimatesResult = await getFeeEstimates();
@@ -76,17 +77,13 @@ export const batchTransactions = async () => {
       const assumedMiningFees =
         finalFeeRate * bucket.length * ESTIMATED_BYTES_PER_REGULAR_TX;
       const DIGITS_AFTER_DECIMAL = 3;
-      const savingsPercentage = Math.round(
-        (1 - miningFees / assumedMiningFees) * BASE ** DIGITS_AFTER_DECIMAL,
-      );
-      const text = `
-        Batch transaction succesfully broadcasted with txid: ${txId}
-        You can view it [here](https://mempool.space/tx/${txId})
-        Transactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}
-        Service fees collected: ${serviceFees}
-        Mining fees saved: ${assumedMiningFees - miningFees}
-        Savings percentage: ${savingsPercentage}%
-      `;
+      const savingsPercentage =
+        (Math.round(
+          (1 - miningFees / assumedMiningFees) * BASE ** DIGITS_AFTER_DECIMAL,
+        ) /
+          BASE ** DIGITS_AFTER_DECIMAL) *
+        CENT;
+      const text = `Batch transaction succesfully broadcasted!\nYou can view it here: https://mempool.space/tx/${txId}\nTransactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}\nService fees collected: ${serviceFees}\nMining fees saved: ${assumedMiningFees - miningFees}\nSavings percentage: ${savingsPercentage}%`;
 
       logger.info([text]);
       await webhook.send({ text });
