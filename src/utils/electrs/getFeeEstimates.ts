@@ -2,9 +2,7 @@ import { BLOCKEXPLORERURL, MEMPOOL_URL } from "../../../constants";
 import fetch from "../../../middleware/fetch";
 import { round } from "../math/round";
 
-const getFeeRecommendation = (
-  targets: ConfirmationTargets,
-): FeeRecommendation => ({
+const getFeeRecommendation = (targets: ConfirmationTargets) => ({
   fastestFee: round(targets["1"], 1),
   halfHourFee: round(targets["3"], 1),
   hourFee: round(targets["6"], 1),
@@ -12,7 +10,7 @@ const getFeeRecommendation = (
   minimumFee: round(targets["1008"], 1),
 });
 
-export const getEsploraFeeEstimates = (): Promise<
+const getEsploraFeeEstimates = (): Promise<
   | { result: FeeRecommendation; error?: never }
   | (APIError<"INTERNAL_SERVER_ERROR"> & { result?: never })
 > =>
@@ -26,7 +24,7 @@ export const getEsploraFeeEstimates = (): Promise<
       );
   });
 
-export const getMempoolFeeEstimates = (): Promise<
+const getMempoolFeeEstimates = (): Promise<
   | { result: FeeRecommendation; error?: never }
   | (APIError<"INTERNAL_SERVER_ERROR"> & { result?: never })
 > =>
