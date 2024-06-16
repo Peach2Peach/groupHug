@@ -86,7 +86,11 @@ export const batchTransactions = async () => {
       const text = `Batch transaction succesfully broadcasted!\nYou can view it here: https://mempool.space/tx/${txId}\nTransactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}\nService fees collected: ${serviceFees}\nMining fees saved: ${assumedMiningFees - miningFees}\nSavings percentage: ${savingsPercentage}%`;
 
       logger.info([text]);
-      await webhook.send({ text });
+      await webhook.send({
+        text,
+        username: "GroupHug",
+        icon_emoji: ":rocket:",
+      });
 
       return transactionResult.ok;
     }
