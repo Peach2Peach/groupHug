@@ -1,4 +1,3 @@
-import { IncomingWebhook } from "@slack/webhook";
 import BIP32Factory from "bip32";
 import { Network, networks, Transaction } from "bitcoinjs-lib";
 import * as ecc from "tiny-secp256k1";
@@ -49,7 +48,7 @@ export const {
   LOGLEVEL_HTTP,
   LOGLEVEL_INFO,
   LOGLEVEL_DEBUG,
-  SLACK_WEBHOOK_URL,
+  // SLACK_WEBHOOK_URL,
 } = process.env;
 export const FEE = Number(process.env.FEE || DEFAULTS.FEE);
 
@@ -79,6 +78,6 @@ export const RESPONSE_CODES = {
 
 export const MSINS = 1000;
 
-export const webhook = new IncomingWebhook(SLACK_WEBHOOK_URL || "", {
-  username: "GroupHug",
-});
+// export const webhook = new IncomingWebhook(SLACK_WEBHOOK_URL || "", {
+//   username: "GroupHug",
+// });
