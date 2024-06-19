@@ -82,9 +82,19 @@ export const batchTransactions = async () => {
         ) /
           BASE ** DIGITS_AFTER_DECIMAL) *
         CENT;
-      const text = `Batch transaction succesfully broadcasted!\nYou can view it here: https://mempool.space/tx/${txId}\nTransactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}\nService fees collected: ${serviceFees}\nMining fees saved: ${assumedMiningFees - miningFees}\nSavings percentage: ${savingsPercentage}%`;
+      const successMsg = "Batch transaction successfully broadcasted!";
+      const externalLink = `You can view it here: https://mempool.space/tx/${txId}`;
+      const transactionsBatched = `Transactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}`;
+      const feesCollected = `Service fees collected: ${serviceFees}`;
+      const miningFeesSaved = `Mining fees saved: ${assumedMiningFees - miningFees}`;
+      const savingsPercentageMsg = `Savings percentage: ${savingsPercentage}%`;
 
-      logger.info([text]);
+      logger.info([successMsg]);
+      logger.info([externalLink]);
+      logger.info([transactionsBatched]);
+      logger.info([feesCollected]);
+      logger.info([miningFeesSaved]);
+      logger.info([savingsPercentageMsg]);
       // if (NODE_ENV === "production") {
       //   await webhook.send({
       //     text,
