@@ -6,7 +6,7 @@ const logger = getLogger("controller", "All");
 // Override the stream method by telling
 // Morgan to use our custom logger instead of the console.log.
 const stream = {
-  write: (message: any) => logger.http(message),
+  write: (message: unknown) => logger.http(message),
 };
 
 export default morgan(

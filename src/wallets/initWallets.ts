@@ -6,7 +6,7 @@ export const initWallets = (
   xpriv: string,
   oldXpriv: string,
   xpub: string,
-  network: Network
+  network: Network,
 ) => {
   loadHotWallet(xpriv, network);
   loadOldHotWallet(oldXpriv, network);

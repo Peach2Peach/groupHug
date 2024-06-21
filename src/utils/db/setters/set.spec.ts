@@ -8,7 +8,7 @@ describe("set", () => {
       await client.set("test-key", "test-val");
     });
 
-    strictEqual(await db.get("test-key"), "test-val");
+    strictEqual(await db.client.get("test-key"), "test-val");
   });
 
   it("should set a value to database with expiration date", async () => {
@@ -17,6 +17,6 @@ describe("set", () => {
     });
 
     strictEqual(await db.client.ttl("expiring-key"), 3);
-    strictEqual(await db.get("expiring-key"), "expiring-val");
+    strictEqual(await db.client.get("expiring-key"), "expiring-val");
   });
 });

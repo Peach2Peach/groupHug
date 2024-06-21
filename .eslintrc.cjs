@@ -5,7 +5,11 @@ module.exports = {
     mocha: true,
     es2021: true,
   },
-  extends: ["eslint:recommended", "prettier"],
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+  ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: 12,
@@ -136,17 +140,6 @@ module.exports = {
     "no-unused-expressions": "error",
     "no-unused-vars": "off",
     "no-undef": "off",
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      {
-        argsIgnorePattern: "^_",
-        varsIgnorePattern: "^_",
-        destructuredArrayIgnorePattern: "^_",
-      },
-    ],
-    "@typescript-eslint/no-non-null-assertion": "warn",
-    "@typescript-eslint/no-floating-promises": "error",
-    "@typescript-eslint/ban-ts-comment": "warn",
     "no-use-before-define": ["error", { functions: false }],
     "no-useless-backreference": "error",
     "no-useless-call": "error",
@@ -192,6 +185,19 @@ module.exports = {
     "vars-on-top": "error",
     "wrap-regex": "off",
     yoda: "error",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+      },
+    ],
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/ban-ts-comment": "warn",
+    "@typescript-eslint/no-var-requires": "warn",
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/await-thenable": "error",
   },
   overrides: [
     {

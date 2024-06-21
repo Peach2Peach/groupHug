@@ -5,7 +5,7 @@ import { SHA256Schema } from "../../../src/utils/validation/schemas";
 export const validateGetBatchStatus = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { id: idUnparsed } = req.query;
 

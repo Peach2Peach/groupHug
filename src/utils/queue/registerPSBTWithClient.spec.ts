@@ -13,7 +13,7 @@ describe("registerPSBTWithClient", () => {
       throw new Error("Result should not be null");
     }
     const { id, revocationToken } = result;
-    expect(await db.hgetall(KEYS.PSBT.PREFIX + id)).to.deep.equal({
+    expect(await db.client.hGetAll(KEYS.PSBT.PREFIX + id)).to.deep.equal({
       psbt: psbt1.toBase64(),
       revocationToken,
     });
@@ -26,7 +26,7 @@ describe("registerPSBTWithClient", () => {
       throw new Error("Result should not be null");
     }
     const { id, revocationToken } = result;
-    expect(await db.hgetall(KEYS.PSBT.PREFIX + id)).to.deep.equal({
+    expect(await db.client.hGetAll(KEYS.PSBT.PREFIX + id)).to.deep.equal({
       psbt: psbt1.toBase64(),
       revocationToken,
       index: "1",

@@ -14,7 +14,7 @@ export const Batch = (app: Express): void => {
       "Cache-control": "public, max-age=60",
     }),
     validateGetBatchStatus,
-    getBatchStatusController
+    getBatchStatusController,
   );
   app.get(
     "/v1/batch/overview",

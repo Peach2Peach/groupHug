@@ -12,7 +12,7 @@ describe("del", () => {
       await Promise.all([client.del("test-key"), client.del("test-hm-key")]);
     });
 
-    strictEqual(await db.get("test-key"), null);
-    strictEqual(await db.get("test-hm-key"), null);
+    strictEqual(await db.client.get("test-key"), null);
+    strictEqual(await db.client.get("test-hm-key"), null);
   });
 });

@@ -5,9 +5,9 @@ import { feeEstimates, rawFeeEstimates } from "../../../test/data/electrsData";
 import { getFetchResponse } from "../../../test/unit/helpers/getFetchResponse";
 import { fetchStub } from "../../../test/unit/hooks";
 import { round } from "../math/round";
-import { getFeeEstimates } from "./getFeeEstimates";
+import { getPreferredFeeRate } from "./getPreferredFeeRate";
 
-describe("getFeeEstimates", () => {
+describe("getPreferredFeeRate", () => {
   afterEach(() => {
     Sinon.restore();
   });
@@ -23,8 +23,8 @@ describe("getFeeEstimates", () => {
       }),
     );
 
-    const { result } = await getFeeEstimates();
-    expect(result).to.deep.equal(feeEstimates);
+    const result = await getPreferredFeeRate();
+    expect(result).to.deep.equal(feeEstimates.halfHourFee);
   });
 
   it("should fallback to esplora if mempool fails", async () => {
@@ -35,8 +35,8 @@ describe("getFeeEstimates", () => {
       .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
       .resolves(getFetchResponse(rawFeeEstimates));
 
-    const { result } = await getFeeEstimates();
-    expect(result).to.deep.equal(feeEstimates);
+    const result = await getPreferredFeeRate();
+    expect(result).to.deep.equal(feeEstimates.halfHourFee);
   });
 
   it("should handle errors", async () => {
@@ -48,10 +48,7 @@ describe("getFeeEstimates", () => {
       .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
       .rejects(errorMessage);
 
-    const error = await getFeeEstimates();
-    expect(error).to.deep.equals({
-      error: "INTERNAL_SERVER_ERROR",
-      message: errorMessage,
-    });
+    const result = await getPreferredFeeRate();
+    expect(result).to.deep.equals(null);
   });
 });

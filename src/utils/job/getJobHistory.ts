@@ -2,7 +2,11 @@ import { db } from "../db";
 import { KEYS } from "../db/keys";
 
 export const getJobHistory = async (jobId: string): Promise<JobEvent[]> => {
-  const jobHistory = await db.zrange(KEYS.JOB.PREFIX + jobId);
+  const jobHistory = await db.client.zRangeByScore(
+    KEYS.JOB.PREFIX + jobId,
+    "-inf",
+    "+inf",
+  );
 
   return jobHistory
     .map((job) => {

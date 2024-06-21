@@ -1,21 +1,18 @@
-import { payments, Psbt, PsbtTxInput } from "bitcoinjs-lib";
-import { DUST_LIMIT, FEE, NETWORK } from "../../constants";
+import { Psbt } from "bitcoinjs-lib";
+import { FEE, NETWORK } from "../../constants";
 import { sha256 } from "../../src/utils/crypto/sha256";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
-import { getTx } from "../../src/utils/electrs/getTx";
-import { getUTXO } from "../../src/utils/electrs/getUTXO";
-import { finalize, getTxIdOfInput, signAllInputs } from "../../src/utils/psbt";
+import { finalize, signAllInputs } from "../../src/utils/psbt";
 import { isDefined } from "../../src/utils/validation";
-import { feeWallet } from "../../src/wallets/feeWallet";
 import { getSignerByIndex } from "../../src/wallets/getSignerByIndex";
 import { hotWallet, oldHotWallet } from "../../src/wallets/hotWallet";
 import { logger } from "./batchTransactions";
+import { finalizeBatch } from "./finalizeBatch";
 import { getServiceFees } from "./getServiceFees";
+import { getUTXOForInput } from "./getUTXOForInput";
 import { inputIsUnspent } from "./helpers/inputIsUnspent";
-import { signBatchedTransaction } from "./helpers/signBatchedTransaction";
 import { sumPSBTInputValues } from "./helpers/sumPSBTInputValues";
-import { sumPSBTOutputValues } from "./helpers/sumPSBTOutputValues";
 
 const BYTES_PER_INPUT = 41;
 const MAX_ACCEPTABLE_LOSS = 0.02;
@@ -127,54 +124,4 @@ async function attemptPushToBucket(
       `Skipping PSBT ${sha256(psbt.toBase64())} - Fee threshold is ${feeRateThreshold} but final fee rate is ${finalFeeRate}`,
     ]);
   }
-}
-
-async function finalizeBatch(bucket: Psbt[], serviceFees: number) {
-  const stagedTx = new Psbt({ network: NETWORK });
-  stagedTx.addInputs(
-    bucket.map((e) => ({ ...e.txInputs[0], ...e.data.inputs[0] })),
-  );
-  stagedTx.addOutputs(bucket.map((e) => e.txOutputs[0]));
-  const feeCollectorAddress = await getUnusedFeeAddress();
-  if (!feeCollectorAddress) throw new Error("No fee collector address found");
-  const inputSum = sumPSBTInputValues(stagedTx);
-  const outputSum = sumPSBTOutputValues(stagedTx);
-  if (serviceFees > DUST_LIMIT && inputSum - outputSum >= serviceFees) {
-    stagedTx.addOutput({
-      address: feeCollectorAddress,
-      value: serviceFees,
-    });
-  }
-  const indexes = await Promise.all(
-    bucket.map((e) => {
-      const id = sha256(e.toBase64());
-      return db.client.hGet(KEYS.PSBT.PREFIX + id, "index");
-    }),
-  );
-  signBatchedTransaction(stagedTx, indexes);
-  const finalTransaction = finalize(stagedTx);
-  return { stagedTx, finalTransaction };
-}
-
-async function getUTXOForInput(input: PsbtTxInput) {
-  const inputTxId = getTxIdOfInput(input);
-  const { result: tx } = await getTx(inputTxId);
-
-  if (!tx) return undefined;
-
-  const output = tx.vout[input.index];
-  if (!output.scriptpubkey_address) return undefined;
-  const { result: utxo } = await getUTXO(output.scriptpubkey_address);
-
-  return utxo?.filter((utx) => utx.txid === inputTxId);
-}
-
-async function getUnusedFeeAddress() {
-  const index = Number((await db.get(KEYS.FEE.INDEX)) || 0);
-  const feeCollector = feeWallet.derivePath(`0/${index}`);
-
-  return payments.p2wpkh({
-    pubkey: feeCollector.publicKey,
-    network: NETWORK,
-  }).address;
 }

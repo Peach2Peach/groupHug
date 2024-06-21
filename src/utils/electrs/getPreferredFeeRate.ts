@@ -1,5 +1,6 @@
 import { BLOCKEXPLORERURL, MEMPOOL_URL } from "../../../constants";
 import fetch from "../../../middleware/fetch";
+import getLogger from "../logger";
 import { round } from "../math/round";
 
 const getFeeRecommendation = (targets: ConfirmationTargets) => ({
@@ -36,8 +37,17 @@ const getMempoolFeeEstimates = (): Promise<
       );
   });
 
-export const getFeeEstimates = async () => {
+const logger = getLogger("fetch", "getPreferredFeeRate");
+export const getPreferredFeeRate = async () => {
   const mempoolEstimates = await getMempoolFeeEstimates();
+  const feeEstimates = mempoolEstimates.result
+    ? mempoolEstimates
+    : await getEsploraFeeEstimates();
 
-  return mempoolEstimates.result ? mempoolEstimates : getEsploraFeeEstimates();
+  if (feeEstimates.error) {
+    logger.error(["Could not get fee estimates", feeEstimates.error]);
+    return null;
+  }
+
+  return feeEstimates.result.halfHourFee;
 };

@@ -10,19 +10,19 @@ import {
 export const validateRevokePSBT = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { id: idUnparsed, revocationToken: revocationTokenUnparsed } = req.body;
 
   try {
     const id = SHA256Schema.parse(idUnparsed);
     const revocationToken = RevocationTokenSchema.parse(
-      revocationTokenUnparsed
+      revocationTokenUnparsed,
     );
 
     const revocationTokenFromDB = await db.client.hGet(
       KEYS.PSBT.PREFIX + id,
-      "revocationToken"
+      "revocationToken",
     );
     if (!revocationTokenFromDB) return respondWithError(res, "BAD_REQUEST");
     if (revocationTokenFromDB !== revocationToken)

@@ -11,14 +11,10 @@ export const getDefaultOptions = (opt = {}): RedisClientOptions => ({
 
 export let db: DatabaseClient;
 
-export const initDatabase = (opt?: RedisClientOptions): Promise<void> => {
+export const initDatabase = (opt?: RedisClientOptions) => {
   db = new DatabaseClient(getDefaultOptions(opt));
   return new Promise((resolve) => {
-    const checkReady = () => {
-      resolve();
-    };
-
-    db.client.on("ready", checkReady);
+    db.client.on("ready", resolve);
   });
 };
 
@@ -27,5 +23,5 @@ export const setClients = (dbClient: DatabaseClient) => {
 };
 
 export const disconnectDatabases = async () => {
-  await db.quit();
+  await db.client.quit();
 };
