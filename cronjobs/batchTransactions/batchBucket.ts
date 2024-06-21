@@ -1,5 +1,6 @@
 import { Psbt } from "bitcoinjs-lib";
 import { FEE, NETWORK } from "../../constants";
+import { getExcessMiningFees } from "../../src/utils/batch/getExcessMiningFees";
 import { sha256 } from "../../src/utils/crypto/sha256";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
@@ -77,8 +78,20 @@ export const batchBucket = async (
   if (finalFeeRate < feeRateThreshold) {
     return { error: "Sanity check failed - Final fee rate too low" };
   }
+  const excessMiningFees = getExcessMiningFees(
+    feeRateThreshold,
+    finalFeeRate,
+    finalTransaction.virtualSize(),
+  );
   return {
-    result: { finalTransaction, bucket, serviceFees, finalFeeRate, miningFees },
+    result: {
+      finalTransaction,
+      bucket,
+      serviceFees,
+      finalFeeRate,
+      miningFees,
+      excessMiningFees,
+    },
   };
 };
 

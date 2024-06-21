@@ -4,7 +4,6 @@ import {
   MSINS,
 } from "../../constants";
 import { addPSBTToBatchWithClient } from "../../src/utils/batch/addPSBTToBatchWithClient";
-import { getExcessMiningFees } from "../../src/utils/batch/getExcessMiningFees";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { SubClient } from "../../src/utils/db/SubClient";
@@ -55,8 +54,14 @@ export const batchTransactions = async () => {
       logger.error([JSON.stringify(queuedBase64PSBTs)]);
       return false;
     }
-    const { finalTransaction, bucket, serviceFees, finalFeeRate, miningFees } =
-      batchBucketResult.result;
+    const {
+      finalTransaction,
+      bucket,
+      serviceFees,
+      finalFeeRate,
+      miningFees,
+      excessMiningFees,
+    } = batchBucketResult.result;
     const postTxResult = await postTx(finalTransaction.toHex());
 
     if (postTxResult.isOk()) {
@@ -64,6 +69,7 @@ export const batchTransactions = async () => {
 
       const transactionResult = await db.transaction(async (client) => {
         await client.incr(KEYS.FEE.INDEX);
+        await client.client.incrBy(KEYS.FEE.RESERVE, excessMiningFees);
         await resetExpiration(client);
         const base64Bucket = bucket.map((psbt) => psbt.toBase64());
         await Promise.all(
@@ -83,11 +89,6 @@ export const batchTransactions = async () => {
         ) /
           BASE ** DIGITS_AFTER_DECIMAL) *
         CENT;
-      const excessMiningFees = getExcessMiningFees(
-        preferredFeeRate,
-        finalFeeRate,
-        finalTransaction.virtualSize(),
-      );
 
       const successMsg = "Batch transaction successfully broadcasted!";
       const externalLink = `You can view it here: https://mempool.space/tx/${txId}`;

@@ -10,6 +10,7 @@ export const KEYS = {
   BATCH: "psbt-batch-",
   FEE: {
     INDEX: "fee-address-index",
+    RESERVE: "fee-reserve",
   },
   JOB: {
     PREFIX: "jobHistory-",
