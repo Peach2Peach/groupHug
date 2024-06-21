@@ -14,4 +14,7 @@ export const KEYS = {
   JOB: {
     PREFIX: "jobHistory-",
   },
+  CACHE: {
+    PREFIX: "cache-",
+  },
 };
