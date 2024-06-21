@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import Sinon from "sinon";
-import { BLOCKEXPLORERURL, MEMPOOL_URL } from "../../../constants";
+import { MEMPOOL_URL } from "../../../constants";
 import { feeEstimates, rawFeeEstimates } from "../../../test/data/electrsData";
 import { getFetchResponse } from "../../../test/unit/helpers/getFetchResponse";
 import { fetchStub } from "../../../test/unit/hooks";
@@ -27,25 +27,10 @@ describe("getPreferredFeeRate", () => {
     expect(result).to.deep.equal(feeEstimates.halfHourFee);
   });
 
-  it("should fallback to esplora if mempool fails", async () => {
-    fetchStub
-      .withArgs(`${MEMPOOL_URL}/v1/fees/recommended`)
-      .rejects(new Error("error message"));
-    fetchStub
-      .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
-      .resolves(getFetchResponse(rawFeeEstimates));
-
-    const result = await getPreferredFeeRate();
-    expect(result).to.deep.equal(feeEstimates.halfHourFee);
-  });
-
   it("should handle errors", async () => {
     const errorMessage = new Error("error message");
     fetchStub
       .withArgs(`${MEMPOOL_URL}/v1/fees/recommended`)
-      .rejects(errorMessage);
-    fetchStub
-      .withArgs(`${BLOCKEXPLORERURL}/fee-estimates`)
       .rejects(errorMessage);
 
     const result = await getPreferredFeeRate();
