@@ -5,6 +5,7 @@ import getLogger from "../../src/utils/logger";
 import { getBatchStatusController } from "./getBatchStatusController";
 import { getBatchStatusOverviewController } from "./getBatchStatusOverviewController";
 import { getFeeRateInfo } from "./getFeeRateInfo";
+import { getParticipationRate } from "./getParticipationRate";
 import { validateGetBatchStatus } from "./validation/validateGetBatchStatus";
 
 const serverLogger = getLogger("server", "log");
@@ -32,6 +33,14 @@ export const Batch = (app: Express): void => {
     }),
     cache,
     getFeeRateInfo,
+  );
+  app.get(
+    "/v1/queue/participationRate",
+    addResponseHeaders({
+      "Cache-control": "public, max-age=300",
+    }),
+    cache,
+    getParticipationRate,
   );
 
   serverLogger.info("Installed batch endpoints");
