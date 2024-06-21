@@ -4,6 +4,7 @@ import {
   MSINS,
 } from "../../constants";
 import { addPSBTToBatchWithClient } from "../../src/utils/batch/addPSBTToBatchWithClient";
+import { getExcessMiningFees } from "../../src/utils/batch/getExcessMiningFees";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { SubClient } from "../../src/utils/db/SubClient";
@@ -82,12 +83,22 @@ export const batchTransactions = async () => {
         ) /
           BASE ** DIGITS_AFTER_DECIMAL) *
         CENT;
+      const excessMiningFees = getExcessMiningFees(
+        preferredFeeRate,
+        finalFeeRate,
+        finalTransaction.virtualSize(),
+      );
+
       const successMsg = "Batch transaction successfully broadcasted!";
       const externalLink = `You can view it here: https://mempool.space/tx/${txId}`;
       const transactionsBatched = `Transactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}`;
       const feesCollected = `Service fees collected: ${thousands(serviceFees)}`;
       const miningFeesSaved = `Mining fees saved: ${thousands(assumedMiningFees - miningFees)}`;
       const savingsPercentageMsg = `Savings percentage: ${savingsPercentage}%`;
+      const potentialServiceFee =
+        excessMiningFees > 0
+          ? `Missed out on ${thousands(excessMiningFees)} sats in service fees`
+          : `Would have received ${thousands(-excessMiningFees)} less sats in service fees`;
 
       logger.info([successMsg]);
       logger.info([externalLink]);
@@ -95,6 +106,7 @@ export const batchTransactions = async () => {
       logger.info([feesCollected]);
       logger.info([miningFeesSaved]);
       logger.info([savingsPercentageMsg]);
+      logger.info([potentialServiceFee]);
       // if (NODE_ENV === "production") {
       //   await webhook.send({
       //     text,
