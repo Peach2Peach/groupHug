@@ -78,7 +78,6 @@ export const RESPONSE_CODES = {
 
 export const MSINS = 1000;
 export const SECONDS_IN_MINUTE = 60;
-export const MS_IN_MINUTE = MSINS * SECONDS_IN_MINUTE;
 
 // export const webhook = new IncomingWebhook(SLACK_WEBHOOK_URL || "", {
 //   username: "GroupHug",

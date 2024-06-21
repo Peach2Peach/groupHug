@@ -1,6 +1,6 @@
 import { Psbt } from "bitcoinjs-lib";
 import { Request, Response } from "express";
-import { MS_IN_MINUTE, NETWORK } from "../../constants";
+import { NETWORK, SECONDS_IN_MINUTE } from "../../constants";
 import { finalizeBatch } from "../../cronjobs/batchTransactions/finalizeBatch";
 import { getServiceFees } from "../../cronjobs/batchTransactions/getServiceFees";
 import { getUTXOForInput } from "../../cronjobs/batchTransactions/getUTXOForInput";
@@ -54,7 +54,7 @@ export const getFeeRateInfo = async (req: Req, res: Res) => {
   );
   await cacheDB.client.setEx(
     KEYS.CACHE.PREFIX + req.originalUrl,
-    MS_IN_MINUTE,
+    SECONDS_IN_MINUTE,
     JSON.stringify({
       queueFeeRate,
       preferredFeeRate,
