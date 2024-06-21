@@ -1,5 +1,4 @@
 import { Psbt } from "bitcoinjs-lib";
-import { finalize, signAllInputs } from ".";
 import { FEE, NETWORK } from "../../../constants";
 import { sumPSBTInputValues } from "../../../cronjobs/batchTransactions/helpers/sumPSBTInputValues";
 import { getSignerByIndex } from "../../wallets/getSignerByIndex";
@@ -8,6 +7,8 @@ import { sha256 } from "../crypto/sha256";
 import { db } from "../db";
 import { KEYS } from "../db/keys";
 import { isDefined } from "../validation";
+import { finalize } from "./finalize";
+import { signAllInputs } from "./signAllInputs";
 
 export async function mapPSBTToDensity(psbt: Psbt) {
   const psbtCopy = Psbt.fromBase64(psbt.toBase64(), { network: NETWORK });
