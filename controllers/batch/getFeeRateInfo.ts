@@ -6,7 +6,7 @@ import { getServiceFees } from "../../cronjobs/batchTransactions/getServiceFees"
 import { getUTXOForInput } from "../../cronjobs/batchTransactions/getUTXOForInput";
 import { inputIsUnspent } from "../../cronjobs/batchTransactions/helpers/inputIsUnspent";
 import { getExcessMiningFees } from "../../src/utils/batch/getExcessMiningFees";
-import { db } from "../../src/utils/db";
+import { cacheDB, db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { getPreferredFeeRate } from "../../src/utils/electrs/getPreferredFeeRate";
 import { respondWithError } from "../../src/utils/response/respondWithError";
@@ -52,10 +52,8 @@ export const getFeeRateInfo = async (req: Req, res: Res) => {
     queueFeeRate,
     finalTransaction.virtualSize(),
   );
-  const key = req.originalUrl;
-
-  await db.client.setEx(
-    key,
+  await cacheDB.client.setEx(
+    KEYS.CACHE.PREFIX + req.originalUrl,
     MS_IN_MINUTE,
     JSON.stringify({
       queueFeeRate,
