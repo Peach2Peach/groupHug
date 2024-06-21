@@ -12,7 +12,6 @@ import { getPreferredFeeRate } from "../../src/utils/electrs/getPreferredFeeRate
 import { respondWithError } from "../../src/utils/response/respondWithError";
 import { isDefined } from "../../src/utils/validation/isDefined";
 
-type Req = Request<Record<string, never>, unknown, unknown, { id: string }>;
 type Res = Response<
   | {
       queueFeeRate: number;
@@ -23,7 +22,7 @@ type Res = Response<
   | APIError<null>
 >;
 
-export const getFeeRateInfo = async (req: Req, res: Res) => {
+export const getFeeRateInfo = async (req: Request, res: Res) => {
   const preferredFeeRate = await getPreferredFeeRate();
   if (!preferredFeeRate) return respondWithError(res, "INTERNAL_SERVER_ERROR");
 
@@ -52,21 +51,18 @@ export const getFeeRateInfo = async (req: Req, res: Res) => {
     queueFeeRate,
     finalTransaction.virtualSize(),
   );
-  await cacheDB.client.setEx(
-    KEYS.CACHE.PREFIX + req.originalUrl,
-    SECONDS_IN_MINUTE,
-    JSON.stringify({
-      queueFeeRate,
-      preferredFeeRate,
-      serviceFees,
-      excessMiningFees,
-    }),
-  );
 
-  return res.json({
+  const response = {
     queueFeeRate,
     preferredFeeRate,
     serviceFees,
     excessMiningFees,
-  });
+  };
+  await cacheDB.client.setEx(
+    KEYS.CACHE.PREFIX + req.originalUrl,
+    SECONDS_IN_MINUTE,
+    JSON.stringify(response),
+  );
+
+  return res.json(response);
 };
