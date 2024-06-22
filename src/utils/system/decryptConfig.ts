@@ -39,11 +39,11 @@ export const decryptConfig = (password: string) => {
     DB_AUTH: AES.decrypt(constants.DB_AUTH, password).toString(enc.Utf8),
     PRIVKEY: AES.decrypt(constants.PRIVKEY, password).toString(enc.Utf8),
     OLD_PRIVKEY: AES.decrypt(constants.OLD_PRIVKEY, password).toString(
-      enc.Utf8
+      enc.Utf8,
     ),
     FEE_COLLECTOR_PUBKEY: AES.decrypt(
       constants.FEE_COLLECTOR_PUBKEY,
-      password
+      password,
     ).toString(enc.Utf8),
   };
 };

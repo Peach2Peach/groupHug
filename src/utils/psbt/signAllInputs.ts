@@ -4,7 +4,7 @@ import { SIGHASH } from "../../../constants";
 export const signAllInputs = (
   psbt: Psbt,
   signer: Signer,
-  oldSigner: Signer
+  oldSigner: Signer,
 ) => {
   psbt.txInputs.forEach((_input, i) => {
     delete psbt.data.inputs[i].sighashType;

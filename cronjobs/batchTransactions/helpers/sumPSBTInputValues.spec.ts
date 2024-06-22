@@ -15,7 +15,7 @@ describe("sumPSBTInputValues", () => {
       network: networks.regtest,
     });
     psbt.data.inputs.forEach(
-      (_e, i) => (psbt.data.inputs[i].witnessUtxo = undefined)
+      (_e, i) => (psbt.data.inputs[i].witnessUtxo = undefined),
     );
     expect(sumPSBTInputValues(psbt)).to.equal(0);
   });

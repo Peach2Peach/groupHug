@@ -11,12 +11,13 @@ export const finalize = (psbt: Psbt) => {
   throw Error("Signatures invalid for transaction");
 };
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const varuint = require("varuint-bitcoin");
 
 function getFinalScript(
   inputIndex: number,
   input: PsbtInput,
-  bitcoinScript: Buffer
+  bitcoinScript: Buffer,
 ) {
   if (!input.partialSig) {
     throw new Error("No partialSig found on input at index " + inputIndex);
@@ -29,18 +30,18 @@ function getFinalScript(
 
   const meaningfulSignatures = input.partialSig.every(
     (sig) =>
-      bitcoinScript.toString("hex").indexOf(sig.pubkey.toString("hex")) !== -1
+      bitcoinScript.toString("hex").indexOf(sig.pubkey.toString("hex")) !== -1,
   );
   if (!meaningfulSignatures) {
     throw new Error(
-      `Can not finalize input #${inputIndex}. Signatures do not correspond to public keys`
+      `Can not finalize input #${inputIndex}. Signatures do not correspond to public keys`,
     );
   }
 
   const sortedSignatures = input.partialSig
     .sort(
       (a, b) =>
-        bitcoinScript.indexOf(b.pubkey) - bitcoinScript.indexOf(a.pubkey)
+        bitcoinScript.indexOf(b.pubkey) - bitcoinScript.indexOf(a.pubkey),
     )
     .map(({ signature }) => signature);
 
@@ -52,7 +53,7 @@ function getFinalScript(
       input: script.compile(
         sortedSignatures.length > 1
           ? [...sortedSignatures, opcodes.OP_FALSE]
-          : sortedSignatures
+          : sortedSignatures,
       ),
     },
   });

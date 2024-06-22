@@ -20,7 +20,7 @@ export const mochaHooks = {
       unencrypted.PRIVKEY,
       unencrypted.OLD_PRIVKEY,
       unencrypted.FEE_COLLECTOR_PUBKEY,
-      NETWORK
+      NETWORK,
     );
     if (!dbId) {
       await initDatabase({ password: DB_AUTH, database: 7 });

@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 
-type Req = Request<{}, any, {}, {}>;
-
 type Res = Response<
   | {
       /** @deprecated Will be removed in the next release */
@@ -20,10 +18,13 @@ type Res = Response<
   | APIError<null>
 >;
 
-export const getBatchStatusOverviewController = async (_req: Req, res: Res) => {
+export const getBatchStatusOverviewController = async (
+  _req: Request,
+  res: Res,
+) => {
   const minimumWaitTime = await db.client.ttl(KEYS.BUCKET.TIME_THRESHOLD);
   const maximumWaitTime = await db.client.ttl(KEYS.BUCKET.EXPIRATION);
-  const transactionsInQueue = await db.scard(KEYS.PSBT.QUEUE);
+  const transactionsInQueue = await db.client.sCard(KEYS.PSBT.QUEUE);
 
   return res.json({
     participants: transactionsInQueue,

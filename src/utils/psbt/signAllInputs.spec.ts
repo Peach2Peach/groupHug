@@ -32,7 +32,7 @@ describe("signAllInputs", () => {
       network: networks.regtest,
     });
     psbt.data.inputs.forEach(
-      (_e, i) => (psbt.data.inputs[i].witnessScript = undefined)
+      (_e, i) => (psbt.data.inputs[i].witnessScript = undefined),
     );
     signAllInputs(psbt, seller, seller);
     expect(validatePSBTSignatures(psbt)).to.be.false;

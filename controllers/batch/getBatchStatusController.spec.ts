@@ -6,7 +6,7 @@ import sinonChai from "sinon-chai";
 import { addPSBTToBatchWithClient } from "../../src/utils/batch/addPSBTToBatchWithClient";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
-import * as getFeeEstimates from "../../src/utils/electrs/getFeeEstimates";
+import * as getFeeEstimates from "../../src/utils/electrs/getPreferredFeeRate";
 import { addPSBTToQueue } from "../../src/utils/queue/addPSBTToQueue";
 import { feeEstimates } from "../../test/data/electrsData";
 import { psbt1 } from "../../test/data/psbtData";
@@ -47,9 +47,9 @@ describe("getBatchStatusController", () => {
       await addPSBTToBatchWithClient(client, txId, psbt1.toBase64());
       await client.srem(KEYS.PSBT.QUEUE, psbt1.toBase64());
     });
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
-      result: feeEstimates,
-    });
+    Sinon.stub(getFeeEstimates, "getPreferredFeeRate").resolves(
+      feeEstimates.halfHourFee,
+    );
     const request = requestMock({ query: { id: result.id } });
     const response = responseMock();
     await getBatchStatusController(

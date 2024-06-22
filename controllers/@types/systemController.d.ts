@@ -1,6 +1,6 @@
-type GetStatusRequestParams = {};
-type GetStatusRequestQuery = {};
-type GetStatusRequestBody = {};
+type GetStatusRequestParams = unknown;
+type GetStatusRequestQuery = unknown;
+type GetStatusRequestBody = unknown;
 type GetStatusResponseBody =
   | {
       error: null;
@@ -9,7 +9,7 @@ type GetStatusResponseBody =
     }
   | APIError<null>;
 
-type StartRequestParams = {};
-type StartRequestQuery = {};
+type StartRequestParams = unknown;
+type StartRequestQuery = unknown;
 type StartRequestBody = { password: string };
 type StartResponseBody = { success: boolean } | APIError<null>;

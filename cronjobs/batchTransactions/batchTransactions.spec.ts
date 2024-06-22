@@ -6,7 +6,7 @@ import * as constants from "../../constants";
 import { sha256 } from "../../src/utils/crypto/sha256";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
-import * as getFeeEstimates from "../../src/utils/electrs/getFeeEstimates";
+import * as getFeeEstimates from "../../src/utils/electrs/getPreferredFeeRate";
 import * as getTx from "../../src/utils/electrs/getTx";
 import * as getUTXO from "../../src/utils/electrs/getUTXO";
 import * as postTx from "../../src/utils/electrs/postTx";
@@ -65,29 +65,25 @@ describe("batchTransactions", () => {
     Sinon.restore();
   });
   it("abort if fees estimates cannot be fetched", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
-      error: "INTERNAL_SERVER_ERROR",
-    });
+    Sinon.stub(getFeeEstimates, "getPreferredFeeRate").resolves(null);
     expect(await batchTransactions()).to.be.false;
   });
   it("handles post tx errors", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
-      result: { ...feeEstimates, halfHourFee: 1 },
-    });
+    Sinon.stub(getFeeEstimates, "getPreferredFeeRate").resolves(1);
     postTxStub.resolves(getError({ error: "INTERNAL_SERVER_ERROR" }));
     expect(await batchTransactions()).to.be.false;
   });
   it("handles batchBucket errors", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
-      result: feeEstimates,
-    });
+    Sinon.stub(getFeeEstimates, "getPreferredFeeRate").resolves(
+      feeEstimates.halfHourFee,
+    );
     batchBucketStub.resolves(getError("No psbts left to spend"));
     expect(await batchTransactions()).to.be.false;
   });
   it("does not batch if the time threshold has not been reached", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
-      result: feeEstimates,
-    });
+    Sinon.stub(getFeeEstimates, "getPreferredFeeRate").resolves(
+      feeEstimates.halfHourFee,
+    );
     await db.transaction(async (client) => {
       await client.set(KEYS.BUCKET.EXPIRATION, "true", constants.MSINS);
       await client.set(KEYS.BUCKET.TIME_THRESHOLD, "true", constants.MSINS);
@@ -96,22 +92,18 @@ describe("batchTransactions", () => {
     expect(batchBucketStub).to.have.not.been.called;
   });
   it("calls batch bucket with correct psbts, post transactions and return true on success", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
-      result: { ...feeEstimates, halfHourFee: 1 },
-    });
-    expect(await db.exists(KEYS.BUCKET.EXPIRATION)).to.be.false;
-    const queuedTransactions = await db.smembers(KEYS.PSBT.QUEUE);
+    Sinon.stub(getFeeEstimates, "getPreferredFeeRate").resolves(1);
+    expect(await db.client.exists(KEYS.BUCKET.EXPIRATION)).to.equal(0);
+    const queuedTransactions = await db.client.sMembers(KEYS.PSBT.QUEUE);
     expect(await batchTransactions()).to.be.true;
     expect(batchBucketStub).to.have.been.calledWithMatch(queuedTransactions, 1);
 
-    expect(await db.exists(KEYS.BUCKET.EXPIRATION)).to.be.true;
+    expect(await db.client.exists(KEYS.BUCKET.EXPIRATION)).to.equal(1);
   });
   it("increases the fee index after batching", async () => {
-    Sinon.stub(getFeeEstimates, "getFeeEstimates").resolves({
-      result: { ...feeEstimates, halfHourFee: 1 },
-    });
-    expect(await db.exists(KEYS.FEE.INDEX)).to.be.false;
+    Sinon.stub(getFeeEstimates, "getPreferredFeeRate").resolves(1);
+    expect(await db.client.exists(KEYS.FEE.INDEX)).to.equal(0);
     expect(await batchTransactions()).to.be.true;
-    expect(await db.get(KEYS.FEE.INDEX)).to.equal("1");
+    expect(await db.client.get(KEYS.FEE.INDEX)).to.equal("1");
   });
 });

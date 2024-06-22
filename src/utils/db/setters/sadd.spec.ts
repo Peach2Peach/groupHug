@@ -8,7 +8,7 @@ describe("sadd", () => {
       await client.sadd("test-set-key", "1");
     });
 
-    expect(await db.smembers("test-set-key")).to.deep.equal(["1"]);
+    expect(await db.client.sMembers("test-set-key")).to.deep.equal(["1"]);
 
     await db.transaction(async (client) => {
       await Promise.all([
@@ -17,7 +17,7 @@ describe("sadd", () => {
       ]);
     });
 
-    const entry = await db.smembers("test-set-key");
+    const entry = await db.client.sMembers("test-set-key");
     expect(entry.length).to.equal(3);
     expect(entry.indexOf("1")).not.to.equal(-1);
     expect(entry.indexOf("a")).not.to.equal(-1);
@@ -29,6 +29,6 @@ describe("sadd", () => {
       await client.sadd("test-set-key", members);
     });
 
-    expect(await db.smembers("test-set-key")).to.deep.equal(members);
+    expect(await db.client.sMembers("test-set-key")).to.deep.equal(members);
   });
 });

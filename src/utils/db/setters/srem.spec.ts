@@ -13,7 +13,7 @@ describe("srem", () => {
     });
   });
   it("should setup test", async () => {
-    const entry = await db.smembers("test-set-key");
+    const entry = await db.client.sMembers("test-set-key");
     ok(entry.indexOf("1") !== -1);
     ok(entry.indexOf("a") !== -1);
     ok(entry.indexOf("b") !== -1);
@@ -23,7 +23,7 @@ describe("srem", () => {
       await client.srem("test-set-key", "b");
     });
 
-    const entry = await db.smembers("test-set-key");
+    const entry = await db.client.sMembers("test-set-key");
 
     ok(entry.indexOf("1") !== -1);
     ok(entry.indexOf("a") !== -1);
@@ -35,7 +35,7 @@ describe("srem", () => {
       await client.srem("test-set-key", ["a", "b"]);
     });
 
-    const entry = await db.smembers("test-set-key");
+    const entry = await db.client.sMembers("test-set-key");
 
     ok(entry.indexOf("1") !== -1);
     ok(entry.indexOf("a") === -1);

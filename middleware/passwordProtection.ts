@@ -5,7 +5,7 @@ import { decrypted } from "../src/utils/system/decryptConfig";
 export const passwordProtection = (
   req: Request,
   res: Response,
-  next: Function,
+  next: () => unknown,
 ) => {
   if (decrypted || req.url === "/v1/start") {
     return next();

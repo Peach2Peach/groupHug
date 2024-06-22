@@ -8,6 +8,6 @@ describe("incr", () => {
       await Promise.all([client.incr("incr-test"), client.incr("incr-test")]);
     });
 
-    strictEqual(await db.get("incr-test"), "2");
+    strictEqual(await db.client.get("incr-test"), "2");
   });
 });

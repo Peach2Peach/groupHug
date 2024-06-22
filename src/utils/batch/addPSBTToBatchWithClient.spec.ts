@@ -11,7 +11,7 @@ describe("addPSBTToBatchWithClient", () => {
     await db.transaction((client) =>
       addPSBTToBatchWithClient(client, txId, psbt1.toBase64()),
     );
-    expect(await db.smembers(KEYS.BATCH + txId)).to.deep.equal([
+    expect(await db.client.sMembers(KEYS.BATCH + txId)).to.deep.equal([
       psbt1.toBase64(),
     ]);
     expect(

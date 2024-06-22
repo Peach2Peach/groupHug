@@ -3,7 +3,7 @@ import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { getBatchStatusOverviewController } from "./getBatchStatusOverviewController";
 
-type Req = Request<{}, any, {}, { id: string }>;
+type Req = Request<Record<string, never>, unknown, unknown, { id: string }>;
 type Res = Response<
   | {
       participants: number;
@@ -22,7 +22,7 @@ export const getBatchStatusController = async (req: Req, res: Res) => {
   const txId = await db.client.hGet(KEYS.PSBT.PREFIX + id, "txId");
   if (!txId) return getBatchStatusOverviewController(req, res);
 
-  const participants = await db.scard(KEYS.BATCH + txId);
+  const participants = await db.client.sCard(KEYS.BATCH + txId);
   return res.json({
     maxParticipants: participants,
     participants,

@@ -13,16 +13,12 @@ import { validateGetBatchStatus } from "./validateGetBatchStatus";
 chai.use(sinonChai);
 
 describe("validateGetBatchStatus", () => {
-  it('throws error if "id" is not provided', async () => {
+  it('throws error if "id" is not provided', () => {
     const request = requestMock({ query: {} });
     const response = responseMock();
     const next = Sinon.stub();
 
-    await validateGetBatchStatus(
-      request as Request,
-      response as Response,
-      next
-    );
+    validateGetBatchStatus(request as Request, response as Response, next);
 
     expect(next).not.to.have.been.called;
     expect(response.status).to.have.been.calledWith(400);
@@ -41,17 +37,13 @@ describe("validateGetBatchStatus", () => {
 
     expect(next).to.have.been.called;
   });
-  it("returns error if id is not a sha256 hash", async () => {
+  it("returns error if id is not a sha256 hash", () => {
     const request = requestMock({ query: { id: "somethingelse" } });
 
     const response = responseMock();
     const next = Sinon.stub();
 
-    await validateGetBatchStatus(
-      request as Request,
-      response as Response,
-      next
-    );
+    validateGetBatchStatus(request as Request, response as Response, next);
 
     expect(next).not.to.have.been.called;
     expect(response.status).to.have.been.calledWith(400);

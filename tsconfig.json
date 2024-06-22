@@ -13,14 +13,14 @@
     "typeRoots": [
       "./controllers/@types",
       "./src/@types",
-      "./node_modules/@types"
+      "./node_modules/@types",
     ],
     "paths": {
-      "*": ["./node_modules/*"]
-    }
+      "*": ["./node_modules/*"],
+    },
   },
   "ts-node": {
-    "files": true
+    "files": true,
   },
   "include": [
     "cronjobs",
@@ -31,6 +31,6 @@
     "devUtils/utilScripts",
     "test",
     "server.ts",
-    ".eslintrc.cjs"
-  ]
+    ".eslintrc.cjs",
+  ],
 }
