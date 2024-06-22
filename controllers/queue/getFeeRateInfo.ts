@@ -27,6 +27,14 @@ export const getFeeRateInfo = async (req: Request, res: Res) => {
   if (!preferredFeeRate) return respondWithError(res, "INTERNAL_SERVER_ERROR");
 
   const queuedBase64PSBTs = await db.client.sMembers(KEYS.PSBT.QUEUE);
+  if (!queuedBase64PSBTs.length) {
+    return res.json({
+      queueFeeRate: 0,
+      preferredFeeRate,
+      serviceFees: 0,
+      excessMiningFees: 0,
+    });
+  }
   const allPSBTs = await Promise.all(
     queuedBase64PSBTs.map((base64) =>
       Psbt.fromBase64(base64, { network: NETWORK }),

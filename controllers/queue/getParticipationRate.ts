@@ -26,6 +26,12 @@ export const getParticipationRate = async (req: Request, res: Res) => {
   if (!preferredFeeRate) return respondWithError(res, "INTERNAL_SERVER_ERROR");
 
   const queuedBase64PSBTs = await db.client.sMembers(KEYS.PSBT.QUEUE);
+  if (!queuedBase64PSBTs.length) {
+    return res.json({
+      transactionsInQueue: 0,
+      transactionsInNextBucket: 0,
+    });
+  }
   const allPSBTs = queuedBase64PSBTs.map((base64) =>
     Psbt.fromBase64(base64, { network: NETWORK }),
   );
