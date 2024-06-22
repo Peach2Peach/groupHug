@@ -31,6 +31,6 @@ export async function mapPSBTToDensity(psbt: Psbt) {
   const feeRate = miningFees / tx.virtualSize();
   return {
     psbt,
-    density: serviceFees / (1 / feeRate),
+    density: serviceFees * feeRate,
   };
 }
