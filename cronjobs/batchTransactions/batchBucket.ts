@@ -1,6 +1,5 @@
 import { Psbt } from "bitcoinjs-lib";
 import { NETWORK } from "../../constants";
-import { attemptPushToBucket } from "../../src/utils/batch/attemptPushToBucket";
 import { getExcessMiningFees } from "../../src/utils/batch/getExcessMiningFees";
 import { sha256 } from "../../src/utils/crypto/sha256";
 import { db } from "../../src/utils/db";
@@ -8,6 +7,7 @@ import { KEYS } from "../../src/utils/db/keys";
 import { mapPSBTToDensity } from "../../src/utils/psbt/mapPSBTToDensity";
 import { isDefined } from "../../src/utils/validation";
 import { logger } from "./batchTransactions";
+import { fillUpBucket } from "./fillUpBucket";
 import { finalizeBatch } from "./finalizeBatch";
 import { getServiceFees } from "./getServiceFees";
 import { getUTXOForInput } from "./getUTXOForInput";
@@ -48,20 +48,14 @@ export const batchBucket = async (
   const sortedPsbts = psbtsMappedToDensity.sort(
     (a, b) => b.density - a.density,
   );
-  const bucket: Psbt[] = [];
-  for (const { psbt } of sortedPsbts) {
-    // eslint-disable-next-line no-await-in-loop -- we need to wait for the result of the function
-    const { wasAdded, finalFeeRate } = await attemptPushToBucket(
-      psbt,
-      bucket,
-      feeRateThreshold,
-    );
-    if (!wasAdded) {
-      logger.info([
-        `Skipping PSBT ${sha256(psbt.toBase64())} - Fee threshold is ${feeRateThreshold} but final fee rate is ${finalFeeRate}`,
-      ]);
+  const bucket = await fillUpBucket(sortedPsbts, feeRateThreshold);
+  const base64Bucket = bucket.map((psbt) => psbt.toBase64());
+  unspentPSBTs.forEach((psbt) => {
+    const base64PSBT = psbt.toBase64();
+    if (!base64Bucket.includes(base64PSBT)) {
+      logger.info([`Skipped PSBT ${sha256(base64PSBT)}`]);
     }
-  }
+  });
   if (bucket.length === 0) {
     return { error: "No PSBTs could be batched" };
   }
@@ -87,8 +81,8 @@ export const batchBucket = async (
   }
   const excessMiningFees = getExcessMiningFees(
     feeRateThreshold,
-    finalFeeRate,
     finalTransaction.virtualSize(),
+    miningFees,
   );
   return {
     result: {

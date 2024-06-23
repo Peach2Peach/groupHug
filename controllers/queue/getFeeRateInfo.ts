@@ -56,8 +56,8 @@ export const getFeeRateInfo = async (req: Request, res: Res) => {
   const queueFeeRate = stagedTx.getFeeRate();
   const excessMiningFees = getExcessMiningFees(
     preferredFeeRate,
-    queueFeeRate,
     finalTransaction.virtualSize(),
+    stagedTx.getFee(),
   );
 
   const response = {

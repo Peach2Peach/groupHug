@@ -1,7 +1,7 @@
 export function getExcessMiningFees(
   feePreference: number,
-  actualFeeRate: number,
   txSize: number,
+  actualFeesPaid: number,
 ) {
-  return Math.round((actualFeeRate - feePreference) * txSize);
+  return Math.round(actualFeesPaid - feePreference * txSize);
 }

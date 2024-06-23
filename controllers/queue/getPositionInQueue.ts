@@ -33,7 +33,9 @@ export const getPositionInQueue = async (req: Req, res: Res) => {
 
   const queuedBase64PSBTs = await db.client.sMembers(KEYS.PSBT.QUEUE);
   const psbtExists = (await db.client.exists(KEYS.PSBT.PREFIX + id)) === 0;
-  if (!queuedBase64PSBTs.length || !psbtExists)
+  const psbtWasBatched =
+    (await db.client.hGet(KEYS.PSBT.PREFIX + id, "txId")) !== null;
+  if (!queuedBase64PSBTs.length || !psbtExists || psbtWasBatched)
     return respondWithError(res, "NOT_FOUND");
 
   const allPSBTs = queuedBase64PSBTs.map((base64) =>
