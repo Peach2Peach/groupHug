@@ -42,7 +42,9 @@ describe("addPSBTController", () => {
 
     await addPSBTController(request as AddPSBTRequest, response as Response);
 
-    expect(await db.smembers(KEYS.PSBT.QUEUE)).to.deep.include(psbt.toBase64());
+    expect(await db.client.sMembers(KEYS.PSBT.QUEUE)).to.deep.include(
+      psbt.toBase64(),
+    );
     expect(response.json).to.be.calledWith({
       id: Sinon.match.string,
       revocationToken: Sinon.match.string,
@@ -51,7 +53,9 @@ describe("addPSBTController", () => {
     const [jsonResponse] = (response.json as SinonStub).getCall(0).args;
     expect(jsonResponse.id.length).to.equal(64);
     expect(jsonResponse.revocationToken.length).to.equal(32);
-    expect(await db.hgetall(KEYS.PSBT.PREFIX + jsonResponse.id)).to.deep.equal({
+    expect(
+      await db.client.hGetAll(KEYS.PSBT.PREFIX + jsonResponse.id),
+    ).to.deep.equal({
       psbt: batchQueue[0].psbt,
       revocationToken: jsonResponse.revocationToken,
     });
@@ -68,7 +72,9 @@ describe("addPSBTController", () => {
 
     await addPSBTController(request as AddPSBTRequest, response as Response);
 
-    expect(await db.smembers(KEYS.PSBT.QUEUE)).to.deep.include(psbt.toBase64());
+    expect(await db.client.sMembers(KEYS.PSBT.QUEUE)).to.deep.include(
+      psbt.toBase64(),
+    );
     expect(response.json).to.be.calledWith({
       id: Sinon.match.string,
       revocationToken: Sinon.match.string,
@@ -77,7 +83,9 @@ describe("addPSBTController", () => {
     const [jsonResponse] = (response.json as SinonStub).getCall(0).args;
     expect(jsonResponse.id.length).to.equal(64);
     expect(jsonResponse.revocationToken.length).to.equal(32);
-    expect(await db.hgetall(KEYS.PSBT.PREFIX + jsonResponse.id)).to.deep.equal({
+    expect(
+      await db.client.hGetAll(KEYS.PSBT.PREFIX + jsonResponse.id),
+    ).to.deep.equal({
       psbt: batchQueue[0].psbt,
       revocationToken: jsonResponse.revocationToken,
       index: String(batchQueue[0].index),

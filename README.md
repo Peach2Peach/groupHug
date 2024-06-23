@@ -10,7 +10,8 @@ The batching server collects all PSBTs and attemps a batch after at least 24 hou
 
 The additional output is the 2% service fee. A batch happens, when this service fee meets a mininmum amount threshold, but at most after 1 week.
 The mining fee used by the batching server is the halfHourFee and is paid using the diff between input and output + service fee.
-PSBTs are sorted by their density `serviceFees / ( 1 / feeRate )` and then are attempted to be batched in descending order. If a PSBT would cause the bucket to drop below the minimum mining fee rate, it is skipped.
+PSBTs are sorted by their density `serviceFees * feeRate` and then are attempted to be batched in descending order. If a PSBT would cause the bucket to drop below the minimum mining fee rate, it is skipped.
+This process is repeated until no more PSBTs can be added to the batch.
 
 PSBTs can always be revoked by the user, using the revocation token.
 

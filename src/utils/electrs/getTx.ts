@@ -2,7 +2,7 @@ import { BLOCKEXPLORERURL } from "../../../constants";
 import fetch from "../../../middleware/fetch";
 
 export const getTx = (
-  txId: string
+  txId: string,
 ): Promise<
   | { result: Transaction; error?: never }
   | (APIError<"INTERNAL_SERVER_ERROR"> & { result?: never })
@@ -16,6 +16,6 @@ export const getTx = (
         resolve({ result: await response.json() });
       })
       .catch((err) =>
-        resolve({ error: "INTERNAL_SERVER_ERROR", message: err })
+        resolve({ error: "INTERNAL_SERVER_ERROR", message: err }),
       );
   });

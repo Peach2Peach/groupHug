@@ -1,6 +1,6 @@
 import { describe, it } from "mocha";
-import { initDatabase } from ".";
 import { DB_AUTH } from "../../../constants";
+import { initDatabase } from "./index";
 
 describe("init", () => {
   it("initialise the database connection", async () => {

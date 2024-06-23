@@ -11,8 +11,8 @@ describe("addPSBTToQueue", () => {
     const { result } = await addPSBTToQueue(psbt1, index);
     if (!result) throw new Error("Result should not be null");
     const { id, revocationToken } = result;
-    expect(await db.smembers(KEYS.PSBT.QUEUE)).to.deep.equal([base64]);
-    expect(await db.hgetall(KEYS.PSBT.PREFIX + id)).to.deep.equal({
+    expect(await db.client.sMembers(KEYS.PSBT.QUEUE)).to.deep.equal([base64]);
+    expect(await db.client.hGetAll(KEYS.PSBT.PREFIX + id)).to.deep.equal({
       psbt: base64,
       revocationToken,
       index: String(index),

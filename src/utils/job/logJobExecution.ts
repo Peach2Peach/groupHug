@@ -38,7 +38,7 @@ export const logJobExecution = async (name: string, job: JobExecution) => {
   const seconds = (end.getTime() - start.getTime()) / MSINS;
 
   await db.transaction(async (client) => {
-    const count = await db.zcount(dbKey);
+    const count = await db.client.zCount(dbKey, "-inf", "+inf");
     const jobEvent: JobEvent = {
       date: end,
       status,

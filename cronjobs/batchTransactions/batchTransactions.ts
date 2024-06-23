@@ -7,9 +7,10 @@ import { addPSBTToBatchWithClient } from "../../src/utils/batch/addPSBTToBatchWi
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { SubClient } from "../../src/utils/db/SubClient";
-import { getFeeEstimates } from "../../src/utils/electrs/getFeeEstimates";
+import { getPreferredFeeRate } from "../../src/utils/electrs/getPreferredFeeRate";
 import { postTx } from "../../src/utils/electrs/postTx";
 import getLogger from "../../src/utils/logger";
+import { thousands } from "../../src/utils/string/thousands";
 import { batchBucket } from "./batchBucket";
 
 export const logger = getLogger("job", "batchTransactions");
@@ -19,16 +20,15 @@ const BASE = 10;
 const CENT = 100;
 
 export const batchTransactions = async () => {
-  const feeEstimatesResult = await getFeeEstimates();
+  const preferredFeeRate = await getPreferredFeeRate();
+  if (!preferredFeeRate) return false;
 
-  if (feeEstimatesResult.error) {
-    logger.error(["Could not get fee estimates", feeEstimatesResult.error]);
-    return false;
-  }
+  const queuedBase64PSBTs = await db.client.sMembers(KEYS.PSBT.QUEUE);
+  const bucketIsExpired =
+    (await db.client.exists(KEYS.BUCKET.EXPIRATION)) === 0;
 
-  const queuedBase64PSBTs = await db.smembers(KEYS.PSBT.QUEUE);
-  const bucketIsExpired = !(await db.exists(KEYS.BUCKET.EXPIRATION));
-  const timeThresholdReached = !(await db.exists(KEYS.BUCKET.TIME_THRESHOLD));
+  const timeThresholdReached =
+    (await db.client.exists(KEYS.BUCKET.TIME_THRESHOLD)) === 0;
 
   const result = await (async () => {
     if (
@@ -43,7 +43,7 @@ export const batchTransactions = async () => {
     ]);
     const batchBucketResult = await batchBucket(
       queuedBase64PSBTs,
-      feeEstimatesResult.result.halfHourFee,
+      preferredFeeRate,
       bucketIsExpired,
     );
 
@@ -54,8 +54,14 @@ export const batchTransactions = async () => {
       logger.error([JSON.stringify(queuedBase64PSBTs)]);
       return false;
     }
-    const { finalTransaction, bucket, serviceFees, finalFeeRate, miningFees } =
-      batchBucketResult.result;
+    const {
+      finalTransaction,
+      bucket,
+      serviceFees,
+      finalFeeRate,
+      miningFees,
+      excessMiningFees,
+    } = batchBucketResult.result;
     const postTxResult = await postTx(finalTransaction.toHex());
 
     if (postTxResult.isOk()) {
@@ -63,6 +69,7 @@ export const batchTransactions = async () => {
 
       const transactionResult = await db.transaction(async (client) => {
         await client.incr(KEYS.FEE.INDEX);
+        await client.client.incrBy(KEYS.FEE.RESERVE, excessMiningFees);
         await resetExpiration(client);
         const base64Bucket = bucket.map((psbt) => psbt.toBase64());
         await Promise.all(
@@ -82,12 +89,17 @@ export const batchTransactions = async () => {
         ) /
           BASE ** DIGITS_AFTER_DECIMAL) *
         CENT;
+
       const successMsg = "Batch transaction successfully broadcasted!";
       const externalLink = `You can view it here: https://mempool.space/tx/${txId}`;
       const transactionsBatched = `Transactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}`;
-      const feesCollected = `Service fees collected: ${serviceFees}`;
-      const miningFeesSaved = `Mining fees saved: ${assumedMiningFees - miningFees}`;
+      const feesCollected = `Service fees collected: ${thousands(serviceFees)}`;
+      const miningFeesSaved = `Mining fees saved: ${thousands(assumedMiningFees - miningFees)}`;
       const savingsPercentageMsg = `Savings percentage: ${savingsPercentage}%`;
+      const potentialServiceFee =
+        excessMiningFees > 0
+          ? `Missed out on ${thousands(excessMiningFees)} sats in service fees`
+          : `Would have received ${thousands(-excessMiningFees)} less sats in service fees`;
 
       logger.info([successMsg]);
       logger.info([externalLink]);
@@ -95,6 +107,7 @@ export const batchTransactions = async () => {
       logger.info([feesCollected]);
       logger.info([miningFeesSaved]);
       logger.info([savingsPercentageMsg]);
+      logger.info([potentialServiceFee]);
       // if (NODE_ENV === "production") {
       //   await webhook.send({
       //     text,

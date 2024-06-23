@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 export type AddPSBTRequest = Request<
   AddPSBTRequestParams,
-  any,
+  unknown,
   AddPSBTRequestBody,
   AddPSBTRequestQuery
 >;
@@ -12,7 +12,7 @@ export type AddPSBTResponse = Response<
 
 export type RevokePSBTRequest = Request<
   RevokePSBTRequestParams,
-  any,
+  unknown,
   RevokePSBTRequestBody,
   RevokePSBTRequestQuery
 >;

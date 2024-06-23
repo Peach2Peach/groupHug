@@ -10,15 +10,21 @@ export const getDefaultOptions = (opt = {}): RedisClientOptions => ({
 });
 
 export let db: DatabaseClient;
+export let cacheDB: DatabaseClient;
+const dbCount = 2;
 
-export const initDatabase = (opt?: RedisClientOptions): Promise<void> => {
+export const initDatabase = (opt?: RedisClientOptions) => {
   db = new DatabaseClient(getDefaultOptions(opt));
-  return new Promise((resolve) => {
-    const checkReady = () => {
-      resolve();
-    };
+  cacheDB = new DatabaseClient(getDefaultOptions({ database: 1, ...opt }));
 
-    db.client.on("ready", checkReady);
+  return new Promise<void>((resolve) => {
+    let readyCount = 0;
+    const resolveIfReady = () => {
+      readyCount++;
+      if (readyCount === dbCount) resolve();
+    };
+    db.client.on("ready", resolveIfReady);
+    cacheDB.client.on("ready", resolveIfReady);
   });
 };
 
@@ -27,5 +33,5 @@ export const setClients = (dbClient: DatabaseClient) => {
 };
 
 export const disconnectDatabases = async () => {
-  await db.quit();
+  await db.client.quit();
 };

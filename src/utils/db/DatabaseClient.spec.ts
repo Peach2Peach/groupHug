@@ -12,7 +12,7 @@ describe("DatabaseClient", () => {
     connect: Sinon.stub(),
   };
   const createClientStub = Sinon.stub(redis, "createClient").returns(
-    // @ts-ignore
+    // @ts-expect-error stub
     fakeClient,
   );
   after(() => {

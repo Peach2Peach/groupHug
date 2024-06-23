@@ -17,7 +17,7 @@ describe("transaction", () => {
     });
     expect(ok).to.be.true;
     expect(result).to.equal("myResult");
-    expect(await db.get("test")).to.equal("1");
+    expect(await db.client.get("test")).to.equal("1");
   });
   it("should handle errors", async () => {
     const { error } = await db.transaction(() => {

@@ -30,7 +30,7 @@ describe("decryptConfig", () => {
     Sinon.stub(constants, "PRIVKEY").get(() => unencrypted.PRIVKEY);
     Sinon.stub(constants, "OLD_PRIVKEY").get(() => unencrypted.OLD_PRIVKEY);
     Sinon.stub(constants, "FEE_COLLECTOR_PUBKEY").get(
-      () => unencrypted.FEE_COLLECTOR_PUBKEY
+      () => unencrypted.FEE_COLLECTOR_PUBKEY,
     );
     try {
       decryptConfig("wrong");
@@ -45,7 +45,7 @@ describe("decryptConfig", () => {
     Sinon.stub(constants, "PRIVKEY").get(() => unencrypted.PRIVKEY);
     Sinon.stub(constants, "OLD_PRIVKEY").get(() => unencrypted.OLD_PRIVKEY);
     Sinon.stub(constants, "FEE_COLLECTOR_PUBKEY").get(
-      () => unencrypted.FEE_COLLECTOR_PUBKEY
+      () => unencrypted.FEE_COLLECTOR_PUBKEY,
     );
     Sinon.stub(constants, "PASSWORDPROTECTION").get(() => false);
     expect(decryptConfig("")).to.deep.equal(unencrypted);
@@ -55,7 +55,7 @@ describe("decryptConfig", () => {
     Sinon.stub(constants, "PRIVKEY").get(() => encrypted.PRIVKEY);
     Sinon.stub(constants, "OLD_PRIVKEY").get(() => encrypted.OLD_PRIVKEY);
     Sinon.stub(constants, "FEE_COLLECTOR_PUBKEY").get(
-      () => encrypted.FEE_COLLECTOR_PUBKEY
+      () => encrypted.FEE_COLLECTOR_PUBKEY,
     );
     Sinon.stub(constants, "PASSWORDPROTECTION").get(() => true);
     expect(decryptConfig("password")).to.deep.equal(unencrypted);

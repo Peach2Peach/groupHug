@@ -12,6 +12,8 @@ describe("zpopmin", () => {
       ]);
       await client.zpopmin("test-set-1");
     });
-    expect(await db.zrange("test-set-1")).to.deep.equal(["1", "3"]);
+    expect(
+      await db.client.zRangeByScore("test-set-1", "-inf", "+inf"),
+    ).to.deep.equal(["1", "3"]);
   });
 });

@@ -12,8 +12,8 @@ describe("transaction", () => {
     });
 
     const [value1, value2] = await Promise.all([
-      db.get("test-key"),
-      db.get("test-key-2"),
+      db.client.get("test-key"),
+      db.client.get("test-key-2"),
     ]);
     strictEqual(value1, "test-val");
     strictEqual(value2, "test-val-2");
@@ -24,8 +24,8 @@ describe("transaction", () => {
     });
 
     const [value1, value2] = await Promise.all([
-      db.get("test-key"),
-      db.get("test-key-2"),
+      db.client.get("test-key"),
+      db.client.get("test-key-2"),
     ]);
     strictEqual(value1, null);
     strictEqual(value2, null);

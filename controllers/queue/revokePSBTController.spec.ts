@@ -37,7 +37,9 @@ describe("revokePSBTController", () => {
 
     expect(response.json).to.be.calledWith({ success: true });
     expect(await db.client.hGet(KEYS.PSBT.PREFIX + id, "psbt")).to.be.null;
-    expect(await db.smembers(KEYS.PSBT.QUEUE)).not.to.include(psbtBase64_1);
+    expect(await db.client.sMembers(KEYS.PSBT.QUEUE)).not.to.include(
+      psbtBase64_1,
+    );
   });
   it("returns false if PSBT not found", async () => {
     const request = requestMock({ body: { id: "invalid", revocationToken } });
