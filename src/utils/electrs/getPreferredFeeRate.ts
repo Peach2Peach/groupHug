@@ -6,8 +6,8 @@ const logger = getLogger("fetch", "getPreferredFeeRate");
 export const getPreferredFeeRate = () =>
   fetch(`${MEMPOOL_URL}/v1/fees/recommended`)
     .then(async (response) => {
-      const { halfHourFee } = await response.json();
-      return halfHourFee as number;
+      const { hourFee } = await response.json();
+      return hourFee as number;
     })
     .catch((err) => {
       logger.error(["Could not get fee estimates", err]);
