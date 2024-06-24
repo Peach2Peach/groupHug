@@ -24,7 +24,7 @@ describe("getPreferredFeeRate", () => {
     );
 
     const result = await getPreferredFeeRate();
-    expect(result).to.deep.equal(feeEstimates.halfHourFee);
+    expect(result).to.deep.equal(feeEstimates.hourFee);
   });
 
   it("should handle errors", async () => {
