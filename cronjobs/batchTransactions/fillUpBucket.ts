@@ -6,7 +6,8 @@ export async function fillUpBucket(
   preferredFeeRate: number,
   bucket: Psbt[] = [],
 ): Promise<Psbt[]> {
-  const remainingQueue = [];
+  let index = 0;
+  let psbtWasAdded = false;
   for (const { psbt } of sortedQueue) {
     // eslint-disable-next-line no-await-in-loop -- we need to wait for the result of the function
     const { wasAdded } = await attemptPushToBucket(
@@ -14,11 +15,18 @@ export async function fillUpBucket(
       bucket,
       preferredFeeRate,
     );
-    if (!wasAdded) remainingQueue.push({ psbt });
+    if (wasAdded) {
+      psbtWasAdded = true;
+      break;
+    }
+    index++;
   }
-  const transactionsWereAdded = sortedQueue.length !== remainingQueue.length;
-  if (transactionsWereAdded && remainingQueue.length > 0) {
-    return fillUpBucket(remainingQueue, preferredFeeRate, bucket);
+  if (psbtWasAdded) {
+    return fillUpBucket(
+      sortedQueue.slice(0, index).concat(sortedQueue.slice(index + 1)),
+      preferredFeeRate,
+      bucket,
+    );
   }
   return bucket;
 }
