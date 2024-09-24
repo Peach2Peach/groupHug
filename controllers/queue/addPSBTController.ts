@@ -1,5 +1,7 @@
 import { Psbt } from "bitcoinjs-lib";
 import { NETWORK } from "../../constants";
+import { db } from "../../src/utils/db";
+import { KEYS } from "../../src/utils/db/keys";
 import { getTx } from "../../src/utils/electrs/getTx";
 import { getTxIdOfInput } from "../../src/utils/psbt";
 import { addPSBTToQueue } from "../../src/utils/queue/addPSBTToQueue";
@@ -14,7 +16,23 @@ export const addPSBTController = async (
 
   const psbt = Psbt.fromBase64(base64, { network: NETWORK });
   const transaction = (await getTx(getTxIdOfInput(psbt.txInputs[0]))).result;
-  if (!transaction || !transaction.status.confirmed) {
+  const queuedTransactions = await db.client.sMembers(KEYS.PSBT.QUEUE);
+  const isPartOfQueue = queuedTransactions.includes(base64);
+  if (!transaction || !transaction.status.confirmed || isPartOfQueue) {
+    return respondWithError(res, "BAD_REQUEST");
+  }
+  const queuedPSBTs = await Promise.all(
+    queuedTransactions.map((queuedTx) =>
+      Psbt.fromBase64(queuedTx, { network: NETWORK }),
+    ),
+  );
+  const queuedTxInputs = queuedPSBTs.map((e) => e.txInputs[0]);
+  const [txInput] = psbt.txInputs;
+  if (
+    queuedTxInputs.some(
+      (e) => e.hash.equals(txInput.hash) && e.index === txInput.index,
+    )
+  ) {
     return respondWithError(res, "BAD_REQUEST");
   }
 
