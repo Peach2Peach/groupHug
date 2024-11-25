@@ -5,7 +5,6 @@ import { sha256 } from "../../src/utils/crypto/sha256";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { mapPSBTToDensity } from "../../src/utils/psbt/mapPSBTToDensity";
-import { isDefined } from "../../src/utils/validation";
 import { logger } from "./batchTransactions";
 import { fillUpBucket } from "./fillUpBucket";
 import { finalizeBatch } from "./finalizeBatch";
@@ -24,9 +23,7 @@ export const batchBucket = async (
     Psbt.fromBase64(base64, { network: NETWORK }),
   );
   const allTxInputs = allPSBTs.map((psbt) => psbt.txInputs[0]);
-  const utxos = (await Promise.all(allTxInputs.map(getUTXOForInput))).filter(
-    isDefined,
-  );
+  const utxos = await Promise.all(allTxInputs.map(getUTXOForInput));
   const unspent = utxos.map((utxo, i) => inputIsUnspent(allTxInputs[i], utxo));
 
   const toDelete = base64PSBTs.filter((_psbt, i) => !unspent[i]);
