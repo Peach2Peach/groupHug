@@ -10,7 +10,6 @@ import { cacheDB, db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { getPreferredFeeRate } from "../../src/utils/electrs/getPreferredFeeRate";
 import { respondWithError } from "../../src/utils/response/respondWithError";
-import { isDefined } from "../../src/utils/validation/isDefined";
 
 type Res = Response<
   | {
@@ -41,9 +40,7 @@ export const getFeeRateInfo = async (req: Request, res: Res) => {
     ),
   );
   const allTxInputs = allPSBTs.map((psbt) => psbt.txInputs[0]);
-  const utxos = (await Promise.all(allTxInputs.map(getUTXOForInput))).filter(
-    isDefined,
-  );
+  const utxos = await Promise.all(allTxInputs.map(getUTXOForInput));
   const unspentPSBTs = allPSBTs.filter((_psbt, i) =>
     inputIsUnspent(allTxInputs[i], utxos[i]),
   );

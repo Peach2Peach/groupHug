@@ -9,7 +9,6 @@ import { KEYS } from "../../src/utils/db/keys";
 import { getPreferredFeeRate } from "../../src/utils/electrs/getPreferredFeeRate";
 import { mapPSBTToDensity } from "../../src/utils/psbt/mapPSBTToDensity";
 import { respondWithError } from "../../src/utils/response/respondWithError";
-import { isDefined } from "../../src/utils/validation/isDefined";
 
 type Res = Response<
   | {
@@ -36,9 +35,7 @@ export const getParticipationRate = async (req: Request, res: Res) => {
     Psbt.fromBase64(base64, { network: NETWORK }),
   );
   const allTxInputs = allPSBTs.map((psbt) => psbt.txInputs[0]);
-  const utxos = (await Promise.all(allTxInputs.map(getUTXOForInput))).filter(
-    isDefined,
-  );
+  const utxos = await Promise.all(allTxInputs.map(getUTXOForInput));
   const unspentPSBTs = allPSBTs.filter((_psbt, i) =>
     inputIsUnspent(allTxInputs[i], utxos[i]),
   );
