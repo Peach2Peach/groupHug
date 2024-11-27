@@ -26,7 +26,7 @@ export const batchBucket = async (
   const utxos = await Promise.all(allTxInputs.map(getUTXOForInput));
   const unspent = utxos.map((utxo, i) => inputIsUnspent(allTxInputs[i], utxo));
 
-  const toDelete = base64PSBTs.filter((_psbt, i) => !unspent[i]);
+  const toDelete = base64PSBTs.filter((_psbt, i) => unspent[i] === false);
   if (toDelete.length > 0) {
     logger.info([`Removing ${toDelete.length} PSBTs from queue`]);
     toDelete.forEach((base64) => {
@@ -34,7 +34,7 @@ export const batchBucket = async (
     });
     await db.client.sRem(KEYS.PSBT.QUEUE, toDelete);
   }
-  const unspentPSBTs = allPSBTs.filter((_psbt, i) => unspent[i]);
+  const unspentPSBTs = allPSBTs.filter((_psbt, i) => unspent[i] === true);
 
   if (unspentPSBTs.length === 0) {
     return { error: "No psbts left to spend" };
