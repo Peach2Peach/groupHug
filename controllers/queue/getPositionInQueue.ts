@@ -10,7 +10,6 @@ import { KEYS } from "../../src/utils/db/keys";
 import { getPreferredFeeRate } from "../../src/utils/electrs/getPreferredFeeRate";
 import { mapPSBTToDensity } from "../../src/utils/psbt/mapPSBTToDensity";
 import { respondWithError } from "../../src/utils/response/respondWithError";
-import { isDefined } from "../../src/utils/validation/isDefined";
 
 type Req = Request<unknown, unknown, unknown, { id: string }>;
 
@@ -42,9 +41,7 @@ export const getPositionInQueue = async (req: Req, res: Res) => {
     Psbt.fromBase64(base64, { network: NETWORK }),
   );
   const allTxInputs = allPSBTs.map((psbt) => psbt.txInputs[0]);
-  const utxos = (await Promise.all(allTxInputs.map(getUTXOForInput))).filter(
-    isDefined,
-  );
+  const utxos = await Promise.all(allTxInputs.map(getUTXOForInput));
   const unspentPSBTs = allPSBTs.filter((psbt, i) =>
     inputIsUnspent(psbt.txInputs[0], utxos[i]),
   );
