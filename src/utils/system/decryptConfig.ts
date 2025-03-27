@@ -6,7 +6,6 @@ export const setDecrypted = (d: boolean) => (decrypted = d);
 
 export const decryptConfig = (password: string) => {
   if (
-    !constants.DB_AUTH ||
     !constants.PRIVKEY ||
     !constants.OLD_PRIVKEY ||
     !constants.FEE_COLLECTOR_PUBKEY
@@ -26,17 +25,17 @@ export const decryptConfig = (password: string) => {
 
   try {
     if (
-      AES.decrypt(constants.DB_AUTH, password).toString(enc.Utf8).length === 0
+      constants.DB_AUTH && AES.decrypt(constants.DB_AUTH, password).toString(enc.Utf8).length === 0
     ) {
-      throw new Error("Password invalid");
+      throw new Error("DB Password invalid");
     }
   } catch (e) {
-    throw new Error("Password invalid");
+    throw new Error("DB Password invalid");
   }
 
   setDecrypted(true);
   return {
-    DB_AUTH: AES.decrypt(constants.DB_AUTH, password).toString(enc.Utf8),
+    DB_AUTH: constants.DB_AUTH ? AES.decrypt(constants.DB_AUTH, password).toString(enc.Utf8) : undefined,
     PRIVKEY: AES.decrypt(constants.PRIVKEY, password).toString(enc.Utf8),
     OLD_PRIVKEY: AES.decrypt(constants.OLD_PRIVKEY, password).toString(
       enc.Utf8,
