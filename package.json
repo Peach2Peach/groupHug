@@ -9,7 +9,7 @@
     "start:dev": "nodemon",
     "build": "npm run build:clean && tsc --project ./tsconfig.json",
     "build:clean": "if [ -d ./dist ]; then find ./dist -regex '.*\\(js\\|map\\)$' -delete; fi",
-    "build-bin": "npm run build && pkg -C Brotli .",
+    "build-bin": "npm run build && pkg -C Brotli -o ./bin/group-hug-2 .",
     "lint": "eslint './**/*.{js,ts}'",
     "test": "BATCH_TIME_THRESHOLD=600 TS_NODE_TRANSPILE_ONLY=true nyc mocha --parallel --jobs 3 -r ts-node/register --require ./test/unit/hooks.ts \"./{,!(test|node_modules)/**}/*.spec.ts\" --exit",
     "test:ci": "BATCH_TIME_THRESHOLD=600 TS_NODE_TRANSPILE_ONLY=true nyc mocha --parallel --jobs 3 -r ts-node/register --require ./test/unit/hooks.ts \"./{,!(test|node_modules)/**}/*.spec.ts\" --exit",
