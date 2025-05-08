@@ -17,6 +17,7 @@ type Res = Response<
       preferredFeeRate: number;
       serviceFees: number;
       excessMiningFees: number;
+      transactionsInFullBucket: number;
     }
   | APIError<null>
 >;
@@ -32,6 +33,7 @@ export const getFeeRateInfo = async (req: Request, res: Res) => {
       preferredFeeRate,
       serviceFees: 0,
       excessMiningFees: 0,
+      transactionsInFullBucket: 0,
     });
   }
   const allPSBTs = await Promise.all(
@@ -62,6 +64,7 @@ export const getFeeRateInfo = async (req: Request, res: Res) => {
     preferredFeeRate,
     serviceFees,
     excessMiningFees,
+    transactionsInFullBucket: unspentPSBTs.length,
   };
   await cacheDB.client.setEx(
     KEYS.CACHE.PREFIX + req.originalUrl,
