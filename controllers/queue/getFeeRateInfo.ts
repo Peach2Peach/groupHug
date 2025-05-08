@@ -10,7 +10,6 @@ import { cacheDB, db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
 import { getPreferredFeeRate } from "../../src/utils/electrs/getPreferredFeeRate";
 import { respondWithError } from "../../src/utils/response/respondWithError";
-import { isDefined } from "../../src/utils/validation/isDefined";
 
 type Res = Response<
   | {
@@ -18,6 +17,7 @@ type Res = Response<
       preferredFeeRate: number;
       serviceFees: number;
       excessMiningFees: number;
+      transactionsInFullBucket: number;
     }
   | APIError<null>
 >;
@@ -33,6 +33,7 @@ export const getFeeRateInfo = async (req: Request, res: Res) => {
       preferredFeeRate,
       serviceFees: 0,
       excessMiningFees: 0,
+      transactionsInFullBucket: 0,
     });
   }
   const allPSBTs = await Promise.all(
@@ -41,9 +42,7 @@ export const getFeeRateInfo = async (req: Request, res: Res) => {
     ),
   );
   const allTxInputs = allPSBTs.map((psbt) => psbt.txInputs[0]);
-  const utxos = (await Promise.all(allTxInputs.map(getUTXOForInput))).filter(
-    isDefined,
-  );
+  const utxos = await Promise.all(allTxInputs.map(getUTXOForInput));
   const unspentPSBTs = allPSBTs.filter((_psbt, i) =>
     inputIsUnspent(allTxInputs[i], utxos[i]),
   );
@@ -65,6 +64,7 @@ export const getFeeRateInfo = async (req: Request, res: Res) => {
     preferredFeeRate,
     serviceFees,
     excessMiningFees,
+    transactionsInFullBucket: unspentPSBTs.length,
   };
   await cacheDB.client.setEx(
     KEYS.CACHE.PREFIX + req.originalUrl,
