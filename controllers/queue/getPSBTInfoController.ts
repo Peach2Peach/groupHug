@@ -23,8 +23,10 @@ export async function getPSBTInfoController(req: Request, res: Res) {
     if (!base64) throw new Error("NOT_FOUND");
 
     const psbt = Psbt.fromBase64(base64, { network: NETWORK });
+    if (psbt.data.inputs.length !== 1) throw new Error("NOT_FOUND");
     const inputValue = psbt.data.inputs[0].witnessUtxo?.value;
     if (!inputValue) throw new Error("NOT_FOUND");
+    if (psbt.data.outputs.length !== 1) throw new Error("NOT_FOUND");
     const outputValue = psbt.txOutputs[0].value;
     const serviceFee = Math.round(inputValue * FEE);
     const networkFee = inputValue - outputValue - serviceFee;
