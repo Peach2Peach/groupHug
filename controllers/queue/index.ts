@@ -6,7 +6,7 @@ import { addPSBTController } from "./addPSBTController";
 import { getFeeRateInfo } from "./getFeeRateInfo";
 import { getParticipationRate } from "./getParticipationRate";
 import { getPositionInQueue } from "./getPositionInQueue";
-import { getPSBTInfoController } from "./getPSBTController";
+import { getPSBTInfoController } from "./getPSBTInfoController";
 import { revokePSBTController } from "./revokePSBTController";
 import { validatePSBT } from "./validation/validatePSBT";
 import { validateRevokePSBT } from "./validation/validateRevokePSBT";

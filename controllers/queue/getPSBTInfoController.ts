@@ -3,10 +3,7 @@ import { Request, Response } from "express";
 import { FEE, NETWORK, RESPONSE_CODES } from "../../constants";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
-import {
-  RevocationTokenSchema,
-  SHA256Schema,
-} from "../../src/utils/validation/schemas";
+import { SHA256Schema } from "../../src/utils/validation/schemas";
 
 type Res = Response<
   | {
@@ -21,20 +18,6 @@ type Res = Response<
 export async function getPSBTInfoController(req: Request, res: Res) {
   try {
     const id = SHA256Schema.parse(req.params.id);
-    const revocationToken = RevocationTokenSchema.parse(
-      req.params.revocationToken,
-    );
-
-    const revocationTokenFromDB = await db.client.hGet(
-      KEYS.PSBT.PREFIX + id,
-      "revocationToken",
-    );
-    if (!revocationTokenFromDB) throw new Error("NOT_FOUND");
-    if (revocationTokenFromDB !== revocationToken) {
-      return res
-        .status(RESPONSE_CODES.BAD_REQUEST)
-        .json({ error: "BAD_REQUEST" });
-    }
 
     const base64 = await db.client.hGet(KEYS.PSBT.PREFIX + id, "psbt");
     if (!base64) throw new Error("NOT_FOUND");
