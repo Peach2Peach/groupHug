@@ -6,6 +6,7 @@ import { addPSBTController } from "./addPSBTController";
 import { getFeeRateInfo } from "./getFeeRateInfo";
 import { getParticipationRate } from "./getParticipationRate";
 import { getPositionInQueue } from "./getPositionInQueue";
+import { getPSBTInfoController } from "./getPSBTController";
 import { revokePSBTController } from "./revokePSBTController";
 import { validatePSBT } from "./validation/validatePSBT";
 import { validateRevokePSBT } from "./validation/validateRevokePSBT";
@@ -13,6 +14,7 @@ import { validateRevokePSBT } from "./validation/validateRevokePSBT";
 const serverLogger = getLogger("server", "log");
 
 export const Queue = (app: Express): void => {
+  app.get("/v1/psbt/:id/info", getPSBTInfoController);
   app.post("/v1/addPSBT", validatePSBT, addPSBTController);
   app.post("/v1/revokePSBT", validateRevokePSBT, revokePSBTController);
   app.get(
