@@ -1,5 +1,5 @@
 import { networks } from "bitcoinjs-lib";
-import { BLOCKEXPLORERURL, MEMPOOL_URL, NETWORK } from "../../../constants";
+import { BLOCKEXPLORERURL, NETWORK } from "../../../constants";
 import fetch from "../../../middleware/fetch";
 import getLogger from "../logger";
 import { db } from "../db";
