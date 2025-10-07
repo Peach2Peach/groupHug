@@ -1,4 +1,5 @@
 import { MEMPOOL_URL } from "../constants";
+import fetch from "../middleware/fetch";
 import { db } from "../src/utils/db";
 import { KEYS } from "../src/utils/db/keys";
 import getLogger from "../src/utils/logger";
