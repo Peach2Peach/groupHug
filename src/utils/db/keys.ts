@@ -11,6 +11,7 @@ export const KEYS = {
   FEE: {
     INDEX: "fee-address-index",
     RESERVE: "fee-reserve",
+    RECOMMENDED_HOUR: "fee-recommended-hour",
   },
   JOB: {
     PREFIX: "jobHistory-",
