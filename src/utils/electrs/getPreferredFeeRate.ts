@@ -1,12 +1,12 @@
 import { networks } from "bitcoinjs-lib";
 import { BLOCKEXPLORERURL, NETWORK } from "../../../constants";
 import fetch from "../../../middleware/fetch";
-import getLogger from "../logger";
 import { db } from "../db";
 import { KEYS } from "../db/keys";
+import getLogger from "../logger";
 
 const logger = getLogger("fetch", "getPreferredFeeRate");
-export const getPreferredFeeRate = async () => {
+export const getPreferredFeeRate = async (): Promise<number | null> => {
   if (NETWORK === networks.regtest) {
     return fetch(`${BLOCKEXPLORERURL}/fee-estimates`)
       .then(async (response) => {
@@ -23,4 +23,5 @@ export const getPreferredFeeRate = async () => {
     logger.error(["Fee estimate is not ready yet"]);
     return null;
   }
+  return Number(result);
 };
