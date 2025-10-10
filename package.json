@@ -30,7 +30,7 @@
   "dependencies": {
     "bip174": "^2.1.1",
     "bip32": "^3.0.1",
-    "bitcoinjs-lib": "github:Peach2Peach/bitcoinjs-lib",
+    "bitcoinjs-lib": "6.1.6",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "dotenv": "^10.0.0",
