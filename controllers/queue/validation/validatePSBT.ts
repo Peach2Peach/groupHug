@@ -1,7 +1,12 @@
 import { Psbt } from "bitcoinjs-lib";
 import { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { MINIMUM_FEE_RATE, NETWORK, SIGHASH } from "../../../constants";
+import {
+  MINIMUM_FEE_RATE,
+  NETWORK,
+  GROUPHUG_ADD_PSBT_KEY,
+  SIGHASH,
+} from "../../../constants";
 import { getServiceFees } from "../../../cronjobs/batchTransactions/getServiceFees";
 import {
   finalize,
@@ -17,7 +22,17 @@ export const validatePSBT = (
   res: Response,
   next: NextFunction,
 ) => {
-  const { psbt: base64Unparsed, index: indexUnparsed } = req.body;
+  const {
+    psbt: base64Unparsed,
+    index: indexUnparsed,
+    key: grouphugAddPsbtKey,
+  } = req.body;
+
+  if (grouphugAddPsbtKey !== GROUPHUG_ADD_PSBT_KEY) {
+    return respondWithError(res, "BAD_REQUEST", {
+      details: "INVALID_KEY",
+    });
+  }
 
   try {
     const base64 = z.string().nonempty().parse(base64Unparsed);

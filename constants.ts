@@ -52,8 +52,13 @@ export const {
 } = process.env;
 export const FEE = Number(process.env.FEE || DEFAULTS.FEE);
 
-export const { DB_AUTH, PRIVKEY, OLD_PRIVKEY, FEE_COLLECTOR_PUBKEY } =
-  process.env;
+export const {
+  DB_AUTH,
+  PRIVKEY,
+  OLD_PRIVKEY,
+  FEE_COLLECTOR_PUBKEY,
+  GROUPHUG_ADD_PSBT_KEY,
+} = process.env;
 
 export const BATCH_TIME_THRESHOLD = Number(
   process.env.BATCH_TIME_THRESHOLD || DEFAULTS.BATCH_TIME_THRESHOLD,

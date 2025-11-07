@@ -10,6 +10,7 @@ import { SubClient } from "../../src/utils/db/SubClient";
 import { getPreferredFeeRate } from "../../src/utils/electrs/getPreferredFeeRate";
 import { postTx } from "../../src/utils/electrs/postTx";
 import getLogger from "../../src/utils/logger";
+import { round } from "../../src/utils/math/round";
 import { thousands } from "../../src/utils/string/thousands";
 import { batchBucket } from "./batchBucket";
 
@@ -92,7 +93,11 @@ export const batchTransactions = async () => {
 
       const successMsg = "Batch transaction successfully broadcasted!";
       const externalLink = `You can view it here: https://mempool.space/tx/${txId}`;
-      const transactionsBatched = `Transactions batched: ${bucket.length} / ${queuedBase64PSBTs.length}`;
+      const insertedPercentage =
+        queuedBase64PSBTs.length > 0
+          ? round(bucket.length / queuedBase64PSBTs.length, 2) * 100
+          : 0;
+      const transactionsBatched = `Transactions batched: ${bucket.length} / ${queuedBase64PSBTs.length} . how full? ${insertedPercentage}%`;
       const feesCollected = `Service fees collected: ${thousands(serviceFees)}`;
       const miningFeesSaved = `Mining fees saved: ${thousands(assumedMiningFees - miningFees)}`;
       const savingsPercentageMsg = `Savings percentage: ${savingsPercentage}%`;
