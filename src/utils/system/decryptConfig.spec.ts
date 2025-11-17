@@ -37,7 +37,7 @@ describe("decryptConfig", () => {
       throw new Error("Function did not throw an error");
     } catch (error) {
       if (!(error instanceof Error)) throw error;
-      expect(error.message).to.equal("Password invalid");
+      expect(error.message).to.equal("DB Password invalid");
     }
   });
   it("should return raw configs if password protection if off", () => {
