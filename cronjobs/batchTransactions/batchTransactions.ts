@@ -21,8 +21,10 @@ const BASE = 10;
 const CENT = 100;
 
 export const batchTransactions = async () => {
-  const preferredFeeRate = await getPreferredFeeRate();
-  if (!preferredFeeRate) return false;
+  const preferredFeeRateReceived = await getPreferredFeeRate();
+  if (!preferredFeeRateReceived) return false;
+
+  const preferredFeeRate = Math.floor(preferredFeeRateReceived);
 
   const queuedBase64PSBTs = await db.client.sMembers(KEYS.PSBT.QUEUE);
   const bucketIsExpired =
@@ -55,14 +57,8 @@ export const batchTransactions = async () => {
       logger.error([JSON.stringify(queuedBase64PSBTs)]);
       return false;
     }
-    const {
-      finalTransaction,
-      bucket,
-      serviceFees,
-      finalFeeRate,
-      miningFees,
-      excessMiningFees,
-    } = batchBucketResult.result;
+    const { finalTransaction, bucket, serviceFees, finalFeeRate, miningFees } =
+      batchBucketResult.result;
     const postTxResult = await postTx(finalTransaction.toHex());
 
     if (postTxResult.isOk()) {
@@ -70,7 +66,7 @@ export const batchTransactions = async () => {
 
       const transactionResult = await db.transaction(async (client) => {
         await client.incr(KEYS.FEE.INDEX);
-        await client.client.incrBy(KEYS.FEE.RESERVE, excessMiningFees);
+        // await client.client.incrBy(KEYS.FEE.RESERVE, excessMiningFees);
         await resetExpiration(client);
         const base64Bucket = bucket.map((psbt) => psbt.toBase64());
         await Promise.all(
@@ -98,21 +94,19 @@ export const batchTransactions = async () => {
           ? round(bucket.length / queuedBase64PSBTs.length, 2) * 100
           : 0;
       const transactionsBatched = `Transactions batched: ${bucket.length} / ${queuedBase64PSBTs.length} . how full? ${insertedPercentage}%`;
+      const feeRateMessage = `Fee rate used: ${preferredFeeRateReceived}`;
       const feesCollected = `Service fees collected: ${thousands(serviceFees)}`;
       const miningFeesSaved = `Mining fees saved: ${thousands(assumedMiningFees - miningFees)}`;
       const savingsPercentageMsg = `Savings percentage: ${savingsPercentage}%`;
-      const potentialServiceFee =
-        excessMiningFees > 0
-          ? `Missed out on ${thousands(excessMiningFees)} sats in service fees`
-          : `Would have received ${thousands(-excessMiningFees)} less sats in service fees`;
 
       logger.info([successMsg]);
       logger.info([externalLink]);
       logger.info([transactionsBatched]);
+      logger.info([feeRateMessage]);
       logger.info([feesCollected]);
       logger.info([miningFeesSaved]);
       logger.info([savingsPercentageMsg]);
-      logger.info([potentialServiceFee]);
+      // logger.info([potentialServiceFee]);
       // if (NODE_ENV === "production") {
       //   await webhook.send({
       //     text,
