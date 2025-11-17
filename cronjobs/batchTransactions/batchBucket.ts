@@ -1,6 +1,5 @@
 import { Psbt } from "bitcoinjs-lib";
 import { NETWORK } from "../../constants";
-// import { getExcessMiningFees } from "../../src/utils/batch/getExcessMiningFees";
 import { sha256 } from "../../src/utils/crypto/sha256";
 import { db } from "../../src/utils/db";
 import { KEYS } from "../../src/utils/db/keys";
@@ -76,11 +75,6 @@ export const batchBucket = async (
   if (finalFeeRate < feeRateThreshold) {
     return { error: "Sanity check failed - Final fee rate too low" };
   }
-  // const excessMiningFees = getExcessMiningFees(
-  //   feeRateThreshold,
-  //   tempFinalTransaction.virtualSize(),
-  //   miningFees,
-  // );
 
   const vSizeOfTx = tempFinalTransaction.virtualSize();
   const minimumMiningFees = Math.floor(feeRateThreshold) * vSizeOfTx;
@@ -90,13 +84,11 @@ export const batchBucket = async (
   const finalServiceFees =
     overpaidMinerFees > 0 ? serviceFees + overpaidMinerFees : serviceFees;
 
-  const { finalTransaction, stagedTx: finalStagedTx } = await finalizeBatch(
+  const { finalTransaction } = await finalizeBatch(
     bucket,
     finalServiceFees - 1,
   );
 
-  // const finalMiningFees = finalStagedTx.getFee();
-  // console.log("finalMiningFees", finalMiningFees);
   return {
     result: {
       finalTransaction,
@@ -104,7 +96,6 @@ export const batchBucket = async (
       serviceFees,
       finalFeeRate,
       miningFees,
-      // excessMiningFees,
     },
   };
 };
