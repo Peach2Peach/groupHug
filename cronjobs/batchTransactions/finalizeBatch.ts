@@ -38,7 +38,8 @@ export async function finalizeBatch(bucket: Psbt[], serviceFees: number) {
 
 async function getUnusedFeeAddress() {
   const index = Number((await db.client.get(KEYS.FEE.INDEX)) || 0);
-  const feeCollector = feeWallet.derivePath(`0/${index}`);
+  const monthIndex = Number((await db.client.get(KEYS.FEE.MONTH_INDEX)) || 0);
+  const feeCollector = feeWallet.derivePath(`${monthIndex}/${index}`);
 
   return payments.p2wpkh({
     pubkey: feeCollector.publicKey,
