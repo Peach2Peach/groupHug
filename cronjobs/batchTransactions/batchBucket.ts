@@ -39,20 +39,23 @@ export const batchBucket = async (
     return { error: "No psbts left to spend" };
   }
 
-  const psbtsMappedToDensity = await Promise.all(
-    unspentPSBTs.map(mapPSBTToDensity),
-  );
-  const sortedPsbts = psbtsMappedToDensity.sort(
-    (a, b) => b.density - a.density,
-  );
-  const bucket = await fillUpBucket(sortedPsbts, feeRateThreshold);
-  const base64Bucket = bucket.map((psbt) => psbt.toBase64());
-  unspentPSBTs.forEach((psbt) => {
-    const base64PSBT = psbt.toBase64();
-    if (!base64Bucket.includes(base64PSBT)) {
-      logger.info([`Skipped PSBT ${sha256(base64PSBT)}`]);
-    }
-  });
+  // const psbtsMappedToDensity = await Promise.all(
+  //   unspentPSBTs.map(mapPSBTToDensity),
+  // );
+  // const sortedPsbts = psbtsMappedToDensity.sort(
+  //   (a, b) => b.density - a.density,
+  // );
+  // const bucket = await fillUpBucket(sortedPsbts, feeRateThreshold);
+  // const base64Bucket = bucket.map((psbt) => psbt.toBase64());
+  // unspentPSBTs.forEach((psbt) => {
+  //   const base64PSBT = psbt.toBase64();
+  //   if (!base64Bucket.includes(base64PSBT)) {
+  //     logger.info([`Skipped PSBT ${sha256(base64PSBT)}`]);
+  //   }
+  // });
+
+  const bucket = unspentPSBTs;
+
   if (bucket.length === 0) {
     return { error: "No PSBTs could be batched" };
   }
